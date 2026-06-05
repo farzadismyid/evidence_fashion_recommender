@@ -14,5 +14,6 @@ dependencies = [
     "scikit-learn",
     "pydantic",
     "tqdm",
-    "rich"
+    "rich",
+    "Pillow"
 ]

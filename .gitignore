@@ -20,3 +20,20 @@ outputs/*
 # keep folders
 !data/sample/.gitkeep
 !outputs/.gitkeep
+
+# datasets
+data/raw/
+data/processed/
+
+# model artifacts
+models/
+checkpoints/
+
+# notebook exports
+*.html
+
+# vscode
+.vscode/
+
+# environment
+.env
