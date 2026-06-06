@@ -15,5 +15,6 @@ dependencies = [
     "pydantic",
     "tqdm",
     "rich",
-    "Pillow"
+    "Pillow",
+    "datasets>=5.0.0",
 ]
