@@ -13,7 +13,6 @@ dependencies = [
     "seaborn",
     "scikit-learn",
     "pydantic",
-    "torch",
     "transformers",
     "tqdm",
     "rich",
