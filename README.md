@@ -27,4 +27,4 @@ The system recommends complementary fashion items and generates explanations gro
 
 ## Current Status
 
-Project setup and environment configuration completed.
+Project setup and environment configuration completed and data ingestoin and preprocessing done.
