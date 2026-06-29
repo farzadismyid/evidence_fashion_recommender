@@ -1,39 +1,16 @@
-# Python-generated files
-__pycache__/
-*.py[oc]
-build/
-dist/
-wheels/
-*.egg-info
-
-# virtual environments
+@"
 .venv/
-venv/
-
-# jupyter
+__pycache__/
 .ipynb_checkpoints/
 
-# data
-data/sample/*
-outputs/*
-
-# keep folders
-!data/sample/.gitkeep
-!outputs/.gitkeep
-
-# datasets
 data/raw/
 data/processed/
 
-# model artifacts
-models/
-checkpoints/
+outputs/embeddings/
+outputs/indexes/
+outputs/results/
+outputs/figures/
 
-# notebook exports
-*.html
-
-# vscode
-.vscode/
-
-# environment
 .env
+.DS_Store
+"@ | Set-Content .gitignore

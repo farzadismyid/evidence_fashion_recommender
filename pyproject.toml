@@ -1,21 +1,5 @@
 [project]
 name = "evidence-fashion-recommender"
 version = "0.1.0"
-description = "Add your description here"
-readme = "README.md"
 requires-python = ">=3.12"
-dependencies = [
-    "jupyter",
-    "ipykernel",
-    "numpy",
-    "pandas",
-    "matplotlib",
-    "seaborn",
-    "scikit-learn",
-    "pydantic",
-    "transformers",
-    "tqdm",
-    "rich",
-    "Pillow",
-    "datasets>=5.0.0",
-]
+dependencies = []
