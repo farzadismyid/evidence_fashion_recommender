@@ -1,22 +1,28 @@
 [project]
 name = "evidence-fashion-recommender"
 version = "0.1.0"
-requires-python = ">=3.12"
+description = "Evidence-constrained multimodal fashion recommendation with faithful explanations"
+readme = "README.md"
+requires-python = ">=3.11,<3.13"
 dependencies = [
-    "accelerate>=1.14.0",
-    "datasets>=5.0.0",
-    "faiss-cpu>=1.14.3",
-    "huggingface-hub>=1.21.0",
-    "ipykernel>=7.3.0",
-    "jupyter>=1.1.1",
-    "matplotlib>=3.11.0",
-    "numpy>=2.5.0",
-    "pandas>=3.0.3",
-    "pillow>=12.2.0",
-    "pyarrow>=24.0.0",
-    "rich>=15.0.0",
-    "scikit-learn>=1.9.0",
-    "sentence-transformers>=5.6.0",
-    "tqdm>=4.68.3",
-    "transformers>=5.12.1",
+    "accelerate",
+    "datasets",
+    "faiss-cpu",
+    "huggingface-hub",
+    "ipykernel",
+    "ipywidgets",
+    "jupyter",
+    "matplotlib",
+    "numpy",
+    "pandas",
+    "pillow",
+    "pyarrow",
+    "rich",
+    "scikit-learn",
+    "sentence-transformers",
+    "tqdm",
+    "transformers",
 ]
+
+[tool.uv]
+package = false
