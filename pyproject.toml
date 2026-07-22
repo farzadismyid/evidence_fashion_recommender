@@ -26,3 +26,4 @@ dependencies = [
 
 [tool.uv]
 package = false
+package = false
