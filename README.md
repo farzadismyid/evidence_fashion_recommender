@@ -286,10 +286,6 @@ Project title:
 
 **Evidence-Constrained Multimodal Fashion Recommendation with Faithful Explanations**
 
-Degree:
-
-**MPhil Artificial Intelligence**
-
 Research area:
 
 * multimodal recommendation
