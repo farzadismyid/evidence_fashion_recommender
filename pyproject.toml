@@ -24,5 +24,4 @@ dependencies = [
     "transformers",
 ]
 
-[tool.uv]
-package = false
+
