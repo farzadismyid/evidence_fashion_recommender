@@ -274,11 +274,6 @@ To keep the project reproducible:
 * Keep the fashion KB in CSV format.
 * Track major experiments with clear section headings.
 
-## Current Research Limitation
-
-Fashion styling rules are partly subjective and context-dependent. Therefore, the KB should be described as a source-grounded styling heuristic resource, not as an objective universal truth.
-
-The academic contribution is not that each fashion rule is scientifically proven. The contribution is that the recommendation and explanation pipeline is constrained by retrieved evidence, making the explanation process more transparent and faithful.
 
 ## Thesis Context
 
