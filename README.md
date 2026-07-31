@@ -7,7 +7,6 @@ The system is designed to recommend complementary fashion items from a Polyvore-
 ## Project Goal
 
 The project investigates whether retrieved fashion knowledge can improve both recommendation quality and explanation faithfulness in a multimodal fashion recommendation pipeline.
-
 The system takes:
 
 * a query fashion item image or text description
