@@ -274,9 +274,6 @@ To keep the project reproducible:
 * Keep the fashion KB in CSV format.
 * Track major experiments with clear section headings.
 
-
-## Thesis Context
-
 Project title:
 
 **Evidence-Constrained Multimodal Fashion Recommendation with Faithful Explanations**
