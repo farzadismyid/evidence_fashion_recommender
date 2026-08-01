@@ -11,6 +11,26 @@ from PIL import Image
 from ..config import MultimodalModelConfig
 
 
+def fuse_embeddings(
+    image_embeddings: np.ndarray,
+    text_embeddings: np.ndarray,
+    image_weight: float,
+    *,
+    normalize: bool = True,
+) -> np.ndarray:
+    """Fuse aligned CLIP embeddings at an explicit validation-selected weight."""
+
+    if image_embeddings.shape != text_embeddings.shape:
+        raise ValueError("CLIP image and text embeddings must have the same shape.")
+    if image_weight < 0 or image_weight > 1:
+        raise ValueError("image_weight must be between 0 and 1.")
+    fused = image_weight * image_embeddings + (1.0 - image_weight) * text_embeddings
+    if not normalize:
+        return fused.astype(np.float32)
+    norms = np.linalg.norm(fused, axis=1, keepdims=True)
+    return (fused / np.maximum(norms, 1e-12)).astype(np.float32)
+
+
 def resolve_device(requested: str) -> str:
     if requested != "auto":
         return requested
@@ -76,9 +96,9 @@ class CLIPEmbedder:
         return self._normalize(result) if self.config.normalize else result
 
     def fuse(self, image_embeddings: np.ndarray, text_embeddings: np.ndarray) -> np.ndarray:
-        if image_embeddings.shape != text_embeddings.shape:
-            raise ValueError("CLIP image and text embeddings must have the same shape.")
-        fused = (
-            self.config.image_weight * image_embeddings + self.config.text_weight * text_embeddings
+        return fuse_embeddings(
+            image_embeddings,
+            text_embeddings,
+            self.config.image_weight,
+            normalize=self.config.normalize,
         )
-        return self._normalize(fused) if self.config.normalize else fused.astype(np.float32)
