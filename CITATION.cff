@@ -1,0 +1,11 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite the associated thesis or paper."
+title: "Evidence-Constrained Multimodal Fashion Recommendation"
+type: software
+version: 0.1.0
+date-released: 2026-07-30
+license: MIT
+authors:
+  - family-names: "Author"
+    given-names: "Project"
+
