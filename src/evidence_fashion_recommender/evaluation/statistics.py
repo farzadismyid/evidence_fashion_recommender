@@ -35,6 +35,84 @@ def paired_bootstrap(
     }
 
 
+def outfit_clustered_paired_bootstrap(
+    frame: pd.DataFrame,
+    *,
+    outfit_column: str,
+    first_column: str,
+    second_column: str,
+    samples: int,
+    confidence_level: float,
+    seed: int,
+) -> dict[str, float | int]:
+    """Paired bootstrap that resamples outfits and retains every case in each outfit."""
+
+    paired = frame[[outfit_column, first_column, second_column]].dropna().copy()
+    paired["difference"] = paired[first_column].astype(float) - paired[second_column].astype(float)
+    clusters = [group["difference"].to_numpy() for _, group in paired.groupby(outfit_column)]
+    if not clusters:
+        raise ValueError("No complete paired outfit clusters are available.")
+    rng = np.random.default_rng(seed)
+    bootstrap_means = np.empty(samples, dtype=float)
+    for index in range(samples):
+        selected = rng.integers(0, len(clusters), size=len(clusters))
+        bootstrap_means[index] = np.concatenate([clusters[value] for value in selected]).mean()
+    alpha = 1.0 - confidence_level
+    lower, upper = np.quantile(bootstrap_means, [alpha / 2, 1 - alpha / 2])
+    return {
+        "mean_difference": float(paired["difference"].mean()),
+        "ci_lower": float(lower),
+        "ci_upper": float(upper),
+        "cases": len(paired),
+        "unique_outfits": len(clusters),
+    }
+
+
+def compare_variants_clustered(
+    frame: pd.DataFrame,
+    *,
+    id_column: str,
+    outfit_column: str,
+    variant_column: str,
+    metrics: list[str],
+    comparisons: list[tuple[str, str]],
+    bootstrap_samples: int,
+    confidence_level: float,
+    seed: int,
+) -> pd.DataFrame:
+    """Evaluate only a predefined paired comparison family and correct within that family."""
+
+    rows = []
+    for metric in metrics:
+        pivot = frame.pivot_table(
+            index=[id_column, outfit_column],
+            columns=variant_column,
+            values=metric,
+            aggfunc="mean",
+        ).reset_index()
+        for first, second in comparisons:
+            if first not in pivot or second not in pivot:
+                raise ValueError(f"Missing variant for primary comparison: {first} vs {second}")
+            result = outfit_clustered_paired_bootstrap(
+                pivot,
+                outfit_column=outfit_column,
+                first_column=first,
+                second_column=second,
+                samples=bootstrap_samples,
+                confidence_level=confidence_level,
+                seed=seed,
+            )
+            rows.append(
+                {
+                    "metric": metric,
+                    "variant_a": first,
+                    "variant_b": second,
+                    **result,
+                }
+            )
+    return pd.DataFrame(rows)
+
+
 def holm_correction(p_values: np.ndarray) -> np.ndarray:
     values = np.asarray(p_values, dtype=float)
     order = np.argsort(values)
