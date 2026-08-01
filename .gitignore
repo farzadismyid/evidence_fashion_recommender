@@ -1,17 +1,24 @@
-@"
 .venv/
 __pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
 .ipynb_checkpoints/
+
+.env
+.DS_Store
 
 data/raw/
 data/processed/
 data/findings/
 
-outputs/embeddings/
-outputs/indexes/
-outputs/results/
-outputs/figures/
+outputs/*
+!outputs/.gitkeep
 
-.env
-.DS_Store
-"@ | Set-Content .gitignore
+archive/original_notebook_outputs/
+
+*.npy
+*.npz
+*.faiss
+*.index

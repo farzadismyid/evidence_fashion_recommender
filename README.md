@@ -1,295 +1,222 @@
-# Evidence-Constrained Multimodal Fashion Recommendation with Faithful Explanations
+# Evidence-Constrained Multimodal Fashion Recommendation
 
-This repository contains the implementation for an MPhil Artificial Intelligence thesis project on evidence-constrained fashion recommendation.
+A reproducible research package for complementary fashion recommendation and faithful,
+evidence-grounded explanations. It combines multimodal item retrieval with expert styling
+rules, evidence-aware reranking, and controlled explanation ablations.
 
-The system is designed to recommend complementary fashion items from a Polyvore-style dataset using both multimodal item understanding and retrieved fashion knowledge. The main goal is not only to recommend visually compatible items, but also to generate faithful explanations that are grounded in retrieved evidence rather than unsupported LLM reasoning.
+The original exploratory implementation and its results are preserved in
+[`archive/`](archive/README.md). New experiments use the modular package under `src/`.
 
-## Project Goal
+## Research question
 
-The project investigates whether retrieved fashion knowledge can improve both recommendation quality and explanation faithfulness in a multimodal fashion recommendation pipeline.
+Can expert-authored styling rules improve the faithfulness and usefulness of explanations
+for multimodal fashion recommendations without hiding the trade-off with ranking accuracy?
 
-The system takes:
+## Quick start
 
-* a query fashion item image or text description
-* a user request
-* a target recommendation category
-* retrieved fashion rules from a knowledge base
+Requirements:
 
-and produces:
+- Python 3.11
+- `uv`
+- Internet access for the dataset and Hugging Face models
+- Optional NVIDIA GPU for practical multimodal experiments
+- Ollama and the configured local model for generation and LLM-judge stages
 
-* top-K complementary item recommendations
-* evidence-constrained reranking
-* explanations using only retrieved fashion evidence
+```powershell
+uv sync --extra dev --extra cuda
+uv run efr --config configs/default.yaml validate-config
+uv run efr --config configs/default.yaml doctor
+uv run efr --config configs/default.yaml audit-kb
+uv run pytest
+```
 
-## Research Focus
+For a CPU-only reviewer environment, replace `--extra cuda` with `--extra cpu`. The two
+profiles are intentionally mutually exclusive.
 
-The main research focus is:
+Prepare and cache the Polyvore metadata:
 
-> Can a fashion recommender produce useful complementary recommendations while keeping explanations faithful to retrieved fashion knowledge?
+```powershell
+uv run efr --config configs/default.yaml prepare-data
+```
 
-This project treats explanation faithfulness as a core part of the recommendation process, not as a post-hoc description added after retrieval.
+Build or reuse all target embeddings:
 
-## Current Pipeline
+```powershell
+uv run efr --config configs/paper_baseline.yaml build-embeddings
+uv run efr --config configs/paper_baseline.yaml build-indexes
+```
 
-The planned pipeline is:
+Run the controlled paper baseline and improved light-rerank experiment:
 
-1. Load and inspect a Polyvore-style fashion dataset.
-2. Represent fashion items using image/text embeddings.
-3. Retrieve candidate complementary items from the dataset.
-4. Retrieve relevant fashion rules from a curated knowledge base.
-5. Rerank candidates using visual-textual compatibility and retrieved evidence.
-6. Generate explanations constrained only to retrieved evidence.
-7. Use a critic/validation step to check whether the explanation is supported by the evidence.
-8. Evaluate recommendations and explanations using ablation experiments.
+```powershell
+uv run efr --config configs/paper_baseline.yaml evaluate-ranking
+uv run efr --config configs/paper_improved.yaml evaluate-ranking
+```
 
-## Current Implementation Status
+Run the complete 400-explanation systematic study:
 
-Completed so far:
+```powershell
+uv run efr --config configs/paper_improved.yaml build-study-cases `
+  --output outputs/modular_study_cases.csv
+uv run efr --config configs/paper_baseline.yaml run-explanation-study `
+  --input outputs/modular_study_cases.csv
+```
 
-* Project repository initialised.
-* Python environment configured using `uv`.
-* PyTorch CUDA setup tested.
-* Polyvore-style dataset loaded and inspected.
-* Basic exploratory data analysis completed.
-* Outfit/category distribution inspected.
-* Fashion item text fields prepared.
-* Initial embedding-based similarity testing completed.
-* Same-outfit and different-outfit item comparisons tested.
-* Early baseline recommendation logic started.
+This regenerates and caches No-RAG, Item-RAG, Rule-RAG, and Hybrid-RAG explanations,
+evaluates citations, evidence overlap, unsupported claims, occasion drift, candidate
+substitution and prompt leakage, evaluates RAG retrieval, runs an independent Qwen3 judge,
+and performs corrected paired statistical tests. The study input is rebuilt by the modular
+retrieval, evidence, and reranking pipeline rather than read directly from notebook results.
 
-In progress:
+Optional Florence captioning is available independently:
 
-* Source-grounded fashion rules knowledge base.
-* RAG-ready CSV format for fashion rules.
-* Evidence retrieval design.
-* Recommendation reranking with retrieved rules.
+```powershell
+uv run efr --config configs/default.yaml caption-image --image path/to/image.jpg
+```
 
-Planned next:
+Run one complete recommendation, evidence, reranking, and explanation workflow:
 
-* Add `data/kb/fashion_rules.csv`.
-* Build a rule retriever using semantic search.
-* Combine candidate retrieval with evidence-aware scoring.
-* Add faithful explanation generation.
-* Add critic/validator step.
-* Run ablation experiments.
+```powershell
+uv run efr --config configs/paper_improved.yaml `
+  recommend `
+  --query-item-id 100002074_1 `
+  --target-category shoes `
+  --request "recommend smart casual shoes" `
+  --generate
+```
 
-## Project Structure
+The convenience script [`scripts/reproduce_baseline.ps1`](scripts/reproduce_baseline.ps1)
+runs environment checks, KB audit, tests, embedding preparation, and both ranking
+experiments.
+
+Preview the configured methodology:
+
+```powershell
+uv run efr --config configs/paper_baseline.yaml show-plan
+```
+
+Override any declared experimental variable without editing Python:
+
+```powershell
+uv run efr --config configs/paper_baseline.yaml `
+  --set models.generator.name=llama3.3 `
+  --set retrieval.final_top_k=10 `
+  --set evaluation.controlled_cases=500 `
+  show-plan
+```
+
+Unknown keys and incompatible settings are rejected before a costly run begins.
+
+## Configuration
+
+[`configs/default.yaml`](configs/default.yaml) declares dataset versions, model providers
+and names, batch sizes, fusion weights, retrieval depth, evidence settings, reranking
+weights, generation variants, temperatures, evaluation sizes, seeds, cache policy, and
+output behaviour.
+
+[`configs/paper_baseline.yaml`](configs/paper_baseline.yaml) inherits from the defaults and
+freezes the first modular paper baseline. Create a new named configuration for every
+reported experiment; do not overwrite a historical experiment definition.
+
+Model revisions should be pinned before a final paper or thesis run. Changing a model name
+is sufficient when the provider and model architecture are compatible. Changing model
+families may also require changing the provider adapter.
+
+## Outputs and caching
+
+Every run receives a new immutable directory:
 
 ```text
-evidence_fashion_recommender/
-│
-├── README.md
-├── pyproject.toml
-├── uv.lock
-├── notebook.ipynb
-│
-├── data/
-│   ├── kb/
-│   │   ├── README.md
-│   │   └── fashion_rules.csv
-│   │
-│   └── sample/
-│
-├── outputs/
-│
-└── .gitignore
+outputs/runs/<experiment>_<UTC timestamp>/
+├── config_resolved.yaml
+├── run_manifest.json
+├── logs/
+├── embeddings/
+├── indexes/
+├── predictions/
+├── metrics/
+├── figures/
+└── reports/
 ```
 
-Some folders may be empty during early development. Dataset files and generated outputs should not be committed unless they are small, necessary, and reproducible.
+Large reusable artifacts live in `outputs/cache/` under content-derived fingerprints.
+Matching artifacts are reused; incompatible models or settings receive different keys.
+Generated artifacts and caches are excluded from Git.
 
-## Environment Setup
+## Methodology
 
-This project uses `uv` for dependency management.
+The project supports:
 
-Create and activate the environment:
+- MiniLM text retrieval
+- CLIP image, text, and fused multimodal retrieval
+- Category-aware FAISS indexes
+- Candidate and image-quality filtering
+- Versioned expert-rule knowledge bases
+- Query-level and candidate-specific evidence retrieval
+- Candidate-type-aware evidence filtering
+- Weighted evidence reranking and weight ablations
+- Florence-2 visual captions
+- No-RAG, Item-RAG, Rule-RAG, and Hybrid-RAG explanations
+- Candidate-locked, leakage-safe prompts
+- Controlled candidate-set recommendation evaluation
+- Citation, overlap, unsupported-claim, retrieval, and independent LLM-judge evaluation
+- Paired bootstrap intervals and multiple-comparison corrections
 
-```bash
-uv venv
+See [methodology](docs/methodology.md), [architecture](docs/architecture.md),
+[caching](docs/caching.md), [reproducibility](docs/reproducibility.md), and
+[human evaluation](docs/human_evaluation.md).
+
+## Verified modular results
+
+The 300-case modular run reproduces the archived text baseline exactly and the CLIP
+HitRate@10 within one case. KB v3 evidence reranking improves the archived evidence
+HitRate@10 from 0.210 to 0.240. The light 0.90/0.10 reranker reaches NDCG@10 of 0.1168,
+close to pure CLIP at 0.1209. See the
+[result report](reports/modular_baseline_results.md) for the complete comparison and
+limitations.
+
+The completed 400-explanation systematic results—including faithfulness, retrieval,
+independent-judge, and corrected statistical evaluation—are reported in
+[the final systematic results](reports/final_systematic_results.md).
+
+[`notebooks/walkthrough.ipynb`](notebooks/walkthrough.ipynb) provides a short,
+notebook-style introduction without duplicating implementation code.
+
+## Research integrity
+
+Improvements should be selected on development and validation data. The final held-out
+protocol must be frozen before evaluation. LLM judges are supporting tools, and unsuccessful
+variants must be reported as well as favourable results.
+
+The current modular report intentionally uses systematic evaluation only. Human evaluation
+is excluded from the present scope and documented as future work; the project does not
+claim human preference or human-perceived explanation quality.
+
+## Robustness phase
+
+The extended protocol freezes the original report, assigns complete outfits—not
+individual items—to disjoint development, validation, and test partitions, tunes only on
+validation, and evaluates 300 balanced held-out explanation cases with three generators
+and three independent judges.
+
+Run the cached end-to-end robustness workflow:
+
+```powershell
+.\scripts\reproduce_robustness.ps1 -Profile cuda
 ```
 
-Install dependencies:
+The workflow includes Hybrid-RAG prompt and evidence-budget ablations, validation-only
+reranking selection, claim-level verification, corrected substitution detection,
+cross-model judge sensitivity, agreement statistics, KB-proxy and consensus retrieval
+evaluation, counterfactual retrieval tests, and a final before-versus-after report. See
+the [robustness protocol](docs/robustness_protocol.md) for the leakage and interpretation
+rules. Human review is still future work.
 
-```bash
-uv sync
-```
-
-If PyTorch CUDA installation causes dependency conflicts with `uv`, install the CUDA build separately using `pip` inside the virtual environment.
-
-Example:
-
-```bash
-pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu128
-```
-
-Verify CUDA:
-
-```python
-import torch
-
-print(torch.__version__)
-print(torch.cuda.is_available())
-print(torch.cuda.get_device_name(0))
-```
-
-## Core Dependencies
-
-Main expected libraries:
-
-* Python
-* PyTorch
-* Transformers
-* sentence-transformers
-* pandas
-* numpy
-* scikit-learn
-* matplotlib
-* tqdm
-* Jupyter
-
-Additional libraries may be added as the RAG and explanation modules are implemented.
-
-## Dataset
-
-The project uses a Polyvore-style fashion dataset containing outfit items, item categories, item descriptions, and outfit-level groupings.
-
-The dataset is used for:
-
-* item retrieval
-* outfit compatibility testing
-* category-based recommendation
-* complementary item recommendation
-* baseline evaluation
-
-The current early-stage work has focused on loading the dataset, checking category distributions, inspecting outfit composition, and testing whether embedding similarity can identify meaningful item relationships.
-
-## Fashion Knowledge Base
-
-The fashion knowledge base will be stored at:
-
-```text
-data/kb/fashion_rules.csv
-```
-
-The KB contains source-grounded fashion rules collected from reputable fashion editorials, retailer style guides, museum or institutional sources, academic papers, and industry sources.
-
-Each rule is designed to be:
-
-* atomic
-* source-grounded
-* useful for retrieval
-* suitable for explanation generation
-* linked to input and recommended categories
-* tagged by style, colour, occasion, season, fit, gender context, and formality
-
-The KB is not intended to represent universal scientific laws. It is a curated evidence-grounded styling resource for recommendation and explanation.
-
-## KB Schema
-
-The required CSV columns are:
-
-```text
-rule_id
-rule_text
-input_category
-recommended_category
-style_tags
-colour_tags
-occasion_tags
-season_tags
-gender_context
-body_fit_context
-formality_level
-evidence_keywords
-source_type
-source_title
-source_author_or_org
-source_year
-source_url_or_reference
-source_reliability
-notes
-```
-
-Valid input categories:
-
-```text
-tops, bottoms, shoes, outerwear, accessories, dresses
-```
-
-Valid recommended categories:
-
-```text
-tops, bottoms, shoes, outerwear, accessories
-```
-
-## Evidence-Constrained Explanation
-
-The explanation module should only use retrieved evidence from the KB.
-
-For example, if the system recommends shoes for a dress, the explanation must be based on retrieved rules about dress-shoe pairing, formality, colour harmony, occasion, or silhouette.
-
-The explanation should not invent fashion logic that is not present in the retrieved evidence.
-
-## Planned Ablation Study
-
-The project will compare several system variants:
-
-| Variant               | Description                                                                           |
-| --------------------- | ------------------------------------------------------------------------------------- |
-| Baseline              | Recommendation using item similarity only                                             |
-| Prompt-only           | Recommendation with fixed styling instructions                                        |
-| RAG                   | Recommendation using retrieved fashion rules                                          |
-| Prompt + RAG          | Recommendation using instructions and retrieved evidence                              |
-| Prompt + RAG + Critic | Recommendation with evidence validation                                               |
-| Full system           | Multimodal retrieval, evidence reranking, faithful explanation, and critic validation |
-
-## Evaluation Plan
-
-Recommendation evaluation may include:
-
-* top-K retrieval quality
-* category correctness
-* compatibility comparison
-* same-outfit vs different-outfit similarity
-* ranking inspection
-* qualitative recommendation analysis
-
-Explanation evaluation may include:
-
-* evidence usage
-* citation overlap
-* unsupported claim detection
-* faithfulness scoring
-* human inspection
-* ablation comparison
-
-## Reproducibility Notes
-
-To keep the project reproducible:
-
-* Keep notebooks clean and sequential.
-* Use fixed random seeds where possible.
-* Avoid committing large datasets.
-* Document dataset source and preprocessing steps.
-* Save generated outputs under `outputs/`.
-* Keep the fashion KB in CSV format.
-* Track major experiments with clear section headings.
-
-## Current Research Limitation
-
-Fashion styling rules are partly subjective and context-dependent. Therefore, the KB should be described as a source-grounded styling heuristic resource, not as an objective universal truth.
-
-The academic contribution is not that each fashion rule is scientifically proven. The contribution is that the recommendation and explanation pipeline is constrained by retrieved evidence, making the explanation process more transparent and faithful.
-
-## Thesis Context
-
-Project title:
-
-**Evidence-Constrained Multimodal Fashion Recommendation with Faithful Explanations**
-
-Research area:
-
-* multimodal recommendation
-* fashion recommendation
-* retrieval-augmented generation
-* faithful explanation generation
-* evidence-constrained AI systems
+The completed frozen study contains 3,600 explanations, 10,800 explanation judgments,
+and 4,500 rule-relevance labels, with zero final parsing errors. Its main result is a
+trade-off: Hybrid-RAG gives the highest evidence overlap and 78% fewer deterministic
+unsupported claims than No-RAG, while No-RAG has the highest aggregate model-judge score;
+Rule-RAG has the lowest deterministic unsupported-claim count. Recommendation reranking
+raises held-out HitRate@10 from 0.260 to 0.270 but lowers NDCG@10 from 0.1377 to 0.1348.
+See the [final robustness results](reports/final_robustness_results.md) and generated
+`outputs/robustness/final_report/FINAL_ROBUSTNESS_REPORT.md`.

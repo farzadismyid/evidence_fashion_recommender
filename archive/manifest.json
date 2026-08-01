@@ -1,0 +1,15 @@
+{
+  "notebook": {
+    "path": "notebook_original.ipynb",
+    "bytes": 12495297,
+    "sha256": "ab923e0dfde325a0644531178487fa9180f4cc0d276ab46e7005972c98c9d89b"
+  },
+  "original_outputs": {
+    "path": "original_notebook_outputs",
+    "file_count": 214,
+    "total_bytes": 564537637,
+    "tracked_by_git": false
+  },
+  "archived_on": "2026-07-30",
+  "purpose": "Historical baseline and traceability for the first notebook experiment."
+}
