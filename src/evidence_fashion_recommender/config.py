@@ -188,6 +188,57 @@ class RobustnessConfig(StrictModel):
         return self
 
 
+class FinalEvaluationConfig(StrictModel):
+    """Versioned settings for the final v2 evaluation protocol."""
+
+    enabled: bool = False
+    output_root: Path = Path("outputs/final_eval_v2")
+    report_root: Path = Path("reports/final_eval_v2")
+    fusion_image_weights: list[float] = Field(
+        default_factory=lambda: [value / 10 for value in range(10, -1, -1)]
+    )
+    hybrid_word_budgets: list[int] = Field(default_factory=lambda: [35, 55, 75])
+    hybrid_rule_counts: list[int] = Field(default_factory=lambda: [3, 5])
+    hybrid_item_counts: list[int] = Field(default_factory=lambda: [0, 2, 5])
+    hybrid_evidence_orders: list[Literal["rules_first", "item_first"]] = Field(
+        default_factory=lambda: ["rules_first", "item_first"]
+    )
+    hybrid_practical_tie: float = Field(default=0.01, ge=0, le=1)
+    hybrid_screening_cases_per_category: int = Field(default=10, gt=0)
+    hybrid_finalist_count: int = Field(default=6, ge=4, le=6)
+    require_stage1_validation_packets: bool = True
+    claim_schema_version: str = "v2"
+    judge_schema_version: str = "v2"
+    primary_explanation_comparisons: list[tuple[str, str]] = Field(
+        default_factory=lambda: [
+            ("rule_rag", "no_rag"),
+            ("hybrid_rag", "no_rag"),
+            ("rule_rag", "item_rag"),
+            ("hybrid_rag", "rule_rag"),
+        ]
+    )
+    primary_retrieval_comparisons: list[tuple[str, str]] = Field(
+        default_factory=lambda: [
+            ("clip_fused", "minilm_text"),
+            ("clip_fused", "clip_image"),
+            ("clip_fused", "clip_text"),
+            ("evidence_reranked", "clip_fused"),
+        ]
+    )
+
+    @model_validator(mode="after")
+    def validate_final_evaluation(self) -> FinalEvaluationConfig:
+        if self.output_root != Path("outputs/final_eval_v2"):
+            raise ValueError("Final evaluation output_root must be outputs/final_eval_v2.")
+        if self.report_root != Path("reports/final_eval_v2"):
+            raise ValueError("Final evaluation report_root must be reports/final_eval_v2.")
+        if any(value < 0 or value > 1 for value in self.fusion_image_weights):
+            raise ValueError("Fusion image weights must be between 0 and 1.")
+        if len(set(self.fusion_image_weights)) != len(self.fusion_image_weights):
+            raise ValueError("Fusion image weights must be unique.")
+        return self
+
+
 class CacheConfig(StrictModel):
     policy: Literal["reuse", "refresh", "disabled"] = "reuse"
     hash_algorithm: Literal["sha256"] = "sha256"
@@ -212,6 +263,7 @@ class AppConfig(StrictModel):
     generation: GenerationConfig
     evaluation: EvaluationConfig
     robustness: RobustnessConfig
+    final_evaluation: FinalEvaluationConfig = Field(default_factory=FinalEvaluationConfig)
     cache: CacheConfig
     run: RunConfig
 
