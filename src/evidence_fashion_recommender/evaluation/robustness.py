@@ -25,10 +25,103 @@ class HybridPromptSpec:
     max_words: int
     rule_limit: int
     prompt_order: str
+    item_limit: int = 5
 
     @property
     def name(self) -> str:
-        return f"hybrid_w{self.max_words}_r{self.rule_limit}_{self.prompt_order}"
+        prefix = "hybrid" if self.item_limit > 0 else "rule_only_candidate"
+        return (
+            f"{prefix}_w{self.max_words}_r{self.rule_limit}_i{self.item_limit}_"
+            f"{self.prompt_order}"
+        )
+
+    @property
+    def final_hybrid_eligible(self) -> bool:
+        return self.item_limit > 0
+
+
+def full_hybrid_specs(
+    word_budgets: list[int],
+    rule_counts: list[int],
+    item_counts: list[int],
+    evidence_orders: list[str],
+) -> list[HybridPromptSpec]:
+    """Build the complete v2 factorial grid, including labelled rule-only candidates."""
+
+    return [
+        HybridPromptSpec(words, rules, order, items)
+        for words in word_budgets
+        for rules in rule_counts
+        for items in item_counts
+        for order in evidence_orders
+    ]
+
+
+def validate_stage1_validation_packets(cases: pd.DataFrame) -> str:
+    """Require Hybrid v2 tuning packets produced by selected Stage 1 validation retrieval."""
+
+    required = {"research_split", "stage1_packet_hash", "stage1_packet_protocol"}
+    missing = required - set(cases.columns)
+    if missing:
+        raise ValueError(f"Hybrid v2 cases are missing Stage 1 packet fields: {sorted(missing)}")
+    if set(cases["research_split"].astype(str)) != {"validation"}:
+        raise ValueError("Hybrid v2 selection requires validation cases only.")
+    if set(cases["stage1_packet_protocol"].astype(str)) != {"final_eval_v2_selected"}:
+        raise ValueError("Legacy-only evidence packets are ineligible for Hybrid v2 selection.")
+    hashes = set(cases["stage1_packet_hash"].astype(str))
+    if len(hashes) != 1 or not next(iter(hashes)).strip():
+        raise ValueError("Hybrid v2 cases must share one non-empty Stage 1 packet hash.")
+    return next(iter(hashes))
+
+
+def select_hybrid_finalists(
+    summary: pd.DataFrame,
+    *,
+    practical_tie: float,
+    finalist_count: int,
+) -> pd.DataFrame:
+    """Priority-select eligible Hybrid finalists without a weighted composite."""
+
+    required = {
+        "grounding_variant",
+        "item_limit",
+        "hallucinated_claim_rate",
+        "rule_supported_claim_rate",
+        "evidence_misuse_rate",
+        "candidate_substitution_rate",
+        "rule_evidence_overlap",
+        "item_evidence_overlap",
+        "general_clarity",
+        "max_words",
+    }
+    missing = required - set(summary.columns)
+    if missing:
+        raise ValueError(f"Hybrid selection summary is missing columns: {sorted(missing)}")
+    eligible = summary[summary["item_limit"] > 0].copy()
+    if eligible.empty:
+        raise ValueError("No final-Hybrid-eligible configurations contain item evidence.")
+    priorities = [
+        ("hallucinated_claim_rate", True),
+        ("rule_supported_claim_rate", False),
+        ("evidence_misuse_rate", True),
+        ("candidate_substitution_rate", True),
+        ("rule_evidence_overlap", False),
+        ("item_evidence_overlap", False),
+        ("general_clarity", False),
+    ]
+    pool = eligible
+    for metric, minimize in priorities:
+        best = pool[metric].min() if minimize else pool[metric].max()
+        if minimize:
+            tied = pool[metric] <= best + practical_tie
+        else:
+            tied = pool[metric] >= best - practical_tie
+        narrowed = pool[tied]
+        if len(narrowed) >= finalist_count:
+            pool = narrowed
+        else:
+            break
+    return pool.sort_values("max_words", kind="stable").head(finalist_count).reset_index(drop=True)
 
 
 def one_factor_hybrid_specs(
@@ -67,6 +160,7 @@ def generate_hybrid_ablations(
                 rule_evidence=_rule_frame(case),
                 max_words=spec.max_words,
                 rule_limit=spec.rule_limit,
+                item_limit=spec.item_limit,
                 prompt_order=spec.prompt_order,
             )
             rows.append(
@@ -76,7 +170,11 @@ def generate_hybrid_ablations(
                     "base_grounding_variant": "hybrid_rag",
                     "max_words": spec.max_words,
                     "rule_limit": spec.rule_limit,
+                    "item_limit": spec.item_limit,
                     "prompt_order": spec.prompt_order,
+                    "candidate_type": (
+                        "hybrid" if spec.final_hybrid_eligible else "rule_only_candidate"
+                    ),
                     "generated_explanation": cached_generate(
                         generator, prompt, cache, "robustness_generations"
                     ),
@@ -102,6 +200,7 @@ def generate_robustness_study(
                     {
                         "max_words": selected_hybrid.max_words,
                         "rule_limit": selected_hybrid.rule_limit,
+                        "item_limit": selected_hybrid.item_limit,
                         "prompt_order": selected_hybrid.prompt_order,
                     }
                     if variant == "hybrid_rag"
