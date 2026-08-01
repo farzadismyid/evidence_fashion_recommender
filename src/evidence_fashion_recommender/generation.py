@@ -16,6 +16,7 @@ def build_explanation_prompt(
     rule_evidence: pd.DataFrame | None = None,
     max_words: int = 55,
     rule_limit: int | None = None,
+    item_limit: int | None = None,
     prompt_order: str = "candidate_first",
 ) -> str:
     rules = []
@@ -36,14 +37,18 @@ def build_explanation_prompt(
             "substitute, or name an alternative product type, even if the evidence mentions one."
         ),
     ]
-    item_section = "Retrieved catalogue context:\n" + "\n".join(item_evidence or [])
+    item_rows = list(item_evidence or [])
+    if item_limit is not None:
+        item_rows = item_rows[:item_limit]
+    item_section = "Retrieved catalogue context:\n" + "\n".join(item_rows)
     rule_sections = [
         "Retrieved expert rules:\n" + "\n".join(rules),
         "The explanation must cite at least one provided rule ID exactly in square brackets.",
     ]
     if variant == "hybrid_rag" and prompt_order == "rules_first":
         sections.extend(rule_sections)
-        sections.append(item_section)
+        if item_rows:
+            sections.append(item_section)
     else:
         if variant in {"item_rag", "hybrid_rag"}:
             sections.append(item_section)
