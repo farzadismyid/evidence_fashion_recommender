@@ -15,6 +15,8 @@ final_evaluation:
   hybrid_practical_tie: 0.01
   hybrid_screening_cases_per_category: 10
   hybrid_finalist_count: 6
+  proposed_reranking_selection_policy: evidence_in_loop_pareto_v2
+  proposed_reranking_clip_weight: 0.75
   require_stage1_validation_packets: true
   claim_schema_version: v2
   judge_schema_version: v2

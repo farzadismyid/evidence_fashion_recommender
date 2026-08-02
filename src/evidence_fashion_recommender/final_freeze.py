@@ -35,11 +35,13 @@ def create_final_eval_v2_freeze(
     command_list: list[str],
     expected_stage1_packet_hash: str,
     gate_definition: dict[str, Any],
+    additional_inputs: list[Path] | None = None,
     source_state: dict[str, Any] | None = None,
 ) -> Path:
     """Create the immutable pre-test manifest only after all selections exist."""
 
-    if destination != Path("outputs/final_eval_v2/freeze"):
+    expected_destination = Path("outputs/final_eval_v2/freeze").resolve()
+    if destination.resolve() != expected_destination:
         raise ValueError("Freeze destination must be outputs/final_eval_v2/freeze.")
     source = source_state or git_revision()
     if not source.get("commit") or source.get("dirty") is not False:
@@ -49,11 +51,22 @@ def create_final_eval_v2_freeze(
     hybrid = _load_selection(hybrid_selection, "Hybrid")
     if hybrid.get("candidate_type") != "hybrid" or int(hybrid.get("item_count", 0)) <= 0:
         raise ValueError("Final Hybrid selection must contain item evidence.")
-    if hybrid.get("stage1_packet_protocol") != "final_eval_v2_selected":
+    hybrid_protocol = hybrid.get("stage1_packet_protocol") or hybrid.get(
+        "packet_source_protocol"
+    )
+    if hybrid_protocol != "final_eval_v2_selected":
         raise ValueError("Final Hybrid selection cannot use legacy-only evidence packets.")
     if hybrid.get("stage1_packet_hash") != expected_stage1_packet_hash:
         raise ValueError("Hybrid selection does not match the selected Stage 1 packet hash.")
-    inputs = [resolved_config, *schedules, *cases, knowledge_base, dependency_lock, *prompt_files]
+    inputs = [
+        resolved_config,
+        *schedules,
+        *cases,
+        knowledge_base,
+        dependency_lock,
+        *prompt_files,
+        *(additional_inputs or []),
+    ]
     missing = [str(path) for path in inputs if not path.is_file()]
     if missing:
         raise ValueError(f"Freeze inputs do not exist: {missing}")

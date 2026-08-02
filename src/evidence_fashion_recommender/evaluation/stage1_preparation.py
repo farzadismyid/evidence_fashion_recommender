@@ -7,6 +7,7 @@ import shutil
 from pathlib import Path
 from typing import Any
 
+import numpy as np
 import pandas as pd
 
 from ..cache import file_fingerprint, stable_fingerprint
@@ -187,6 +188,96 @@ def tune_reranking_v2_artifacts(
         json.dumps({"input_fingerprint": input_fingerprint, "selected_on": "validation"}, indent=2),
         encoding="utf-8",
     )
+    return selected
+
+
+def freeze_evidence_in_loop_reranking_selection(
+    *,
+    summary_path: Path,
+    selected_path: Path,
+    clip_weight: float,
+    selection_policy: str,
+) -> dict[str, Any]:
+    """Replace the proposed-method selection while retaining CLIP-only as an audit baseline."""
+
+    if selection_policy != "evidence_in_loop_pareto_v2":
+        raise ValueError("Unsupported proposed reranking selection policy.")
+    summary = pd.read_csv(summary_path)
+    required = {
+        "clip_weight",
+        "evidence_weight",
+        "hit_rate_at_10",
+        "ndcg_at_10",
+        "reciprocal_rank",
+    }
+    missing = required - set(summary.columns)
+    if missing:
+        raise ValueError(f"Reranking validation summary is missing: {sorted(missing)}")
+    target = summary[np.isclose(summary["clip_weight"], clip_weight)]
+    baseline = summary[
+        np.isclose(summary["clip_weight"], 1.0)
+        & np.isclose(summary["evidence_weight"], 0.0)
+    ]
+    if len(target) != 1 or len(baseline) != 1:
+        raise ValueError("Validation summary must contain unique target and CLIP-only rows.")
+    target_row = target.iloc[0]
+    expected_evidence = 1.0 - clip_weight
+    if not np.isclose(float(target_row["evidence_weight"]), expected_evidence):
+        raise ValueError("Selected validation row has an inconsistent evidence weight.")
+    if not selected_path.is_file():
+        raise ValueError(f"Missing accuracy-optimal selection artifact: {selected_path}")
+    accuracy_path = selected_path.with_name("selected_weight_accuracy_optimal.json")
+    current = json.loads(selected_path.read_text(encoding="utf-8"))
+    if not accuracy_path.exists():
+        if not (
+            np.isclose(float(current.get("clip_weight", -1)), 1.0)
+            and np.isclose(float(current.get("evidence_weight", -1)), 0.0)
+        ):
+            raise ValueError("Existing selection is not the expected CLIP-only baseline.")
+        current.update(
+            {
+                "selection_policy": "accuracy_optimal_unconstrained_baseline_v2",
+                "method_role": "accuracy_optimal_baseline",
+                "superseded_as_proposed_method": True,
+            }
+        )
+        accuracy_path.write_text(json.dumps(current, indent=2), encoding="utf-8")
+    baseline_row = baseline.iloc[0]
+    selected = target_row.to_dict()
+    selected.update(
+        {
+            "selection_policy": selection_policy,
+            "method_role": "proposed_evidence_in_loop_reranker",
+            "selected_on": "validation",
+            "pareto_reference": {
+                "accuracy_optimal_clip_weight": 1.0,
+                "accuracy_optimal_evidence_weight": 0.0,
+                "delta_hit_rate_at_10": float(
+                    target_row["hit_rate_at_10"] - baseline_row["hit_rate_at_10"]
+                ),
+                "delta_ndcg_at_10": float(
+                    target_row["ndcg_at_10"] - baseline_row["ndcg_at_10"]
+                ),
+                "delta_reciprocal_rank": float(
+                    target_row["reciprocal_rank"] - baseline_row["reciprocal_rank"]
+                ),
+            },
+            "validation_summary_path": str(summary_path),
+            "validation_summary_hash": file_fingerprint(summary_path),
+            "accuracy_baseline_artifact": str(accuracy_path),
+        }
+    )
+    selected_path.write_text(json.dumps(selected, indent=2), encoding="utf-8")
+    manifest_path = selected_path.with_name("stage_manifest.json")
+    manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    manifest.update(
+        {
+            "proposed_method_selection_policy": selection_policy,
+            "proposed_method_selected_weight_hash": file_fingerprint(selected_path),
+            "accuracy_baseline_selected_weight_hash": file_fingerprint(accuracy_path),
+        }
+    )
+    manifest_path.write_text(json.dumps(manifest, indent=2), encoding="utf-8")
     return selected
 
 
