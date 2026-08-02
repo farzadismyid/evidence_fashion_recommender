@@ -22,3 +22,6 @@ archive/original_notebook_outputs/
 *.npz
 *.faiss
 *.index
+
+# Local temporary files
+.tmp/

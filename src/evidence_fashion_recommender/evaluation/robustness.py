@@ -147,6 +147,7 @@ def generate_hybrid_ablations(
     specs: list[HybridPromptSpec],
     generator: Generator,
     cache: ArtifactCache,
+    cache_context: dict[str, object] | None = None,
 ) -> pd.DataFrame:
     rows = []
     for _, case in cases.iterrows():
@@ -176,7 +177,11 @@ def generate_hybrid_ablations(
                         "hybrid" if spec.final_hybrid_eligible else "rule_only_candidate"
                     ),
                     "generated_explanation": cached_generate(
-                        generator, prompt, cache, "robustness_generations"
+                        generator,
+                        prompt,
+                        cache,
+                        "robustness_generations",
+                        cache_context=cache_context,
                     ),
                     "generation_model": generator.model_id,
                     "generation_prompt_fingerprint": stable_fingerprint(prompt),

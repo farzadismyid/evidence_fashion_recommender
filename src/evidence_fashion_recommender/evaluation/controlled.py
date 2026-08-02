@@ -102,6 +102,8 @@ def build_clip_query_text(row: pd.Series) -> str:
 class QueryEmbeddings:
     minilm: np.ndarray
     clip_fused: np.ndarray
+    clip_image: np.ndarray | None = None
+    clip_text: np.ndarray | None = None
 
 
 def encode_evaluation_queries(
@@ -120,7 +122,12 @@ def encode_evaluation_queries(
         for item_id in cases["query_item_id"]
     ]
     clip_image = clip_model.encode_images(images)
-    return QueryEmbeddings(minilm=minilm, clip_fused=clip_model.fuse(clip_image, clip_text))
+    return QueryEmbeddings(
+        minilm=minilm,
+        clip_fused=clip_model.fuse(clip_image, clip_text),
+        clip_image=clip_image,
+        clip_text=clip_text,
+    )
 
 
 def evaluate_controlled(
