@@ -1,6 +1,6 @@
 # Final Evaluation v2 Hybrid Validation
 
-Stage 1 packet hash: `251eb99e65aea61d5612aec3f2e465302b25bfe90fa2dc7f26fd51c65a357cb1`
+Stage 1 packet hash: `c561b2016ba8ad7b8d06aac7cb3dd8a56793e91adfa5f4f70186a448ae3188f9`
 
 Screened 36 configurations on 50 balanced validation cases; evaluated 6 finalists on all 300 validation cases.
 
@@ -19,7 +19,7 @@ Selection used the frozen priority hierarchy with no weighted composite.
   "candidate_type": "hybrid",
   "selected_on": "validation",
   "selection_protocol": "priority_v2_no_weighted_composite",
-  "stage1_packet_hash": "251eb99e65aea61d5612aec3f2e465302b25bfe90fa2dc7f26fd51c65a357cb1",
+  "stage1_packet_hash": "c561b2016ba8ad7b8d06aac7cb3dd8a56793e91adfa5f4f70186a448ae3188f9",
   "packet_source_protocol": "final_eval_v2_selected",
   "generator_model": "llama3.2@a80c4f17acd5:temperature=0.0:max_tokens=240:think=False",
   "judge_model": "qwen3:8b@500a1f067a9f:temperature=0.0:max_tokens=400:think=False",

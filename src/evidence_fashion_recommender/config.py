@@ -206,6 +206,10 @@ class FinalEvaluationConfig(StrictModel):
     hybrid_practical_tie: float = Field(default=0.01, ge=0, le=1)
     hybrid_screening_cases_per_category: int = Field(default=10, gt=0)
     hybrid_finalist_count: int = Field(default=6, ge=4, le=6)
+    proposed_reranking_selection_policy: Literal["evidence_in_loop_pareto_v2"] = (
+        "evidence_in_loop_pareto_v2"
+    )
+    proposed_reranking_clip_weight: float = Field(default=0.75, ge=0, lt=1)
     require_stage1_validation_packets: bool = True
     claim_schema_version: str = "v2"
     judge_schema_version: str = "v2"
@@ -236,6 +240,8 @@ class FinalEvaluationConfig(StrictModel):
             raise ValueError("Fusion image weights must be between 0 and 1.")
         if len(set(self.fusion_image_weights)) != len(self.fusion_image_weights):
             raise ValueError("Fusion image weights must be unique.")
+        if self.proposed_reranking_clip_weight != 0.75:
+            raise ValueError("The frozen evidence-in-loop Pareto v2 CLIP weight must be 0.75.")
         return self
 
 

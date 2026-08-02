@@ -110,9 +110,32 @@ def build_parser() -> argparse.ArgumentParser:
     hybrid_v2_parser.add_argument(
         "--input", default="outputs/final_eval_v2/prepared/validation/locked_packets.csv"
     )
-    hybrid_v2_parser.add_argument(
-        "--output-dir", default="outputs/final_eval_v2/hybrid_validation"
+    hybrid_v2_parser.add_argument("--output-dir", default="outputs/final_eval_v2/hybrid_validation")
+    freeze_v2_parser = subparsers.add_parser(
+        "freeze-final-eval-v2", help="Create the immutable clean-source v2 freeze."
     )
+    freeze_v2_parser.add_argument("--destination", default="outputs/final_eval_v2/freeze")
+    generation_v2_parser = subparsers.add_parser(
+        "run-final-explanations-v2", help="Generate all four final variants under frozen Gate A."
+    )
+    generation_v2_parser.add_argument(
+        "--input", default="outputs/final_eval_v2/prepared/test/locked_packets.csv"
+    )
+    generation_v2_parser.add_argument(
+        "--reranking-selection",
+        default="outputs/final_eval_v2/validation/reranking_tuning/selected_weight.json",
+    )
+    generation_v2_parser.add_argument(
+        "--hybrid-selection",
+        default="outputs/final_eval_v2/hybrid_validation/selected_hybrid_config.json",
+    )
+    generation_v2_parser.add_argument(
+        "--decision", default="outputs/final_eval_v2/decision_gate/decision.json"
+    )
+    generation_v2_parser.add_argument(
+        "--freeze", default="outputs/final_eval_v2/freeze/FINAL_FREEZE_MANIFEST.json"
+    )
+    generation_v2_parser.add_argument("--output-dir", default="outputs/final_eval_v2/explanations")
     tuning_parser = subparsers.add_parser(
         "tune-reranking",
         help="Select evidence-reranking weight using validation outfits only.",
@@ -188,6 +211,18 @@ def build_parser() -> argparse.ArgumentParser:
     )
     rerank_v2_parser.add_argument(
         "--output-dir", default="outputs/final_eval_v2/validation/reranking_tuning"
+    )
+    evidence_selection_parser = subparsers.add_parser(
+        "select-evidence-in-loop-reranking-v2",
+        help="Freeze the validation Pareto/knee reranker and retain CLIP-only as baseline.",
+    )
+    evidence_selection_parser.add_argument(
+        "--summary",
+        default="outputs/final_eval_v2/validation/reranking_tuning/validation_summary.csv",
+    )
+    evidence_selection_parser.add_argument(
+        "--output",
+        default="outputs/final_eval_v2/validation/reranking_tuning/selected_weight.json",
     )
     packets_v2_parser = subparsers.add_parser(
         "create-locked-packets-v2",
@@ -1163,9 +1198,7 @@ def command_hybrid_validation_v2(
         cache=context.cache,
         output_dir=output_dir,
         report_path=config.final_evaluation.report_root / "hybrid_validation_report.md",
-        screening_cases_per_category=(
-            config.final_evaluation.hybrid_screening_cases_per_category
-        ),
+        screening_cases_per_category=(config.final_evaluation.hybrid_screening_cases_per_category),
         finalist_count=config.final_evaluation.hybrid_finalist_count,
         practical_tie=config.final_evaluation.hybrid_practical_tie,
         seed=config.project.seed,
@@ -1173,6 +1206,93 @@ def command_hybrid_validation_v2(
     )
     print(json.dumps(manifest, indent=2))
     print(f"Run directory: {context.run_dir}")
+    return 0
+
+
+def command_freeze_final_eval_v2(
+    config_path: str, overrides: list[str], args: argparse.Namespace
+) -> int:
+    import pandas as pd
+
+    from .final_freeze import create_final_eval_v2_freeze
+
+    config = load_config(config_path, overrides)
+    destination = _require_v2_output(config, args.destination)
+    freeze_inputs = config.final_evaluation.output_root / "freeze_inputs"
+    freeze_inputs.mkdir(parents=True, exist_ok=True)
+    resolved_config = freeze_inputs / "resolved_config.json"
+    resolved_config.write_text(
+        json.dumps(config.model_dump(mode="json"), indent=2), encoding="utf-8"
+    )
+    decision_path = config.final_evaluation.output_root / "decision_gate" / "decision.json"
+    decision = json.loads(decision_path.read_text(encoding="utf-8"))
+    validation_packets = (
+        config.final_evaluation.output_root / "prepared" / "validation" / "locked_packets.csv"
+    )
+    hashes = set(pd.read_csv(validation_packets)["stage1_packet_hash"].astype(str))
+    if len(hashes) != 1:
+        raise ValueError("Validation packets must share one Stage 1 packet hash.")
+    path = create_final_eval_v2_freeze(
+        destination=destination,
+        resolved_config=resolved_config,
+        fusion_selection=config.final_evaluation.output_root
+        / "validation/fusion_tuning/selected_fusion.json",
+        reranking_selection=config.final_evaluation.output_root
+        / "validation/reranking_tuning/selected_weight.json",
+        hybrid_selection=config.final_evaluation.output_root
+        / "hybrid_validation/selected_hybrid_config.json",
+        schedules=[
+            Path("outputs/robustness/schedules/validation_schedule.csv"),
+            Path("outputs/robustness/schedules/test_schedule.csv"),
+        ],
+        cases=[
+            validation_packets,
+            config.final_evaluation.output_root / "prepared/test/locked_packets.csv",
+        ],
+        knowledge_base=config.paths.knowledge_base,
+        dependency_lock=Path("uv.lock"),
+        prompt_files=[Path("src/evidence_fashion_recommender/generation.py")],
+        command_list=[
+            "freeze-final-eval-v2",
+            "run-final-explanations-v2",
+            "extract-claims-v2",
+            "verify-claims-v2",
+            "judge-general-quality-v2",
+            "analyze-final-eval-v2",
+            "build-final-report-v2",
+        ],
+        expected_stage1_packet_hash=next(iter(hashes)),
+        gate_definition=decision,
+        additional_inputs=[decision_path],
+    )
+    print(f"Final freeze manifest: {path}")
+    return 0
+
+
+def command_final_explanations_v2(
+    config_path: str, overrides: list[str], args: argparse.Namespace
+) -> int:
+    import pandas as pd
+
+    from .evaluation.generation_v2 import run_final_explanations_v2
+    from .models.llm import OllamaGenerator
+    from .run import start_run
+
+    config = load_config(config_path, overrides)
+    context = start_run(config)
+    manifest = run_final_explanations_v2(
+        cases=pd.read_csv(args.input),
+        generators=[OllamaGenerator(value) for value in config.robustness.generators],
+        cache=context.cache,
+        output_dir=_require_v2_output(config, args.output_dir),
+        report_path=config.final_evaluation.report_root / "generation_summary.md",
+        input_path=Path(args.input),
+        reranking_selection_path=Path(args.reranking_selection),
+        hybrid_selection_path=Path(args.hybrid_selection),
+        decision_path=Path(args.decision),
+        freeze_path=Path(args.freeze),
+    )
+    print(json.dumps(manifest, indent=2))
     return 0
 
 
@@ -1396,6 +1516,25 @@ def command_tune_reranking_v2(
         output_dir=output,
         clip_weights=config.robustness.rerank_clip_weights,
         cutoffs=config.evaluation.cutoffs,
+    )
+    print(json.dumps(selected, indent=2))
+    return 0
+
+
+def command_select_evidence_in_loop_reranking_v2(
+    config_path: str, overrides: list[str], args: argparse.Namespace
+) -> int:
+    from .evaluation.stage1_preparation import freeze_evidence_in_loop_reranking_selection
+
+    config = load_config(config_path, overrides)
+    if not config.final_evaluation.enabled:
+        raise ValueError("final_eval_v2 is disabled in this configuration.")
+    output = _require_v2_output(config, args.output)
+    selected = freeze_evidence_in_loop_reranking_selection(
+        summary_path=Path(args.summary),
+        selected_path=output,
+        clip_weight=config.final_evaluation.proposed_reranking_clip_weight,
+        selection_policy=config.final_evaluation.proposed_reranking_selection_policy,
     )
     print(json.dumps(selected, indent=2))
     return 0
@@ -1858,6 +1997,10 @@ def main(argv: list[str] | None = None) -> int:
         return command_hybrid_ablations(args.config, args.set, args)
     if args.command == "run-hybrid-validation-v2":
         return command_hybrid_validation_v2(args.config, args.set, args)
+    if args.command == "freeze-final-eval-v2":
+        return command_freeze_final_eval_v2(args.config, args.set, args)
+    if args.command == "run-final-explanations-v2":
+        return command_final_explanations_v2(args.config, args.set, args)
     if args.command == "tune-reranking":
         return command_tune_reranking(args.config, args.set, args)
     if args.command == "evaluate-heldout-ranking":
@@ -1872,6 +2015,8 @@ def main(argv: list[str] | None = None) -> int:
         return command_prepare_final_retrieval_v2_bundle(args.config, args.set, args)
     if args.command == "tune-reranking-v2":
         return command_tune_reranking_v2(args.config, args.set, args)
+    if args.command == "select-evidence-in-loop-reranking-v2":
+        return command_select_evidence_in_loop_reranking_v2(args.config, args.set, args)
     if args.command == "create-locked-packets-v2":
         return command_create_locked_packets_v2(args.config, args.set, args)
     if args.command == "materialize-final-retrieval-v2-inputs":
