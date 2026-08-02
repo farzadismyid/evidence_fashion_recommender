@@ -103,6 +103,16 @@ def build_parser() -> argparse.ArgumentParser:
     ablation_parser.add_argument("--output-dir", default="outputs/robustness/hybrid_ablations")
     ablation_parser.add_argument("--limit", type=int, default=None)
     ablation_parser.add_argument("--skip-judge", action="store_true")
+    hybrid_v2_parser = subparsers.add_parser(
+        "run-hybrid-validation-v2",
+        help="Run resumable staged Hybrid-RAG selection on frozen v2 validation packets.",
+    )
+    hybrid_v2_parser.add_argument(
+        "--input", default="outputs/final_eval_v2/prepared/validation/locked_packets.csv"
+    )
+    hybrid_v2_parser.add_argument(
+        "--output-dir", default="outputs/final_eval_v2/hybrid_validation"
+    )
     tuning_parser = subparsers.add_parser(
         "tune-reranking",
         help="Select evidence-reranking weight using validation outfits only.",
@@ -117,6 +127,168 @@ def build_parser() -> argparse.ArgumentParser:
     )
     heldout_parser.add_argument("--input", default="outputs/robustness/schedules/test_schedule.csv")
     heldout_parser.add_argument("--output-dir", default="outputs/robustness/heldout_ranking")
+    heldout_parser.add_argument(
+        "--selection",
+        default="outputs/robustness/reranking_tuning/selected_weight.json",
+        help="Frozen validation-selected reranking artifact.",
+    )
+    fusion_v2_parser = subparsers.add_parser(
+        "tune-clip-fusion",
+        help="Select final_eval_v2 CLIP fusion weights from a prepared validation bundle.",
+    )
+    fusion_v2_parser.add_argument("--bundle", default="outputs/final_eval_v2/prepared/validation")
+    fusion_v2_parser.add_argument(
+        "--output-dir", default="outputs/final_eval_v2/validation/fusion_tuning"
+    )
+    retrieval_v2_parser = subparsers.add_parser(
+        "evaluate-final-retrieval-v2",
+        help="Evaluate frozen v2 fusion/reranking settings on a prepared test bundle.",
+    )
+    retrieval_v2_parser.add_argument("--bundle", default="outputs/final_eval_v2/prepared/test")
+    retrieval_v2_parser.add_argument(
+        "--fusion-selection",
+        default="outputs/final_eval_v2/validation/fusion_tuning/selected_fusion.json",
+    )
+    retrieval_v2_parser.add_argument(
+        "--reranking-selection",
+        default="outputs/final_eval_v2/validation/reranking_tuning/selected_weight.json",
+    )
+    retrieval_v2_parser.add_argument(
+        "--locked-packets", default="outputs/final_eval_v2/prepared/test/locked_packets.csv"
+    )
+    retrieval_v2_parser.add_argument("--output-dir", default="outputs/final_eval_v2/retrieval/test")
+    gate_v2_parser = subparsers.add_parser(
+        "compare-locked-artifacts-v2",
+        help="Compare legacy and v2 locked recommendation/evidence packets.",
+    )
+    gate_v2_parser.add_argument("--legacy-packets", required=True)
+    gate_v2_parser.add_argument(
+        "--v2-packets",
+        default=("outputs/final_eval_v2/retrieval/test/locked_recommendation_evidence_packets.csv"),
+    )
+    gate_v2_parser.add_argument("--output-dir", default="outputs/final_eval_v2/decision_gate")
+    prepare_v2_parser = subparsers.add_parser(
+        "prepare-final-retrieval-v2-bundle",
+        help="Materialize a v2 Stage 1 bundle from frozen files without rebuilding embeddings.",
+    )
+    prepare_v2_parser.add_argument("--split", choices=["validation", "test"], required=True)
+    prepare_v2_parser.add_argument("--schedule", required=True)
+    prepare_v2_parser.add_argument("--candidate-sets", required=True)
+    prepare_v2_parser.add_argument("--target-embedding-dir", required=True)
+    prepare_v2_parser.add_argument("--query-embedding-dir", required=True)
+    prepare_v2_parser.add_argument("--output-dir", required=True)
+    rerank_v2_parser = subparsers.add_parser(
+        "tune-reranking-v2",
+        help="Select v2 evidence-reranking weights from a prepared validation bundle.",
+    )
+    rerank_v2_parser.add_argument("--bundle", default="outputs/final_eval_v2/prepared/validation")
+    rerank_v2_parser.add_argument(
+        "--fusion-selection",
+        default="outputs/final_eval_v2/validation/fusion_tuning/selected_fusion.json",
+    )
+    rerank_v2_parser.add_argument(
+        "--output-dir", default="outputs/final_eval_v2/validation/reranking_tuning"
+    )
+    packets_v2_parser = subparsers.add_parser(
+        "create-locked-packets-v2",
+        help="Freeze locked packets produced by selected v2 retrieval settings.",
+    )
+    packets_v2_parser.add_argument("--split", choices=["validation", "test"], required=True)
+    packets_v2_parser.add_argument("--source-cases", required=True)
+    packets_v2_parser.add_argument(
+        "--fusion-selection",
+        default="outputs/final_eval_v2/validation/fusion_tuning/selected_fusion.json",
+    )
+    packets_v2_parser.add_argument(
+        "--reranking-selection",
+        default="outputs/final_eval_v2/validation/reranking_tuning/selected_weight.json",
+    )
+    packets_v2_parser.add_argument("--output", required=True)
+    materialize_v2_parser = subparsers.add_parser(
+        "materialize-final-retrieval-v2-inputs",
+        help="Resolve cached embeddings and materialize fresh v2 retrieval inputs.",
+    )
+    materialize_v2_parser.add_argument("--split", choices=["validation", "test"], required=True)
+    materialize_v2_parser.add_argument("--schedule", required=True)
+    materialize_v2_parser.add_argument("--target-items", required=True)
+    materialize_v2_parser.add_argument("--candidate-source", required=True)
+    materialize_v2_parser.add_argument(
+        "--output-root", default="outputs/final_eval_v2/materialized"
+    )
+    query_v2_parser = subparsers.add_parser(
+        "materialize-final-retrieval-v2-query-embeddings",
+        help="Explicitly compute only missing v2 query embeddings; never target embeddings.",
+    )
+    query_v2_parser.add_argument("--split", choices=["validation", "test"], required=True)
+    query_v2_parser.add_argument("--schedule", required=True)
+    query_v2_parser.add_argument(
+        "--approve-compute-query-embeddings",
+        action="store_true",
+        help="Required acknowledgement before query model execution.",
+    )
+    selected_cases_v2_parser = subparsers.add_parser(
+        "materialize-final-retrieval-v2-selected-cases",
+        help="Materialize fresh selected-v2 cases after fusion/reranking selection.",
+    )
+    selected_cases_v2_parser.add_argument("--split", choices=["validation", "test"], required=True)
+    selected_cases_v2_parser.add_argument("--schedule", required=True)
+    selected_cases_v2_parser.add_argument("--source-cases", required=True)
+    selected_cases_v2_parser.add_argument(
+        "--fusion-selection",
+        default="outputs/final_eval_v2/validation/fusion_tuning/selected_fusion.json",
+    )
+    selected_cases_v2_parser.add_argument(
+        "--reranking-selection",
+        default="outputs/final_eval_v2/validation/reranking_tuning/selected_weight.json",
+    )
+    selected_cases_v2_parser.add_argument("--output", required=True)
+    target_source_parser = subparsers.add_parser(
+        "materialize-final-eval-v2-target-items",
+        help="Freeze the fresh v2 target-item row order against cached target embeddings.",
+    )
+    target_source_parser.add_argument(
+        "--output", default="outputs/final_eval_v2/sources/target_items.parquet"
+    )
+    candidate_source_parser = subparsers.add_parser(
+        "produce-final-eval-v2-candidates",
+        help="Build deterministic candidate pools with fresh v2 evidence scores.",
+    )
+    candidate_source_parser.add_argument("--split", choices=["validation", "test"], required=True)
+    candidate_source_parser.add_argument("--schedule", required=True)
+    candidate_source_parser.add_argument(
+        "--target-items", default="outputs/final_eval_v2/sources/target_items.parquet"
+    )
+    candidate_source_parser.add_argument("--output", required=True)
+    selected_source_parser = subparsers.add_parser(
+        "produce-final-eval-v2-selected-cases",
+        help="Produce fresh locked recommendations/evidence using validation-selected settings.",
+    )
+    selected_source_parser.add_argument("--split", choices=["validation", "test"], required=True)
+    selected_source_parser.add_argument("--schedule", required=True)
+    selected_source_parser.add_argument(
+        "--target-items", default="outputs/final_eval_v2/sources/target_items.parquet"
+    )
+    selected_source_parser.add_argument("--candidate-sets", required=True)
+    selected_source_parser.add_argument("--bundle", required=True)
+    selected_source_parser.add_argument(
+        "--fusion-selection",
+        default="outputs/final_eval_v2/validation/fusion_tuning/selected_fusion.json",
+    )
+    selected_source_parser.add_argument(
+        "--reranking-selection",
+        default="outputs/final_eval_v2/validation/reranking_tuning/selected_weight.json",
+    )
+    selected_source_parser.add_argument("--output", required=True)
+    inspect_v2_parser = subparsers.add_parser(
+        "inspect-final-eval-v2-readiness",
+        help="Read-only manifest/hash/protocol preflight for v2 stages.",
+    )
+    inspect_v2_parser.add_argument(
+        "--validation-schedule", default="outputs/robustness/schedules/validation_schedule.csv"
+    )
+    inspect_v2_parser.add_argument(
+        "--test-schedule", default="outputs/robustness/schedules/test_schedule.csv"
+    )
     robustness_parser = subparsers.add_parser(
         "run-robustness-study",
         help="Run the frozen multi-generator, multi-judge held-out study.",
@@ -958,6 +1130,52 @@ def command_hybrid_ablations(
     return 0
 
 
+def command_hybrid_validation_v2(
+    config_path: str, overrides: list[str], args: argparse.Namespace
+) -> int:
+    import pandas as pd
+
+    from .evaluation.hybrid_v2 import run_hybrid_validation_v2
+    from .evaluation.robustness import full_hybrid_specs
+    from .models.llm import OllamaGenerator
+    from .run import start_run
+
+    config = load_config(config_path, overrides)
+    if not config.final_evaluation.enabled:
+        raise ValueError("final_evaluation must be enabled for Hybrid v2 validation.")
+    if not config.robustness.generators or not config.robustness.judges:
+        raise ValueError("Configured robustness generator and judge models are required.")
+    input_path = Path(args.input)
+    output_dir = _require_v2_output(config, args.output_dir)
+    cases = pd.read_csv(input_path)
+    context = start_run(config)
+    specs = full_hybrid_specs(
+        config.final_evaluation.hybrid_word_budgets,
+        config.final_evaluation.hybrid_rule_counts,
+        config.final_evaluation.hybrid_item_counts,
+        config.final_evaluation.hybrid_evidence_orders,
+    )
+    manifest = run_hybrid_validation_v2(
+        cases=cases,
+        specs=specs,
+        generator=OllamaGenerator(config.robustness.generators[0]),
+        judge=OllamaGenerator(config.robustness.judges[0]),
+        cache=context.cache,
+        output_dir=output_dir,
+        report_path=config.final_evaluation.report_root / "hybrid_validation_report.md",
+        screening_cases_per_category=(
+            config.final_evaluation.hybrid_screening_cases_per_category
+        ),
+        finalist_count=config.final_evaluation.hybrid_finalist_count,
+        practical_tie=config.final_evaluation.hybrid_practical_tie,
+        seed=config.project.seed,
+        input_path=input_path,
+    )
+    print(json.dumps(manifest, indent=2))
+    print(f"Run directory: {context.run_dir}")
+    return 0
+
+
 def command_tune_reranking(config_path: str, overrides: list[str], args: argparse.Namespace) -> int:
     import numpy as np
     import pandas as pd
@@ -1031,9 +1249,15 @@ def command_tune_reranking(config_path: str, overrides: list[str], args: argpars
         config.evidence.candidate_top_k,
         config.evidence.candidate_type_filtering,
     )
-    weights = (
-        config.robustness.rerank_clip_weights if expected_split == "validation" else [0.9, 1.0]
-    )
+    if expected_split == "validation":
+        weights = config.robustness.rerank_clip_weights
+    else:
+        selection_path = Path(args.selection)
+        if not selection_path.is_file():
+            raise ValueError(f"Missing frozen reranking selection: {selection_path}")
+        selection = json.loads(selection_path.read_text(encoding="utf-8"))
+        selected_clip_weight = float(selection["clip_weight"])
+        weights = [selected_clip_weight, 1.0]
     results = evaluate_reranking_grid(
         config,
         cases,
@@ -1065,6 +1289,352 @@ def command_heldout_ranking(
 ) -> int:
     args.expected_split = "test"
     return command_tune_reranking(config_path, overrides, args)
+
+
+def _require_v2_output(config, output_dir: str) -> Path:
+    root = config.final_evaluation.output_root.resolve()
+    output = Path(output_dir).resolve()
+    if output != root and root not in output.parents:
+        raise ValueError(f"final_eval_v2 outputs must stay under {root}")
+    return output
+
+
+def command_tune_clip_fusion_v2(
+    config_path: str, overrides: list[str], args: argparse.Namespace
+) -> int:
+    from .evaluation.stage1 import load_stage1_bundle, tune_clip_fusion_artifacts
+
+    config = load_config(config_path, overrides)
+    if not config.final_evaluation.enabled:
+        raise ValueError("final_eval_v2 is disabled in this configuration.")
+    bundle = load_stage1_bundle(Path(args.bundle), "validation")
+    output = _require_v2_output(config, args.output_dir)
+    selected = tune_clip_fusion_artifacts(
+        bundle,
+        output_dir=output,
+        image_weights=config.final_evaluation.fusion_image_weights,
+        cutoffs=config.evaluation.cutoffs,
+    )
+    print(json.dumps(selected, indent=2))
+    return 0
+
+
+def command_evaluate_final_retrieval_v2(
+    config_path: str, overrides: list[str], args: argparse.Namespace
+) -> int:
+    from .evaluation.stage1 import evaluate_final_retrieval_artifacts, load_stage1_bundle
+
+    config = load_config(config_path, overrides)
+    if not config.final_evaluation.enabled:
+        raise ValueError("final_eval_v2 is disabled in this configuration.")
+    bundle = load_stage1_bundle(Path(args.bundle), "test")
+    output = _require_v2_output(config, args.output_dir)
+    evaluate_final_retrieval_artifacts(
+        bundle,
+        output_dir=output,
+        fusion_selection=Path(args.fusion_selection),
+        reranking_selection=Path(args.reranking_selection),
+        locked_packets=Path(args.locked_packets),
+        cutoffs=config.evaluation.cutoffs,
+    )
+    print(f"Final retrieval v2 artifacts: {output}")
+    return 0
+
+
+def command_compare_locked_artifacts_v2(
+    config_path: str, overrides: list[str], args: argparse.Namespace
+) -> int:
+    from .evaluation.stage1 import compare_locked_artifact_outputs
+
+    config = load_config(config_path, overrides)
+    if not config.final_evaluation.enabled:
+        raise ValueError("final_eval_v2 is disabled in this configuration.")
+    output = _require_v2_output(config, args.output_dir)
+    decision = compare_locked_artifact_outputs(
+        legacy_packets=Path(args.legacy_packets),
+        v2_packets=Path(args.v2_packets),
+        output_dir=output,
+    )
+    print(json.dumps(decision, indent=2))
+    return 0
+
+
+def command_prepare_final_retrieval_v2_bundle(
+    config_path: str, overrides: list[str], args: argparse.Namespace
+) -> int:
+    from .evaluation.stage1_preparation import prepare_stage1_bundle
+
+    config = load_config(config_path, overrides)
+    if not config.final_evaluation.enabled:
+        raise ValueError("final_eval_v2 is disabled in this configuration.")
+    output = _require_v2_output(config, args.output_dir)
+    fingerprint = prepare_stage1_bundle(
+        split=args.split,
+        schedule_path=Path(args.schedule),
+        candidate_sets_path=Path(args.candidate_sets),
+        target_embedding_dir=Path(args.target_embedding_dir),
+        query_embedding_dir=Path(args.query_embedding_dir),
+        output_dir=output,
+    )
+    print(f"Prepared {args.split} bundle: {output} ({fingerprint[:12]})")
+    return 0
+
+
+def command_tune_reranking_v2(
+    config_path: str, overrides: list[str], args: argparse.Namespace
+) -> int:
+    from .evaluation.stage1_preparation import tune_reranking_v2_artifacts
+
+    config = load_config(config_path, overrides)
+    if not config.final_evaluation.enabled:
+        raise ValueError("final_eval_v2 is disabled in this configuration.")
+    output = _require_v2_output(config, args.output_dir)
+    selected = tune_reranking_v2_artifacts(
+        bundle_dir=Path(args.bundle),
+        fusion_selection_path=Path(args.fusion_selection),
+        resolved_config_path=Path(config_path),
+        output_dir=output,
+        clip_weights=config.robustness.rerank_clip_weights,
+        cutoffs=config.evaluation.cutoffs,
+    )
+    print(json.dumps(selected, indent=2))
+    return 0
+
+
+def command_create_locked_packets_v2(
+    config_path: str, overrides: list[str], args: argparse.Namespace
+) -> int:
+    from .evaluation.stage1_preparation import create_locked_packets_v2
+
+    config = load_config(config_path, overrides)
+    if not config.final_evaluation.enabled:
+        raise ValueError("final_eval_v2 is disabled in this configuration.")
+    output = _require_v2_output(config, args.output)
+    packet_hash = create_locked_packets_v2(
+        source_cases_path=Path(args.source_cases),
+        fusion_selection_path=Path(args.fusion_selection),
+        reranking_selection_path=Path(args.reranking_selection),
+        output_path=output,
+        expected_split=args.split,
+    )
+    print(f"Locked {args.split} packet hash: {packet_hash}")
+    return 0
+
+
+def _read_table(path: Path):
+    import pandas as pd
+
+    if path.suffix.lower() in {".parquet", ".pq"}:
+        return pd.read_parquet(path)
+    return pd.read_csv(path)
+
+
+def command_materialize_final_retrieval_v2_inputs(
+    config_path: str, overrides: list[str], args: argparse.Namespace
+) -> int:
+    from .evaluation.materialization import materialize_retrieval_inputs
+
+    config = load_config(config_path, overrides)
+    if not config.final_evaluation.enabled:
+        raise ValueError("final_eval_v2 is disabled in this configuration.")
+    output_root = _require_v2_output(config, args.output_root)
+    manifest = materialize_retrieval_inputs(
+        config=config,
+        split=args.split,
+        schedule_path=Path(args.schedule),
+        target_items=_read_table(Path(args.target_items)),
+        candidate_source=Path(args.candidate_source),
+        output_root=output_root,
+    )
+    print(json.dumps(manifest, indent=2))
+    return 0
+
+
+def command_materialize_final_retrieval_v2_query_embeddings(
+    config_path: str, overrides: list[str], args: argparse.Namespace
+) -> int:
+    from .data.dataset import load_huggingface_split, load_prepared_dataset
+    from .evaluation.controlled import encode_evaluation_queries
+    from .evaluation.materialization import materialize_query_embeddings, normalize_schedule
+    from .models.multimodal import CLIPEmbedder
+    from .models.text import SentenceTransformerEmbedder
+    from .run import start_run
+
+    config = load_config(config_path, overrides)
+    if not config.final_evaluation.enabled:
+        raise ValueError("final_eval_v2 is disabled in this configuration.")
+    if not args.approve_compute_query_embeddings:
+        raise PermissionError("Pass --approve-compute-query-embeddings after explicit approval.")
+
+    def build(schedule):
+        context = start_run(config)
+        prepared = load_prepared_dataset(config, context.cache)
+        dataset_split = load_huggingface_split(config)
+        text_model = SentenceTransformerEmbedder(
+            config.models.text_embedding, config.project.device
+        )
+        clip_model = CLIPEmbedder(config.models.multimodal_embedding, config.project.device)
+        encoded = encode_evaluation_queries(
+            normalize_schedule(schedule, args.split),
+            prepared.items,
+            dataset_split,
+            text_model,
+            clip_model,
+        )
+        return {
+            "query_minilm": encoded.minilm,
+            "query_clip_image": encoded.clip_image,
+            "query_clip_text": encoded.clip_text,
+        }
+
+    cache_dir = materialize_query_embeddings(
+        config=config,
+        split=args.split,
+        schedule_path=Path(args.schedule),
+        builder=build,
+        approved=True,
+    )
+    print(f"Query-only embeddings: {cache_dir}")
+    return 0
+
+
+def command_materialize_final_retrieval_v2_selected_cases(
+    config_path: str, overrides: list[str], args: argparse.Namespace
+) -> int:
+    from .evaluation.materialization import materialize_selected_cases
+
+    config = load_config(config_path, overrides)
+    if not config.final_evaluation.enabled:
+        raise ValueError("final_eval_v2 is disabled in this configuration.")
+    output = _require_v2_output(config, args.output)
+    manifest = materialize_selected_cases(
+        split=args.split,
+        schedule_path=Path(args.schedule),
+        source_cases=Path(args.source_cases),
+        fusion_selection=Path(args.fusion_selection),
+        reranking_selection=Path(args.reranking_selection),
+        output_path=output,
+    )
+    print(json.dumps(manifest, indent=2))
+    return 0
+
+
+def _build_v2_evidence_scorer(config):
+    from .cache import ArtifactCache, file_fingerprint, stable_fingerprint
+    from .embeddings import cached_text_embeddings
+    from .evaluation.evidence_ranking import CandidateEvidenceScorer
+    from .evidence import build_evidence_text, load_knowledge_base
+    from .models.text import SentenceTransformerEmbedder
+
+    cache = ArtifactCache(config.paths.cache_dir, config.cache.policy)
+    knowledge_base = load_knowledge_base(config.paths.knowledge_base)
+    embedder = SentenceTransformerEmbedder(config.models.text_embedding, config.project.device)
+    kb_hash = file_fingerprint(config.paths.knowledge_base)
+    embeddings, embedding_path, _ = cached_text_embeddings(
+        build_evidence_text(knowledge_base),
+        embedder,
+        cache,
+        "knowledge_base_embeddings",
+        kb_hash,
+    )
+    scorer = CandidateEvidenceScorer(
+        knowledge_base,
+        embeddings,
+        embedder,
+        config.evidence.candidate_top_k,
+        config.evidence.candidate_type_filtering,
+    )
+    evidence_hash = stable_fingerprint(
+        {"knowledge_base": kb_hash, "embeddings": file_fingerprint(embedding_path)}
+    )
+    return scorer, evidence_hash
+
+
+def command_materialize_final_eval_v2_target_items(
+    config_path: str, overrides: list[str], args: argparse.Namespace
+) -> int:
+    from .cache import ArtifactCache
+    from .data.dataset import load_prepared_dataset, target_items
+    from .evaluation.v2_sources import materialize_target_item_table
+
+    config = load_config(config_path, overrides)
+    output = _require_v2_output(config, args.output)
+    prepared = load_prepared_dataset(
+        config, ArtifactCache(config.paths.cache_dir, config.cache.policy)
+    )
+    manifest = materialize_target_item_table(
+        config=config,
+        items=target_items(prepared.items, config),
+        source_paths=[prepared.metadata_cache_path],
+        output_path=output,
+    )
+    print(json.dumps(manifest, indent=2))
+    return 0
+
+
+def command_produce_final_eval_v2_candidates(
+    config_path: str, overrides: list[str], args: argparse.Namespace
+) -> int:
+    from .evaluation.v2_sources import produce_candidate_sets
+
+    config = load_config(config_path, overrides)
+    output = _require_v2_output(config, args.output)
+    scorer, evidence_hash = _build_v2_evidence_scorer(config)
+    manifest = produce_candidate_sets(
+        config=config,
+        split=args.split,
+        schedule_path=Path(args.schedule),
+        target_items_path=Path(args.target_items),
+        scorer=scorer,
+        evidence_hash=evidence_hash,
+        output_path=output,
+    )
+    print(json.dumps(manifest, indent=2))
+    return 0
+
+
+def command_produce_final_eval_v2_selected_cases(
+    config_path: str, overrides: list[str], args: argparse.Namespace
+) -> int:
+    from .evaluation.v2_sources import produce_selected_cases
+
+    config = load_config(config_path, overrides)
+    output = _require_v2_output(config, args.output)
+    scorer, _ = _build_v2_evidence_scorer(config)
+    bundle = Path(args.bundle)
+    manifest = produce_selected_cases(
+        split=args.split,
+        schedule_path=Path(args.schedule),
+        target_items_path=Path(args.target_items),
+        candidate_sets_path=Path(args.candidate_sets),
+        target_clip_image_path=bundle / "target_clip_image.npy",
+        target_clip_text_path=bundle / "target_clip_text.npy",
+        query_clip_image_path=bundle / "query_clip_image.npy",
+        query_clip_text_path=bundle / "query_clip_text.npy",
+        fusion_selection_path=Path(args.fusion_selection),
+        reranking_selection_path=Path(args.reranking_selection),
+        scorer=scorer,
+        output_path=output,
+    )
+    print(json.dumps(manifest, indent=2))
+    return 0
+
+
+def command_inspect_final_eval_v2_readiness(
+    config_path: str, overrides: list[str], args: argparse.Namespace
+) -> int:
+    from .evaluation.v2_preflight import inspect_readiness
+
+    config = load_config(config_path, overrides)
+    result = inspect_readiness(
+        config,
+        {
+            "validation": Path(args.validation_schedule),
+            "test": Path(args.test_schedule),
+        },
+    )
+    print(json.dumps(result, indent=2))
+    return 0
 
 
 def command_robustness_study(
@@ -1286,10 +1856,38 @@ def main(argv: list[str] | None = None) -> int:
         return command_build_robustness_schedules(args.config, args.set, args)
     if args.command == "run-hybrid-ablations":
         return command_hybrid_ablations(args.config, args.set, args)
+    if args.command == "run-hybrid-validation-v2":
+        return command_hybrid_validation_v2(args.config, args.set, args)
     if args.command == "tune-reranking":
         return command_tune_reranking(args.config, args.set, args)
     if args.command == "evaluate-heldout-ranking":
         return command_heldout_ranking(args.config, args.set, args)
+    if args.command == "tune-clip-fusion":
+        return command_tune_clip_fusion_v2(args.config, args.set, args)
+    if args.command == "evaluate-final-retrieval-v2":
+        return command_evaluate_final_retrieval_v2(args.config, args.set, args)
+    if args.command == "compare-locked-artifacts-v2":
+        return command_compare_locked_artifacts_v2(args.config, args.set, args)
+    if args.command == "prepare-final-retrieval-v2-bundle":
+        return command_prepare_final_retrieval_v2_bundle(args.config, args.set, args)
+    if args.command == "tune-reranking-v2":
+        return command_tune_reranking_v2(args.config, args.set, args)
+    if args.command == "create-locked-packets-v2":
+        return command_create_locked_packets_v2(args.config, args.set, args)
+    if args.command == "materialize-final-retrieval-v2-inputs":
+        return command_materialize_final_retrieval_v2_inputs(args.config, args.set, args)
+    if args.command == "materialize-final-retrieval-v2-query-embeddings":
+        return command_materialize_final_retrieval_v2_query_embeddings(args.config, args.set, args)
+    if args.command == "materialize-final-retrieval-v2-selected-cases":
+        return command_materialize_final_retrieval_v2_selected_cases(args.config, args.set, args)
+    if args.command == "materialize-final-eval-v2-target-items":
+        return command_materialize_final_eval_v2_target_items(args.config, args.set, args)
+    if args.command == "produce-final-eval-v2-candidates":
+        return command_produce_final_eval_v2_candidates(args.config, args.set, args)
+    if args.command == "produce-final-eval-v2-selected-cases":
+        return command_produce_final_eval_v2_selected_cases(args.config, args.set, args)
+    if args.command == "inspect-final-eval-v2-readiness":
+        return command_inspect_final_eval_v2_readiness(args.config, args.set, args)
     if args.command == "run-robustness-study":
         return command_robustness_study(args.config, args.set, args)
     if args.command == "freeze-baseline":

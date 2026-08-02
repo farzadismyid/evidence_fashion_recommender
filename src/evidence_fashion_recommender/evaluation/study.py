@@ -66,6 +66,22 @@ def evidence_for_variant(row: pd.Series) -> str:
 
 
 def _rule_frame(row: pd.Series) -> pd.DataFrame:
+    packet = row.get("rule_evidence_packet", "")
+    if str(packet).strip():
+        try:
+            records = json.loads(str(packet))
+            if isinstance(records, list) and all(isinstance(value, dict) for value in records):
+                return pd.DataFrame(
+                    [
+                        {
+                            "rule_id": str(value.get("rule_id", "")),
+                            "rule_text": str(value.get("rule_text", "")),
+                        }
+                        for value in records
+                    ]
+                )
+        except json.JSONDecodeError:
+            pass
     ids = re.findall(r"\bR\d+\b", str(row.get("rule_evidence_ids", "")))
     lines = str(row.get("rule_evidence_text", "")).splitlines()
     texts = {}
@@ -74,7 +90,13 @@ def _rule_frame(row: pd.Series) -> pd.DataFrame:
         if match:
             texts[match.group(1)] = match.group(2)
     return pd.DataFrame(
-        [{"rule_id": rule_id, "rule_text": texts.get(rule_id, "")} for rule_id in ids]
+        [
+            {
+                "rule_id": rule_id,
+                "rule_text": texts.get(rule_id, lines[index] if index < len(lines) else ""),
+            }
+            for index, rule_id in enumerate(ids)
+        ]
     )
 
 
@@ -83,10 +105,16 @@ def cached_generate(
     prompt: str,
     cache: ArtifactCache,
     namespace: str,
+    cache_context: dict[str, object] | None = None,
 ) -> str:
     record = cache.location(
         namespace,
-        {"model": generator.model_id, "prompt": prompt, "schema_version": 1},
+        {
+            "model": generator.model_id,
+            "prompt": prompt,
+            "schema_version": 1,
+            "context": cache_context or {},
+        },
         ".json",
     )
     if record.hit:

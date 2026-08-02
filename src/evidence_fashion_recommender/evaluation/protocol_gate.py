@@ -9,6 +9,7 @@ import pandas as pd
 from ..cache import stable_fingerprint
 
 PACKET_COLUMNS = ("item_evidence_text", "rule_evidence_ids", "rule_evidence_text")
+SEMANTIC_CASE_COLUMNS = ("query_item_id", "target_category")
 
 
 @dataclass(frozen=True)
@@ -46,9 +47,23 @@ def compare_locked_packets(
             raise ValueError(f"{name} packets are missing columns: {sorted(missing)}")
         if frame["paper_case_id"].duplicated().any():
             raise ValueError(f"{name} packets contain duplicate paper_case_id values.")
-    paired = legacy[list(required)].merge(
-        v2[list(required)],
-        on="paper_case_id",
+    join_columns = ["paper_case_id"]
+    if set(legacy["paper_case_id"]) != set(v2["paper_case_id"]):
+        semantic = set(SEMANTIC_CASE_COLUMNS)
+        for name, frame in (("legacy", legacy), ("v2", v2)):
+            missing = semantic - set(frame.columns)
+            if missing:
+                raise ValueError(
+                    "Protocol-specific case IDs differ and semantic alignment columns are "
+                    f"missing from {name}: {sorted(missing)}"
+                )
+            if frame[list(SEMANTIC_CASE_COLUMNS)].duplicated().any():
+                raise ValueError(f"{name} packets contain duplicate semantic case keys.")
+        join_columns = list(SEMANTIC_CASE_COLUMNS)
+    selected = [*required, *[column for column in join_columns if column not in required]]
+    paired = legacy[selected].merge(
+        v2[selected],
+        on=join_columns,
         how="outer",
         suffixes=("_legacy", "_v2"),
         indicator=True,
@@ -104,5 +119,6 @@ def compare_locked_packets(
         "material_change": material,
         "decision": "regenerate_all_variants" if material else "legacy_generation_v2_judging",
         "policy": asdict(policy),
+        "alignment_key": join_columns,
     }
     return paired.drop(columns="_merge"), summary
