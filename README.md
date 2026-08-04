@@ -1,210 +1,136 @@
 # Evidence-Constrained Multimodal Fashion Recommendation
 
-A reproducible research package for complementary fashion recommendation and faithful,
-evidence-grounded explanations. It combines multimodal item retrieval with expert styling
-rules, evidence-aware reranking, and controlled explanation ablations.
+A reproducible research pipeline for complementary fashion recommendation and faithful,
+evidence-grounded explanations. It combines text and image retrieval, validation-selected
+CLIP fusion, evidence-in-the-loop reranking, controlled RAG variants, atomic-claim
+verification, and cross-model explanation judging.
 
-The original exploratory implementation and its results are preserved in
-[`archive/`](archive/README.md). New experiments use the modular package under `src/`.
+The original notebook implementation is preserved under [`archive/`](archive/README.md).
+The completed modular final evaluation is implemented under `src/` and configured by
+[`configs/final_eval_v2.yaml`](configs/final_eval_v2.yaml).
 
-## Project Goal
+## Final evaluation status
 
-The project investigates whether retrieved fashion knowledge can improve both recommendation quality and explanation faithfulness in a multimodal fashion recommendation pipeline.
-The system takes:
+The v2 evaluation is complete through Stage 4D targeted recovery:
 
-* a query fashion item image or text description
-* a user request
-* a target recommendation category
-* retrieved fashion rules from a knowledge base
+- Stage 1: frozen validation/test retrieval and evidence packets.
+- Stage 2: validation-only Hybrid-RAG configuration selection.
+- Stage 3: 3,600 preserved explanations: 300 cases x 4 variants x 3 generators.
+- Stage 4A: separate extraction of all atomic claims, with no three-claim cap.
+- Stage 4B: separate claim verification; unavailable rows remain N/A.
+- Stage 4C: 10,800 general judgments from three judges. Cross-model-only results are
+  primary; self-judge-inclusive results are sensitivity diagnostics.
+- Stage 4D: key-targeted recovery of explicit failed/N/A rows followed by one deterministic
+  post-recovery merge and analysis.
 
-and produces:
-
-* top-K complementary item recommendations
-* evidence-constrained reranking
-* explanations using only retrieved fashion evidence
-
-## Research Focus
-
-The main research focus is:
-
-> Can a fashion recommender produce useful complementary recommendations while keeping explanations faithful to retrieved fashion knowledge?
-
-This project treats explanation faithfulness as a core part of the recommendation process, not as a post-hoc description added after retrieval.
-
-## Current Pipeline
-
-The planned pipeline is:
-
-1. Load and inspect a Polyvore-style fashion dataset.
-2. Represent fashion items using image/text embeddings.
-3. Retrieve candidate complementary items from the dataset.
-4. Retrieve relevant fashion rules from a curated knowledge base.
-5. Rerank candidates using visual-textual compatibility and retrieved evidence.
-6. Generate explanations constrained only to retrieved evidence.
-7. Use a critic/validation step to check whether the explanation is supported by the evidence.
-8. Evaluate recommendations and explanations using ablation experiments.
-
-## Current Implementation Status
-
-Completed so far:
-
-* Project repository initialised.
-* Python environment configured using `uv`.
-* PyTorch CUDA setup tested.
-* Polyvore-style dataset loaded and inspected.
-* Basic exploratory data analysis completed.
-* Outfit/category distribution inspected.
-* Fashion item text fields prepared.
-* Initial embedding-based similarity testing completed.
-* Same-outfit and different-outfit item comparisons tested.
-* Early baseline recommendation logic started.
-
-In progress:
-
-* Source-grounded fashion rules knowledge base.
-* RAG-ready CSV format for fashion rules.
-* Evidence retrieval design.
-* Recommendation reranking with retrieved rules.
-
-Planned next:
-
-* Add `data/kb/fashion_rules.csv`.
-* Build a rule retriever using semantic search.
-* Combine candidate retrieval with evidence-aware scoring.
-* Add faithful explanation generation.
-* Add critic/validator step.
-* Run ablation experiments.
-
-## Project Structure
+The proposed reranker is the validation-selected evidence-in-loop operating point:
 
 ```text
-evidence_fashion_recommender/
-│
-├── README.md
-├── pyproject.toml
-├── uv.lock
-├── notebook.ipynb
-│
-├── data/
-│   ├── kb/
-│   │   ├── README.md
-│   │   └── fashion_rules.csv
-│   │
-│   └── sample/
-│
-├── outputs/
-│
-└── .gitignore
+selection policy: evidence_in_loop_pareto_v2
+CLIP weight:      0.75
+evidence weight:  0.25
 ```
 
-Some folders may be empty during early development. Dataset files and generated outputs should not be committed unless they are small, necessary, and reproducible.
+CLIP 1.00 / evidence 0.00 is retained only as the accuracy-optimal baseline, not as the
+proposed method.
 
-## Environment Setup
+## Installation
 
-This project uses `uv` for dependency management.
-
-Create and activate the environment:
+Python 3.11 or 3.12 and [`uv`](https://docs.astral.sh/uv/) are required. The exact resolved
+environment is committed in `uv.lock`.
 
 ```powershell
-uv run efr --config configs/paper_baseline.yaml show-plan
+uv sync --extra dev --extra cuda
+uv run --extra cuda efr --config configs/final_eval_v2.yaml validate-config
+uv run --extra cuda efr --config configs/final_eval_v2.yaml doctor
 ```
 
-Override any declared experimental variable without editing Python:
+For CPU-only inspection and tests, replace `cuda` with `cpu`. Explanation generation and
+LLM evaluation require the configured Ollama models and their recorded model digests.
+
+## Reproducing the final pipeline
+
+Generated datasets, embeddings, caches, and full checkpoints are intentionally excluded from
+Git. Restore the inputs at the paths recorded by the manifests before running expensive
+commands. Then follow [`docs/reproducibility.md`](docs/reproducibility.md), which documents
+the stage order, resume behavior, integrity rules, and exact final commands.
+
+The final Stage 3-4 command sequence is:
 
 ```powershell
-uv run efr --config configs/paper_baseline.yaml `
-  --set models.generator.name=llama3.3 `
-  --set retrieval.final_top_k=10 `
-  --set evaluation.controlled_cases=500 `
-  show-plan
+uv run --extra cuda efr --config configs/final_eval_v2.yaml freeze-final-eval-v2
+uv run --extra cuda efr --config configs/final_eval_v2.yaml run-final-explanations-v2
+uv run --extra cuda efr --config configs/final_eval_v2.yaml extract-claims-v2
+uv run --extra cuda efr --config configs/final_eval_v2.yaml verify-claims-v2
+uv run --extra cuda efr --config configs/final_eval_v2.yaml judge-general-quality-v2
 ```
 
-Unknown keys and incompatible settings are rejected before a costly run begins.
+Each costly evaluation command is checkpointed and resumes completed rows. Stage 3 explanation
+text is never rewritten during evaluation or recovery.
 
-## Configuration
+Stage 4D is a recovery operation, not part of a clean first run. It targets only explicit
+failed/N/A keys and uses a larger output allowance without changing prompts or scoring:
 
-[`configs/default.yaml`](configs/default.yaml) declares dataset versions, model providers
-and names, batch sizes, fusion weights, retrieval depth, evidence settings, reranking
-weights, generation variants, temperatures, evaluation sizes, seeds, cache policy, and
-output behaviour.
+```powershell
+uv run --extra cuda efr --config configs/final_eval_v2.yaml recover-stage4d-v2 `
+  --artifact-root outputs/final_eval_v2 `
+  --recovery-root outputs/final_eval_v2/recovery/stage4d `
+  --post-root outputs/final_eval_v2/post_recovery `
+  --max-tokens 1600
+```
 
-[`configs/paper_baseline.yaml`](configs/paper_baseline.yaml) inherits from the defaults and
-freezes the first modular paper baseline. Create a new named configuration for every
-reported experiment; do not overwrite a historical experiment definition.
+## Evaluation contract
 
-Model revisions should be pinned before a final paper or thesis run. Changing a model name
-is sufficient when the provider and model architecture are compatible. Changing model
-families may also require changing the provider adapter.
+- Validation selects fusion, evidence-reranking, and Hybrid-RAG settings; test does not.
+- The proposed method always has evidence in the reranking loop.
+- Extraction and verification remain separate model calls and artifacts.
+- Empty or failed extraction is N/A, never perfect support.
+- Failed extraction, verification, or judging is N/A, never zero, one, unsupported, or a
+  fabricated score.
+- Length compliance (`word_count` and `over_35_words`) is reported separately from explanation
+  quality. Over-length explanations are retained unchanged.
+- Cross-model-only judging is the primary analysis. All-judge results, including self-judging,
+  are sensitivity diagnostics only.
+- Recovery copies successful source rows byte-for-byte at the record level and validates their
+  canonical hashes before accepting a merged table.
 
-## Outputs and caching
+## Results and audit artifacts
 
-Every run receives a new immutable directory:
+The committed compact result bundles are:
+
+- [`reports/final_eval_v2/pre_recovery`](reports/final_eval_v2/pre_recovery): immutable
+  pre-recovery analysis.
+- [`reports/final_eval_v2/post_recovery`](reports/final_eval_v2/post_recovery): final
+  post-recovery tables, figures, artifact inventory, and handoff.
+- [`reports/final_eval_v2/post_recovery/STAGE4D_HANDOFF.md`](reports/final_eval_v2/post_recovery/STAGE4D_HANDOFF.md):
+  recovery counts, integrity checks, and headline results.
+- `outputs/final_eval_v2/recovery/stage4d`: committed compact source hashes, completion manifest,
+  and per-key recovery audits. Large merged tables remain ignored under `outputs/`.
+
+## Repository structure
 
 ```text
-tops, bottoms, shoes, outerwear, accessories
+configs/     validated experiment configurations
+data/        local datasets and knowledge base (large derived data ignored)
+docs/        methodology, protocols, architecture, and reproducibility
+outputs/     generated runs, caches, checkpoints, and merged tables (ignored by default)
+reports/     committed compact tables, figures, manifests, and handoffs
+src/         installable evidence_fashion_recommender package
+tests/       unit and synthetic integration tests
+archive/     preserved exploratory notebook implementation
 ```
 
-## Evidence-Constrained Explanation
+## Validation
 
-The explanation module should only use retrieved evidence from the KB.
+```powershell
+uv run --extra cuda --extra dev ruff check src tests
+uv run --extra cuda --extra dev pytest -q
+```
 
-For example, if the system recommends shoes for a dress, the explanation must be based on retrieved rules about dress-shoe pairing, formality, colour harmony, occasion, or silhouette.
+The completed Stage 4D commit passed Ruff and all 79 tests. Run manifests additionally bind
+configuration, source artifacts, model identities, row counts, and hashes.
 
-The explanation should not invent fashion logic that is not present in the retrieved evidence.
+## Citation and license
 
-## Planned Ablation Study
-
-The project will compare several system variants:
-
-| Variant               | Description                                                                           |
-| --------------------- | ------------------------------------------------------------------------------------- |
-| Baseline              | Recommendation using item similarity only                                             |
-| Prompt-only           | Recommendation with fixed styling instructions                                        |
-| RAG                   | Recommendation using retrieved fashion rules                                          |
-| Prompt + RAG          | Recommendation using instructions and retrieved evidence                              |
-| Prompt + RAG + Critic | Recommendation with evidence validation                                               |
-| Full system           | Multimodal retrieval, evidence reranking, faithful explanation, and critic validation |
-
-## Evaluation Plan
-
-Recommendation evaluation may include:
-
-* top-K retrieval quality
-* category correctness
-* compatibility comparison
-* same-outfit vs different-outfit similarity
-* ranking inspection
-* qualitative recommendation analysis
-
-Explanation evaluation may include:
-
-* evidence usage
-* citation overlap
-* unsupported claim detection
-* faithfulness scoring
-* human inspection
-* ablation comparison
-
-## Reproducibility Notes
-
-To keep the project reproducible:
-
-* Keep notebooks clean and sequential.
-* Use fixed random seeds where possible.
-* Avoid committing large datasets.
-* Document dataset source and preprocessing steps.
-* Save generated outputs under `outputs/`.
-* Keep the fashion KB in CSV format.
-* Track major experiments with clear section headings.
-
-Project title:
-
-**Evidence-Constrained Multimodal Fashion Recommendation with Faithful Explanations**
-
-Research area:
-
-* multimodal recommendation
-* fashion recommendation
-* retrieval-augmented generation
-* faithful explanation generation
-* evidence-constrained AI systems
+Citation metadata is in [`CITATION.cff`](CITATION.cff). The project is released under the
+[`MIT License`](LICENSE).

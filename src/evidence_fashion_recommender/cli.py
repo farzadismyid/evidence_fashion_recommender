@@ -136,6 +136,61 @@ def build_parser() -> argparse.ArgumentParser:
         "--freeze", default="outputs/final_eval_v2/freeze/FINAL_FREEZE_MANIFEST.json"
     )
     generation_v2_parser.add_argument("--output-dir", default="outputs/final_eval_v2/explanations")
+    extract_v2_parser = subparsers.add_parser(
+        "extract-claims-v2", help="Resumably extract all atomic claims from final v2 explanations."
+    )
+    extract_v2_parser.add_argument(
+        "--input", default="outputs/final_eval_v2/explanations/explanations.csv"
+    )
+    extract_v2_parser.add_argument(
+        "--output-dir", default="outputs/final_eval_v2/claims/extraction"
+    )
+    verify_v2_parser = subparsers.add_parser(
+        "verify-claims-v2", help="Resumably verify separately extracted final v2 claims."
+    )
+    verify_v2_parser.add_argument(
+        "--input", default="outputs/final_eval_v2/explanations/explanations.csv"
+    )
+    verify_v2_parser.add_argument(
+        "--extraction-dir", default="outputs/final_eval_v2/claims/extraction"
+    )
+    verify_v2_parser.add_argument(
+        "--output-dir", default="outputs/final_eval_v2/claims/verification"
+    )
+    judge_v2_parser = subparsers.add_parser(
+        "judge-general-quality-v2",
+        help="Resumably run anchored v2 judging with cross-model primary summaries.",
+    )
+    judge_v2_parser.add_argument(
+        "--input", default="outputs/final_eval_v2/explanations/explanations.csv"
+    )
+    judge_v2_parser.add_argument("--output-dir", default="outputs/final_eval_v2/general_judging")
+    analyze_v2_parser = subparsers.add_parser(
+        "analyze-final-eval-v2",
+        help="Build the pre-recovery paper-ready final_eval_v2 analysis bundle.",
+    )
+    analyze_v2_parser.add_argument(
+        "--artifact-root", default="outputs/final_eval_v2"
+    )
+    analyze_v2_parser.add_argument(
+        "--output-dir", default="reports/final_eval_v2/pre_recovery"
+    )
+    analyze_v2_parser.add_argument(
+        "--analysis-label", default="PRE-RECOVERY FINAL ANALYSIS"
+    )
+    analyze_v2_parser.add_argument("--stage4d-recovery-run", action="store_true")
+    recovery_v2_parser = subparsers.add_parser(
+        "recover-stage4d-v2",
+        help="Target only explicit Stage 4 failures and materialize post-recovery tables.",
+    )
+    recovery_v2_parser.add_argument("--artifact-root", default="outputs/final_eval_v2")
+    recovery_v2_parser.add_argument(
+        "--recovery-root", default="outputs/final_eval_v2/recovery/stage4d"
+    )
+    recovery_v2_parser.add_argument(
+        "--post-root", default="outputs/final_eval_v2/post_recovery"
+    )
+    recovery_v2_parser.add_argument("--max-tokens", type=int, default=1600)
     tuning_parser = subparsers.add_parser(
         "tune-reranking",
         help="Select evidence-reranking weight using validation outfits only.",
@@ -1296,6 +1351,132 @@ def command_final_explanations_v2(
     return 0
 
 
+def command_extract_claims_v2(
+    config_path: str, overrides: list[str], args: argparse.Namespace
+) -> int:
+    import pandas as pd
+
+    from .evaluation.stage45_v2 import run_claim_extraction_v2
+    from .models.llm import OllamaGenerator
+    from .run import start_run
+
+    config = load_config(config_path, overrides)
+    context = start_run(config)
+    input_path = Path(args.input)
+    manifest = run_claim_extraction_v2(
+        explanations=pd.read_csv(input_path),
+        extractor=OllamaGenerator(config.robustness.judges[0]),
+        cache=context.cache,
+        input_path=input_path,
+        output_dir=_require_v2_output(config, args.output_dir),
+        report_path=config.final_evaluation.report_root / "claim_extraction_handoff.md",
+    )
+    print(json.dumps(manifest, indent=2))
+    return 0
+
+
+def command_verify_claims_v2(
+    config_path: str, overrides: list[str], args: argparse.Namespace
+) -> int:
+    import pandas as pd
+
+    from .evaluation.stage45_v2 import run_claim_verification_v2
+    from .models.llm import OllamaGenerator
+    from .run import start_run
+
+    config = load_config(config_path, overrides)
+    context = start_run(config)
+    input_path = Path(args.input)
+    manifest = run_claim_verification_v2(
+        explanations=pd.read_csv(input_path),
+        extraction_dir=Path(args.extraction_dir),
+        verifier=OllamaGenerator(config.robustness.judges[0]),
+        cache=context.cache,
+        input_path=input_path,
+        output_dir=_require_v2_output(config, args.output_dir),
+        report_path=config.final_evaluation.report_root / "claim_verification_handoff.md",
+    )
+    print(json.dumps(manifest, indent=2))
+    return 0
+
+
+def command_judge_general_quality_v2(
+    config_path: str, overrides: list[str], args: argparse.Namespace
+) -> int:
+    import pandas as pd
+
+    from .evaluation.stage45_v2 import run_general_judging_v2
+    from .models.llm import OllamaGenerator
+    from .run import start_run
+
+    config = load_config(config_path, overrides)
+    context = start_run(config)
+    input_path = Path(args.input)
+    manifest = run_general_judging_v2(
+        explanations=pd.read_csv(input_path),
+        judges=[OllamaGenerator(value) for value in config.robustness.judges],
+        cache=context.cache,
+        input_path=input_path,
+        output_dir=_require_v2_output(config, args.output_dir),
+        report_path=config.final_evaluation.report_root / "general_judging_handoff.md",
+    )
+    print(json.dumps(manifest, indent=2))
+    return 0
+
+
+def command_analyze_final_eval_v2(
+    config_path: str, overrides: list[str], args: argparse.Namespace
+) -> int:
+    from .evaluation.pre_recovery_v2 import build_pre_recovery_analysis
+
+    config = load_config(config_path, overrides)
+    manifest = build_pre_recovery_analysis(
+        artifact_root=Path(args.artifact_root),
+        output_dir=Path(args.output_dir),
+        bootstrap_samples=config.evaluation.bootstrap_samples,
+        confidence_level=config.evaluation.confidence_level,
+        seed=config.project.seed,
+        analysis_label=args.analysis_label,
+        stage4d_recovery_run=args.stage4d_recovery_run,
+    )
+    print(json.dumps(manifest, indent=2))
+    return 0
+
+
+def command_recover_stage4d_v2(
+    config_path: str, overrides: list[str], args: argparse.Namespace
+) -> int:
+    from .evaluation.stage4d_v2 import run_stage4d_recovery
+    from .models.llm import OllamaGenerator
+    from .run import start_run
+
+    config = load_config(config_path, overrides)
+    context = start_run(config)
+    recovery_configs = [
+        value.model_copy(update={"max_tokens": args.max_tokens})
+        for value in config.robustness.judges
+    ]
+    models = [OllamaGenerator(value) for value in recovery_configs]
+    manifest = run_stage4d_recovery(
+        artifact_root=Path(args.artifact_root),
+        recovery_root=Path(args.recovery_root),
+        post_root=Path(args.post_root),
+        extractor=models[0],
+        verifier=models[0],
+        judges={
+            original.model_id: recovery
+            for original, recovery in zip(
+                [OllamaGenerator(value) for value in config.robustness.judges],
+                models,
+                strict=True,
+            )
+        },
+        cache=context.cache,
+    )
+    print(json.dumps(manifest, indent=2))
+    return 0
+
+
 def command_tune_reranking(config_path: str, overrides: list[str], args: argparse.Namespace) -> int:
     import numpy as np
     import pandas as pd
@@ -2001,6 +2182,16 @@ def main(argv: list[str] | None = None) -> int:
         return command_freeze_final_eval_v2(args.config, args.set, args)
     if args.command == "run-final-explanations-v2":
         return command_final_explanations_v2(args.config, args.set, args)
+    if args.command == "extract-claims-v2":
+        return command_extract_claims_v2(args.config, args.set, args)
+    if args.command == "verify-claims-v2":
+        return command_verify_claims_v2(args.config, args.set, args)
+    if args.command == "judge-general-quality-v2":
+        return command_judge_general_quality_v2(args.config, args.set, args)
+    if args.command == "analyze-final-eval-v2":
+        return command_analyze_final_eval_v2(args.config, args.set, args)
+    if args.command == "recover-stage4d-v2":
+        return command_recover_stage4d_v2(args.config, args.set, args)
     if args.command == "tune-reranking":
         return command_tune_reranking(args.config, args.set, args)
     if args.command == "evaluate-heldout-ranking":
