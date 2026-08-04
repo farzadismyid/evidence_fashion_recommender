@@ -1,0 +1,7 @@
+{
+  "explanations_hash": "6fbae305fa00051d771201c72a61d1f38cc7de3f834c40dc28cf42e296040e45",
+  "extraction_checkpoint_hash": "08d1c1f9f3b99fb4f6cfd0f83e76cf51d817f22ff756aae5a537c4e3cff60a20",
+  "verification_checkpoint_hash": "9010e0a89030ab16fe4d0d431a7469c9973ec07ed656343b705a0e6be3ed53fc",
+  "judgment_checkpoint_hash": "bf1544d86a8fd6afc812de78f2c1a7e937e2c9c5431650cbceb9fb8a6c17f957",
+  "pre_recovery_manifest_hash": "af466131bb128b50f600a54db1ea385644112e91e73f1b2dbc63a39ac202c111"
+}
