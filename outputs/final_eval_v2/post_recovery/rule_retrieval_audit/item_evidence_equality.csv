@@ -1,0 +1,6 @@
+grounding_variant,rows,exact_equal,normalized_equal,exact_percent,normalized_percent
+hybrid_rag,900,900,900,100.0,100.0
+item_rag,900,900,900,100.0,100.0
+no_rag,900,900,900,100.0,100.0
+rule_rag,900,900,900,100.0,100.0
+overall,3600,3600,3600,100.0,100.0
