@@ -1,0 +1,127 @@
+rule_id,retrievals,cases,categories,percent_packets,rule_text,recommended_category
+R001,33.0,11.0,shoes,3.6666666666666665,"For a formal evening dress, recommend refined heeled sandals, pumps or polished evening shoes because black-tie guidance treats footwear as part of the formal evening look.",shoes
+R002,15.0,5.0,shoes,1.6666666666666667,"For a cocktail dress, recommend dressy heels, slingbacks or polished flats rather than casual trainers because cocktail attire is semi-formal and usually asks the outfit to be dressed up above everyday wear.",shoes
+R003,9.0,3.0,shoes,1.0,"For a summer or resort dress, recommend flat sandals, woven sandals or simple slides because warm-weather dress styling often prioritises lighter shoes and simple accessories.",shoes
+R004,0.0,0.0,,0.0,"For a winter dress, recommend boots or closed-toe polished shoes because seasonal dress styling needs footwear that works with colder-weather layering.",shoes
+R005,0.0,0.0,,0.0,"For a wedding guest dress, recommend shoes that match the dress code and occasion level; metallic or dressy shoes can sharpen floral or romantic dresses without changing the dress itself.",shoes
+R006,21.0,7.0,shoes,2.3333333333333335,"For a midi dress in daytime styling, recommend loafers, ballet flats or clean low-profile shoes because these maintain polish while keeping the outfit less formal than eveningwear.",shoes
+R007,3.0,1.0,shoes,0.3333333333333333,"For jeans, recommend boots, loafers or clean casual shoes with a proportional shape because jeans-and-shoes pairing depends on balancing shoe bulk with denim fit.",shoes
+R008,18.0,6.0,shoes,2.0,"For straight-leg jeans, recommend ankle boots, pumps or clean sneakers depending on the requested formality because straight denim can work across casual and polished outfits.",shoes
+R009,3.0,1.0,shoes,0.3333333333333333,"For wide-leg trousers, recommend footwear that prevents the hem from overwhelming the shoe, such as heeled sandals, pointed flats or visible low-profile shoes.",shoes
+R010,0.0,0.0,,0.0,"For petite wide-leg trousers, recommend shoes that keep the trouser around ankle length when flats are used, because the source links this to avoiding visual overwhelm.",shoes
+R011,6.0,2.0,shoes,0.6666666666666666,"For chinos in smart-casual menswear, recommend loafers, Derbys or restrained trainers because chinos sit between tailoring and casualwear.",shoes
+R012,0.0,0.0,,0.0,"For chinos with trainers, recommend clean leather or suede trainers rather than athletic statement trainers because the pairing works best when the shoe keeps a quiet smart-casual tone.",shoes
+R013,129.0,43.0,shoes,14.333333333333334,"For smart-casual trousers, recommend leather shoes such as loafers, brogues or Derbys because smart-casual guidance links the smarter side of the code to tailoring and leather shoes.",shoes
+R014,0.0,0.0,,0.0,"For business-casual bottoms, recommend smart-looking shoes and avoid overly casual footwear because business casual is positioned above casual denim outfits.",shoes
+R015,9.0,3.0,shoes,1.0,"For a suit or black-tie trousers, recommend black patent or highly polished dress shoes because black-tie menswear guidance treats polished black footwear as standard evening dress.",shoes
+R016,0.0,0.0,,0.0,"For a lounge suit or formal suit, recommend conservative dress shoes rather than trainers because etiquette sources separate formal attire from casual dress.",shoes
+R017,0.0,0.0,,0.0,"For a neutral dress, recommend a contrasting shoe only when the user wants visual emphasis; otherwise tonal or neutral shoes keep the outfit quieter.",shoes
+R018,129.0,43.0,shoes,14.333333333333334,"For outfits with one bold-colour garment, recommend shoes in neutral colours when the goal is a conservative outfit because neutral footwear reduces additional colour competition.",shoes
+R019,9.0,3.0,shoes,1.0,"For monochrome outfits, recommend shoes in the same colour family or a deliberate contrast colour because tonal styling relies on controlled variation inside one palette.",shoes
+R020,54.0,18.0,shoes,6.0,"For dressy date-night outfits, recommend shoes that maintain the outfit's elevated tone, such as polished sandals, mules or refined boots.",shoes
+R021,0.0,0.0,,0.0,"For a skirt or dressy bottom in evening styling, recommend patent, metallic or satin-finish shoes only when the rest of the outfit is also elevated.",shoes
+R022,0.0,0.0,,0.0,"For straight or relaxed jeans, recommend loafers when the desired result is smart casual because loafers can bridge denim and more polished styling.",shoes
+R023,135.0,45.0,shoes,15.0,"For casual daytime jeans, recommend clean sneakers or low boots when the request is relaxed rather than formal.",shoes
+R024,147.0,49.0,shoes,16.333333333333332,"For a top-and-bottom outfit with a clear style theme, recommend shoes from the same style family because style-conditioned outfit generation treats style as a compatibility constraint.",shoes
+R025,180.0,60.0,shoes,20.0,"For an outfit retrieved as a complete look, recommend shoes from a different category but compatible with the existing items because complete-the-look systems model complementary rather than substitute items.",shoes
+R026,0.0,0.0,,0.0,"For formal menswear trousers, recommend black Oxfords or similarly conservative dress shoes when the event is a traditional wedding or formal daytime code.",shoes
+R027,24.0,8.0,accessories,2.6666666666666665,"For a black-tie dress, recommend a small evening bag, refined jewellery or formal accessories because black-tie outfits are treated as a complete evening capsule.",accessories
+R028,6.0,2.0,accessories,0.6666666666666666,"For a cocktail dress, recommend accessories that dress the look up without overpowering it because cocktail attire permits polish but is less rigid than black tie.",accessories
+R029,0.0,0.0,,0.0,"For a wedding guest dress, recommend accessories that respect the dress code and avoid competing with the occasion, such as metallic jewellery or a refined bag.",accessories
+R030,102.0,34.0,accessories,11.333333333333334,"For a simple dress, recommend one focal accessory such as a necklace, belt or bag because a dress can be styled by selecting accessories that mix and match around the garment.",accessories
+R031,18.0,6.0,accessories,2.0,"For a resort or summer dress, recommend lightweight accessories such as a woven bag or minimal jewellery because warm-weather dress styling is usually kept simple.",accessories
+R032,18.0,6.0,accessories,2.0,"For date-night outfits with minimal clothing, recommend statement jewellery, a handbag or a scarf as a controlled accent because accessories can complete a simple evening look.",accessories
+R033,0.0,0.0,,0.0,"For festive or evening outfits, recommend a coloured shoe-and-bag accent only when the clothing base is simple enough to support the colour contrast.",accessories
+R034,60.0,20.0,accessories,6.666666666666667,"For a formal suit or tuxedo, recommend restrained accessories such as a bow tie, cufflinks or pocket square because traditional black-tie guidance discourages novelty accessories.",accessories
+R035,39.0,13.0,accessories,4.333333333333333,"For a lounge suit, recommend a tie, pocket square or dress watch only when the requested setting is formal or business rather than casual.",accessories
+R036,21.0,7.0,accessories,2.3333333333333335,"For smart-casual menswear, recommend accessories that keep the outfit neat but not ceremonial, such as a leather belt or simple watch.",accessories
+R037,36.0,12.0,accessories,4.0,"For business-casual outfits, recommend clean and simple accessories rather than ornate evening pieces because business casual is framed as polished work dressing.",accessories
+R038,0.0,0.0,,0.0,"For monochrome outfits, recommend accessories in the same colour family or one deliberate accent because tonal dressing depends on controlled colour variation.",accessories
+R039,0.0,0.0,,0.0,"For outfits using complementary colours, recommend accessories as the controlled contrast point rather than adding multiple competing garment colours.",accessories
+R040,0.0,0.0,,0.0,"For neutral outfits, recommend a metallic accessory when the user requests evening polish because metallic accents can add dressiness without changing the clothing palette.",accessories
+R041,12.0,4.0,accessories,1.3333333333333333,"For a work dress or structured office outfit, recommend a structured bag and minimal jewellery because business styling usually favours polish and clarity over decorative excess.",accessories
+R042,111.0,37.0,accessories,12.333333333333334,"For outerwear-led outfits, recommend accessories that match the coat's formality, such as a leather bag with tailored coats or relaxed knit accessories with casual jackets.",accessories
+R043,54.0,18.0,accessories,6.0,"For a tailored coat, recommend a structured bag or refined scarf because structured outerwear is best completed with accessories that preserve the polished line.",accessories
+R044,9.0,3.0,accessories,1.0,"For casual jackets, recommend relaxed accessories such as canvas totes, caps or knit scarves when the user asks for daytime styling.",accessories
+R045,39.0,13.0,accessories,4.333333333333333,"For shoes with strong visual detail, recommend simple accessories so the outfit has one clear accent rather than several competing focal points.",accessories
+R046,9.0,3.0,accessories,1.0,"For metallic shoes, recommend a bag or jewellery that repeats or harmonises with the metallic tone when the user requests a polished evening outfit.",accessories
+R047,0.0,0.0,,0.0,"For loafers in smart-casual menswear, recommend socks, belt or watch choices that keep the look intentional rather than overly formal.",accessories
+R048,6.0,2.0,accessories,0.6666666666666666,"For black dress shoes in formalwear, recommend restrained accessories such as cufflinks or a pocket square because formal menswear relies on controlled finishing details.",accessories
+R049,12.0,4.0,accessories,1.3333333333333333,"For an outfit with patterned clothing, recommend accessories in a quieter colour pulled from the pattern rather than adding an unrelated competing colour.",accessories
+R050,180.0,60.0,accessories,20.0,"For fashion-item recommendation, treat accessories as complementary items rather than substitutes when completing an outfit around an existing garment.",accessories
+R051,15.0,5.0,accessories,1.6666666666666667,"For a classic menswear outfit, recommend accessories that maintain proportion with tailoring, such as a belt width and tie scale that do not visually overpower the suit.",accessories
+R052,129.0,43.0,accessories,14.333333333333334,"For colour-aware outfit generation, recommend accessories whose colour is compatible with the existing clothing palette because colour compatibility is a measurable signal in fashion recommendation.",accessories
+R053,0.0,0.0,,0.0,"For wide-leg trousers, recommend a fitted or tucked top because reducing volume above the waist helps offset the fullness of the trouser leg.",tops
+R054,0.0,0.0,,0.0,"For petite wide-leg jeans, recommend a top that defines the waist, such as a tucked blouse or cropped knit, because the source links high-rise waist emphasis to balancing wide proportions.",tops
+R055,66.0,22.0,tops,7.333333333333333,"For straight-leg jeans, recommend tops selected by the intended formality: a tee for casual, a blouse for polish, or a blazer layer for work.",tops
+R056,0.0,0.0,,0.0,"For smart-casual trousers, recommend a collared shirt, knit polo or fine-gauge sweater because smart casual balances relaxed clothing with tailored pieces.",tops
+R057,0.0,0.0,,0.0,"For chinos, recommend softer tailoring or knitwear rather than only stiff dress shirts when the goal is modern smart casual.",tops
+R058,0.0,0.0,,0.0,"For business-casual bottoms, recommend clean shirts, sweaters or simple polished tops because business casual should remain work-appropriate even when relaxed.",tops
+R059,0.0,0.0,,0.0,"For a casual skirt or jeans outfit, recommend a simple tee or casual shirt when the request is daytime rather than evening.",tops
+R060,0.0,0.0,,0.0,"For formal trousers or a suit, recommend a dress shirt rather than a T-shirt because formal dress codes separate suits from casual dressing.",tops
+R061,0.0,0.0,,0.0,"For a neutral bottom, recommend a top within the same tonal family when the user requests a quiet minimal outfit.",tops
+R062,0.0,0.0,,0.0,"For a bold-colour bottom, recommend either a neutral top for restraint or a colour-wheel-based top when the user explicitly wants colour coordination.",tops
+R063,0.0,0.0,,0.0,"For patterned bottoms, recommend a quieter solid top that repeats one colour from the pattern when the goal is a coherent outfit.",tops
+R064,0.0,0.0,,0.0,"For jeans and loafers, recommend a top that is cleaner than sportswear, such as a button-down, knit or plain tee with an outer layer, to keep the look smart casual.",tops
+R065,0.0,0.0,,0.0,"For clean trainers with chinos, recommend a crisp shirt or unstructured blazer layer over a tee to keep the outfit smart enough for dinner or date-night settings.",tops
+R066,0.0,0.0,,0.0,"For black-tie footwear, recommend a formal shirt or evening top rather than casual knitwear because black-tie footwear belongs to a complete formal evening system.",tops
+R067,117.0,39.0,tops,13.0,"For accessories that are already statement pieces, recommend a simple top so the outfit retains a clear focal point.",tops
+R068,180.0,60.0,tops,20.0,"For a structured bag or polished accessory, recommend a top with a similarly polished finish, such as a blouse, shirt or fine knit.",tops
+R069,123.0,41.0,tops,13.666666666666666,"For an outfit built around pearl or refined jewellery, recommend classic tops such as a blouse, knit or tailored shirt rather than strongly athletic tops when the user requests polish.",tops
+R070,15.0,5.0,tops,1.6666666666666667,"For a coat or blazer as the query item, recommend a top thin enough to layer cleanly underneath when the user asks for seasonal layering.",tops
+R071,24.0,8.0,tops,2.6666666666666665,"For a casual jacket, recommend relaxed base tops such as a tee, polo or casual shirt because casual outerwear should not force formal top choices.",tops
+R072,3.0,1.0,tops,0.3333333333333333,"For a tailored blazer, recommend a shirt, blouse or fine knit because tailored outerwear pairs best with a base layer that preserves the structured line.",tops
+R073,0.0,0.0,,0.0,"For a winter coat, recommend knitwear or long-sleeved tops that support warmth without breaking the outfit's formality level.",tops
+R074,180.0,60.0,tops,20.0,"For a top recommendation in a complete outfit, enforce type diversity: recommend tops as complementary items only when the existing item is from another category.",tops
+R075,180.0,60.0,tops,20.0,"For occasion-aware recommendation, choose tops whose use case matches the event because fashion knowledge links clothing choices to social activity and convention.",tops
+R076,12.0,4.0,tops,1.3333333333333333,"For classic menswear trousers, recommend a top whose scale and structure match the trouser formality, such as a dress shirt for tailored trousers and knitwear for softer chinos.",tops
+R077,0.0,0.0,,0.0,"For a fitted top, recommend straight-leg, wide-leg or relaxed trousers when the goal is silhouette balance, because volume in the bottom can offset a close-fitting upper half.",bottoms
+R078,0.0,0.0,,0.0,"For an oversized top, recommend slimmer or more structured bottoms when the user requests a balanced silhouette.",bottoms
+R079,0.0,0.0,,0.0,"For a cropped top, recommend high-rise trousers, skirts or jeans because the higher waist helps connect the proportions between top and bottom.",bottoms
+R080,0.0,0.0,,0.0,"For a button-down shirt in business-casual styling, recommend chinos, tailored trousers or dark jeans only when the workplace permits denim.",bottoms
+R081,0.0,0.0,,0.0,"For a smart-casual top, recommend chinos, tailored trousers or clean dark denim because the dress code sits between suit-level formality and casual clothing.",bottoms
+R082,0.0,0.0,,0.0,"For a fine knit or soft tailored top, recommend chinos when the user wants relaxed smart casual because chinos support the less formal side of tailoring.",bottoms
+R083,57.0,19.0,bottoms,6.333333333333333,"For a polished blouse, recommend tailored trousers or a midi skirt when the user request is workwear or business casual.",bottoms
+R084,0.0,0.0,,0.0,"For a casual T-shirt, recommend jeans, relaxed trousers or casual skirts when the request is daytime casual.",bottoms
+R085,0.0,0.0,,0.0,"For a formal shirt, recommend dress trousers rather than jeans because formal attire guidance excludes jeans from formal menswear.",bottoms
+R086,0.0,0.0,,0.0,"For a black-tie shirt or evening top, recommend tuxedo trousers or formal evening trousers because black tie requires a formal evening ensemble.",bottoms
+R087,3.0,1.0,bottoms,0.3333333333333333,"For a neutral top, recommend bottoms in a tonal or monochrome palette when the user requests a minimal outfit.",bottoms
+R088,0.0,0.0,,0.0,"For a bold-colour top, recommend neutral bottoms for a conservative result or a complementary-colour bottom only when the user asks for a stronger colour statement.",bottoms
+R089,0.0,0.0,,0.0,"For patterned tops, recommend solid bottoms in a colour already present in the pattern to keep the outfit visually connected.",bottoms
+R090,6.0,2.0,bottoms,0.6666666666666666,"For a structured blazer as the top layer, recommend trousers or dark denim that maintain polish rather than casual shorts.",bottoms
+R091,9.0,3.0,bottoms,1.0,"For a tank top or simple summer top, recommend relaxed trousers, shorts or skirts only when the occasion is casual daytime.",bottoms
+R092,15.0,5.0,bottoms,1.6666666666666667,"For a refined accessory-led top outfit, recommend simple bottoms so the accessory remains the focal point.",bottoms
+R093,180.0,60.0,bottoms,20.0,"For formal shoes as the query item, recommend formal trousers or tailored bottoms because footwear formality should match the rest of the outfit.",bottoms
+R094,63.0,21.0,bottoms,7.0,"For casual trainers as the query item, recommend casual or smart-casual bottoms such as chinos or clean jeans, not formal evening trousers.",bottoms
+R095,3.0,1.0,bottoms,0.3333333333333333,"For loafers, recommend denim, chinos or tailored trousers according to the loafer shape, because chunkier loafers suit denim while cleaner shapes read more formal.",bottoms
+R096,180.0,60.0,bottoms,20.0,"For an outerwear-led casual outfit, recommend bottoms that match the jacket's relaxed formality, such as jeans or casual trousers.",bottoms
+R097,0.0,0.0,,0.0,"For a tailored coat or blazer, recommend tailored trousers when the user request is work or formal smart casual.",bottoms
+R098,21.0,7.0,bottoms,2.3333333333333335,"For long outerwear, recommend bottoms with a clean line when the user wants polish because bulky or heavily detailed bottoms can compete with the outer layer.",bottoms
+R099,177.0,59.0,bottoms,19.666666666666668,"For outfit compatibility systems, recommend bottoms as complementary items from a different apparel type rather than substitutes for tops.",bottoms
+R100,6.0,2.0,bottoms,0.6666666666666666,"For occasion-aware bottom selection, use the user's occasion tag because fashion knowledge includes the relation between clothing and social activities.",bottoms
+R101,180.0,60.0,bottoms,20.0,"For colour-compatible outfit completion, recommend bottoms whose dominant colour is compatible with the existing top and accessories.",bottoms
+R102,0.0,0.0,,0.0,"For a winter dress, recommend a simple overcoat or structured coat because winter dress styling uses outerwear to add warmth while preserving polish.",outerwear
+R103,9.0,3.0,outerwear,1.0,"For a formal dress, recommend refined outerwear such as a tailored coat or evening wrap because formal dress-code styling should not make the outfit read casual.",outerwear
+R104,0.0,0.0,,0.0,"For a cocktail dress, recommend a polished blazer, cropped jacket or tailored coat that keeps the semi-formal tone.",outerwear
+R105,0.0,0.0,,0.0,"For a wedding guest dress, recommend outerwear that respects the dress code, such as a tailored coat for formal weddings or lighter polished layer for daytime weddings.",outerwear
+R106,6.0,2.0,outerwear,0.6666666666666666,"For a summer dress, recommend lightweight outerwear only when needed, such as a linen blazer or light cardigan, because warm-weather styling should not overpower the dress.",outerwear
+R107,36.0,12.0,outerwear,4.0,"For a slip or minimalist dress, recommend a structured blazer or tailored coat when the user wants smart-casual polish.",outerwear
+R108,0.0,0.0,,0.0,"For jeans and a casual top, recommend a blazer when the user wants to elevate the outfit because blazer-and-jeans is a recognised high-low smart-casual formula.",outerwear
+R109,0.0,0.0,,0.0,"For chinos, recommend an unstructured blazer or casual jacket when the outfit should read smart casual rather than formal.",outerwear
+R110,0.0,0.0,,0.0,"For tailored trousers, recommend a blazer or tailored coat when the user request is business casual or formal.",outerwear
+R111,0.0,0.0,,0.0,"For wide-leg trousers, recommend cropped or structured outerwear when the user wants balanced proportions, so the top layer does not add uncontrolled volume.",outerwear
+R112,0.0,0.0,,0.0,"For straight-leg jeans, recommend a blazer for polish or a casual jacket for daytime because straight-leg denim can be styled across several formality levels.",outerwear
+R113,114.0,38.0,outerwear,12.666666666666666,"For business-casual tops, recommend a blazer, structured cardigan or tailored coat when the outfit needs workplace polish.",outerwear
+R114,12.0,4.0,outerwear,1.3333333333333333,"For a casual tee, recommend a denim jacket, bomber or relaxed jacket when the target occasion is casual daytime.",outerwear
+R115,0.0,0.0,,0.0,"For a fitted top, recommend an outerwear layer with enough structure or length to balance the close-fitting upper garment.",outerwear
+R116,24.0,8.0,outerwear,2.6666666666666665,"For an oversized top, recommend a straighter or relaxed outerwear layer only when the outfit intentionally uses a relaxed silhouette; otherwise choose cleaner structure.",outerwear
+R117,0.0,0.0,,0.0,"For a formal shirt or evening top, recommend a dinner jacket, tuxedo jacket or tailored formal layer when the request is black tie.",outerwear
+R118,3.0,1.0,outerwear,0.3333333333333333,"For a work shirt or blouse, recommend a blazer or tailored jacket because workwear styling benefits from structured outerwear.",outerwear
+R119,33.0,11.0,outerwear,3.6666666666666665,"For shoes that signal formal eveningwear, recommend outerwear that preserves formal tone, such as a tailored coat rather than a casual puffer.",outerwear
+R120,63.0,21.0,outerwear,7.0,"For casual trainers, recommend casual outerwear such as a bomber, denim jacket or relaxed coat when the request is daytime casual.",outerwear
+R121,48.0,16.0,outerwear,5.333333333333333,"For loafers, recommend outerwear that matches the intended reading: blazer for polished smart casual or casual jacket for relaxed denim outfits.",outerwear
+R122,180.0,60.0,outerwear,20.0,"For refined accessories such as a structured bag or evening jewellery, recommend outerwear with equivalent polish, such as a tailored coat or blazer.",outerwear
+R123,63.0,21.0,outerwear,7.0,"For winter accessories such as scarves or gloves, recommend outerwear that supports layering and seasonal warmth.",outerwear
+R124,45.0,15.0,outerwear,5.0,"For an evening clutch or metallic accessory, recommend formal outerwear such as a tailored coat or wrap because the accessory already signals elevated occasion dressing.",outerwear
+R125,180.0,60.0,outerwear,20.0,"For outerwear recommendation in a complete-look system, select outerwear as a complementary category item rather than treating it as a substitute for tops or dresses.",outerwear
+R126,84.0,28.0,outerwear,9.333333333333334,"For colour-compatible outerwear, recommend coats or jackets whose dominant colour harmonises with the existing outfit palette because colour compatibility contributes to outfit compatibility.",outerwear
