@@ -1,0 +1,38 @@
+{
+  "seed": 42,
+  "claims": 360,
+  "distinct_explanations": 360,
+  "variant_counts": {
+    "rule_rag": 90,
+    "item_rag": 90,
+    "hybrid_rag": 90,
+    "no_rag": 90
+  },
+  "generator_counts": {
+    "hybrid_rag|gemma3:12b": 30,
+    "hybrid_rag|llama3.2": 30,
+    "hybrid_rag|mistral": 30,
+    "item_rag|gemma3:12b": 30,
+    "item_rag|llama3.2": 30,
+    "item_rag|mistral": 30,
+    "no_rag|gemma3:12b": 30,
+    "no_rag|llama3.2": 30,
+    "no_rag|mistral": 30,
+    "rule_rag|gemma3:12b": 30,
+    "rule_rag|llama3.2": 30,
+    "rule_rag|mistral": 30
+  },
+  "label_counts": {
+    "supported_by_rule_evidence": 158,
+    "unsupported": 94,
+    "supported_by_item_evidence": 73,
+    "supported_by_query_or_locked_item": 20,
+    "not_verifiable": 14,
+    "contradicted": 1
+  },
+  "source_tables": [
+    "claims/extraction/claims.csv",
+    "claims/verification/verified_claims.csv",
+    "explanations/explanations.csv"
+  ]
+}
