@@ -1,0 +1,20 @@
+schema_version: 1
+audit_date: '2026-08-16'
+audited_asset:
+  path: archive/source_repositories/clean_copy_repository/data/kb/fashion_rules.csv
+  row_count: 126
+  sha256: ad19fc788769ebd5fec65ee8aa6b62e4cfc8fbf1f67725392b754a327c2dced3
+decision_policy:
+  outside_taxonomy: Removed because the input category is not one of the five frozen categories.
+  legacy_accessory_ontology: Removed or replaced because the row mixes bags with non-bag accessories or uses the retired accessories label.
+  citation_overreach: Removed because the cited evidence supports a general method or design concept but not the concrete styling prescription.
+  retained_or_rewritten: Reassessed against its source and either conservatively rewritten into the replacement KB or superseded by a stronger rule.
+decisions:
+  outside_taxonomy: [R001, R002, R003, R004, R005, R006, R017, R020, R027, R028, R029, R030, R031, R032, R033, R041, R050, R102, R103, R104, R105, R106, R107]
+  legacy_accessory_ontology: [R025, R034, R035, R036, R037, R038, R039, R040, R042, R043, R044, R045, R046, R047, R048, R049, R051, R052, R067, R068, R069, R092, R122, R123, R124]
+  citation_overreach: [R023, R024, R063, R074, R075, R078, R089, R096, R098, R099, R100, R101, R115, R116, R125, R126]
+  retained_or_rewritten: [R007, R008, R009, R010, R011, R012, R013, R014, R015, R016, R018, R019, R021, R022, R026, R053, R054, R055, R056, R057, R058, R059, R060, R061, R062, R064, R065, R066, R070, R071, R072, R073, R076, R077, R079, R080, R081, R082, R083, R084, R085, R086, R087, R088, R090, R091, R093, R094, R095, R097, R108, R109, R110, R111, R112, R113, R114, R117, R118, R119, R120, R121]
+result:
+  all_legacy_rows_accounted_for: true
+  legacy_rows_carried_forward_verbatim: 0
+  experimental_results_inspected: false

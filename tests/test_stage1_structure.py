@@ -7,15 +7,18 @@ import yaml
 ROOT = Path(__file__).parents[1]
 
 
-def test_authoritative_kb_is_at_clean_path_with_expected_hash_and_rows() -> None:
+def test_canonical_five_category_kb_has_expected_hash_and_rows() -> None:
     path = ROOT / "data" / "kb" / "fashion_rules.csv"
     assert hashlib.sha256(path.read_bytes()).hexdigest() == (
-        "ad19fc788769ebd5fec65ee8aa6b62e4cfc8fbf1f67725392b754a327c2dced3"
+        "3be6286c3f50f792f527d45e6aa5cef7e4e93cafdbd99d0641086a801c491260"
     )
     with path.open(encoding="utf-8", newline="") as handle:
         rows = list(csv.DictReader(handle))
-    assert len(rows) == 126
-    assert len({row["rule_id"] for row in rows if row["rule_id"]}) == 126
+    assert len(rows) == 75
+    assert len({row["rule_id"] for row in rows if row["rule_id"]}) == 75
+    assert {row["recommended_category"] for row in rows} == {
+        "tops", "bottoms", "shoes", "outerwear", "bags"
+    }
 
 
 def test_configuration_pins_authoritative_dataset_and_evidence_boundary() -> None:
@@ -53,6 +56,7 @@ def test_clean_top_level_directories_match_proposal() -> None:
     }
     assert actual == {
         "artifacts",
+        "archive",
         "configs",
         "data",
         "notebooks",
@@ -60,4 +64,5 @@ def test_clean_top_level_directories_match_proposal() -> None:
         "scripts",
         "src",
         "tests",
+        "thesis",
     }

@@ -4,7 +4,6 @@ from __future__ import annotations
 
 import hashlib
 import json
-import re
 from collections.abc import Iterable, Mapping, Sequence
 from dataclasses import dataclass
 from pathlib import Path
@@ -93,7 +92,7 @@ CATEGORY_KEYWORDS: dict[str, tuple[str, ...]] = {
         "capes",
         "trench",
     ),
-    "accessories": (
+    "bags": (
         "bag",
         "bags",
         "handbag",
@@ -102,35 +101,7 @@ CATEGORY_KEYWORDS: dict[str, tuple[str, ...]] = {
         "clutches",
         "tote",
         "totes",
-        "backpack",
-        "backpacks",
-        "satchel",
-        "satchels",
-        "earring",
-        "earrings",
-        "necklace",
-        "necklaces",
-        "bracelet",
-        "bracelets",
-        "bangle",
-        "bangles",
-        "ring",
-        "rings",
-        "watch",
-        "watches",
-        "sunglasses",
-        "eyewear",
-        "glasses",
-        "belt",
-        "belts",
-        "scarf",
-        "scarves",
-        "hat",
-        "hats",
-        "beanie",
-        "beanies",
-        "wallet",
-        "wallets",
+        "messenger bag",
     ),
 }
 PREPARED_COLUMNS = (
@@ -141,7 +112,6 @@ PREPARED_COLUMNS = (
     "category",
     "text",
     "broad_category",
-    "accessory_subcategory",
     "query_category",
     "research_split",
     "exact_image_sha256",
@@ -184,16 +154,12 @@ def build_category_audit(
     ]
     if len(broad_values) != len(set(broad_values)):
         raise ValueError("A raw category appears in more than one configured broad category.")
-    accessory_values = [
-        category
-        for categories in taxonomy["accessory_subcategory_mapping"].values()
-        for category in categories
-    ]
-    if len(accessory_values) != len(set(accessory_values)):
-        raise ValueError("A raw category appears in more than one accessory subcategory.")
-    configured_accessories = set(taxonomy["broad_category_mapping"]["accessories"])
-    if set(accessory_values) != configured_accessories:
-        raise ValueError("Every kept accessory category must have exactly one subcategory.")
+    configured_bags = set(taxonomy["broad_category_mapping"]["bags"])
+    if configured_bags != set(taxonomy["bag_allowlist"]):
+        raise ValueError("The bags mapping must exactly match the frozen bag allowlist.")
+    forbidden_bags = set(taxonomy["bag_excluded_categories"])
+    if configured_bags & forbidden_bags:
+        raise ValueError("Excluded bag-like categories cannot appear in the bag allowlist.")
     if set(taxonomy["review_categories"]) & set(broad_values):
         raise ValueError("Review categories cannot also be kept categories.")
     category_column = config["dataset"]["columns"]["category"]
@@ -203,12 +169,9 @@ def build_category_audit(
     for category, count in counts.items():
         proposed = map_broad_category(category, config)
         decision = category_decision(category, config)
-        subtype = map_accessory_subcategory(category, config)
         current = map_legacy_broad_category(category)
         if decision == "keep":
             reason = f"Explicit wearable {proposed} category"
-            if subtype:
-                reason += f"; configured accessory subtype {subtype}"
             reason += "."
         elif decision == "review":
             reason = "Ambiguous aggregate category; excluded pending researcher review."
@@ -222,7 +185,6 @@ def build_category_audit(
                 "item_count": int(count),
                 "current_broad_category": current,
                 "proposed_broad_category": proposed if decision == "keep" else "",
-                "proposed_accessory_subcategory": subtype if decision == "keep" else "",
                 "decision": decision,
                 "reason": reason,
             }
@@ -260,36 +222,8 @@ def category_decision(category: object, config: Mapping[str, Any]) -> str:
     return str(_taxonomy(config)["unlisted_category_decision"])
 
 
-def map_accessory_subcategory(category: object, config: Mapping[str, Any]) -> str:
-    raw = str(category)
-    for subcategory, raw_categories in _taxonomy(config)[
-        "accessory_subcategory_mapping"
-    ].items():
-        if raw in raw_categories:
-            return str(subcategory)
-    return ""
-
-
 def map_query_category(category: object, config: Mapping[str, Any]) -> str:
     return map_broad_category(category, config)
-
-
-def resolve_accessory_request_subcategory(
-    request: object, config: Mapping[str, Any]
-) -> str:
-    """Resolve configured accessory aliases using deterministic whole-phrase matching."""
-    normalized = " ".join(re.findall(r"[a-z0-9]+", str(request).lower()))
-    padded = f" {normalized} "
-    matches = []
-    for subcategory, aliases in _taxonomy(config)["accessory_request_mapping"].items():
-        normalized_aliases = [
-            " ".join(re.findall(r"[a-z0-9]+", alias.lower())) for alias in aliases
-        ]
-        if any(f" {alias} " in padded for alias in normalized_aliases):
-            matches.append(str(subcategory))
-    if len(matches) > 1:
-        raise ValueError(f"Accessory request maps to multiple subcategories: {matches}")
-    return matches[0] if matches else ""
 
 
 def outfit_from_item_id(item_id: object, separator: str) -> tuple[str, int | None]:
@@ -393,9 +327,6 @@ def prepare_metadata(
 
     frame["broad_category"] = frame["category"].map(
         lambda value: map_broad_category(value, config)
-    ).astype("string")
-    frame["accessory_subcategory"] = frame["category"].map(
-        lambda value: map_accessory_subcategory(value, config)
     ).astype("string")
     frame["query_category"] = frame["category"].map(
         lambda value: map_query_category(value, config)
@@ -541,91 +472,47 @@ def build_evaluation_cases(frame: pd.DataFrame, config: Mapping[str, Any]) -> pd
         (str(outfit), str(category)): sorted(group["item_id"].astype(str).tolist())
         for (outfit, category), group in target.groupby(["outfit_id", "broad_category"])
     }
-    accessory_lookup = {
-        (str(outfit), str(subcategory)): sorted(group["item_id"].astype(str).tolist())
-        for (outfit, subcategory), group in target[
-            target["broad_category"].eq("accessories")
-        ].groupby(["outfit_id", "accessory_subcategory"])
-    }
     buckets: dict[str, list[dict[str, Any]]] = {category: [] for category in categories}
-    accessory_buckets: dict[str, list[dict[str, Any]]] = {
-        str(subcategory): []
-        for subcategory, quota in evaluation["accessory_subcategory_case_counts"].items()
-        if quota > 0
-    }
     taxonomy = _taxonomy(config)
     for query in queries.to_dict("records"):
         for target_category in categories:
-            subcategories = accessory_buckets if target_category == "accessories" else {"": []}
-            for subcategory in subcategories:
-                if config["preprocessing"].get(
-                    "exclude_same_effective_type_query_target", False
-                ):
-                    query_group = str(query["query_category"])
-                    query_subcategory = str(query.get("accessory_subcategory", ""))
-                    same_broad_group = query_group == target_category
-                    distinct_accessory_types = (
-                        target_category == "accessories"
-                        and bool(subcategory)
-                        and bool(query_subcategory)
-                        and query_subcategory != subcategory
-                    )
-                    if same_broad_group and not distinct_accessory_types:
-                        continue
-                source = (
-                    accessory_lookup.get((str(query["outfit_id"]), subcategory), [])
-                    if subcategory
-                    else positive_lookup.get((str(query["outfit_id"]), target_category), [])
-                )
-                positives = [
-                    item_id for item_id in source if item_id != str(query["item_id"])
-                ]
-                if not positives:
-                    continue
-                case_key = f"{query['item_id']}::{target_category}::{subcategory}"
-                request = (
-                    taxonomy["accessory_request_templates"][subcategory]
-                    if subcategory
-                    else taxonomy["broad_request_templates"][target_category]
-                )
-                record = {
-                    "case_id": "case-" + hashlib.sha256(case_key.encode()).hexdigest()[:16],
-                    "query_item_id": str(query["item_id"]),
-                    "query_outfit_id": str(query["outfit_id"]),
-                    "query_category": str(query["category"]),
-                    "query_group": str(query["query_category"]),
-                    "query_text": str(query["text"]),
-                    "target_category": target_category,
-                    "target_accessory_subcategory": subcategory,
-                    "user_request": request,
-                    "positive_item_ids": positives,
-                    "num_positives": len(positives),
-                    "research_split": split_name,
-                    "_order": _hash_order(case_key, seed),
-                }
-                if subcategory:
-                    accessory_buckets[subcategory].append(record)
-                else:
-                    buckets[target_category].append(record)
+            if (
+                config["preprocessing"].get("exclude_same_effective_type_query_target", False)
+                and str(query["query_category"]) == target_category
+            ):
+                continue
+            source = positive_lookup.get((str(query["outfit_id"]), target_category), [])
+            positives = [item_id for item_id in source if item_id != str(query["item_id"])]
+            if not positives:
+                continue
+            case_key = f"{query['item_id']}::{target_category}"
+            outfit_items = split_frame[
+                split_frame["outfit_id"].astype(str).eq(str(query["outfit_id"]))
+                & split_frame["item_id"].astype(str).ne(str(query["item_id"]))
+            ].sort_values(["broad_category", "item_id"], kind="stable")
+            outfit_context = " | ".join(
+                f"{row['category']} {row['text']}"
+                for row in outfit_items.to_dict("records")
+            )
+            record = {
+                "case_id": "case-" + hashlib.sha256(case_key.encode()).hexdigest()[:16],
+                "query_item_id": str(query["item_id"]),
+                "query_outfit_id": str(query["outfit_id"]),
+                "query_category": str(query["category"]),
+                "query_group": str(query["query_category"]),
+                "query_text": str(query["text"]),
+                "outfit_context_text": outfit_context,
+                "target_category": target_category,
+                "user_request": taxonomy["broad_request_templates"][target_category],
+                "positive_item_ids": positives,
+                "num_positives": len(positives),
+                "research_split": split_name,
+                "_order": _hash_order(case_key, seed),
+            }
+            buckets[target_category].append(record)
 
     selected: list[dict[str, Any]] = []
     for category in categories:
-        if category == "accessories":
-            quotas = evaluation["accessory_subcategory_case_counts"]
-            if sum(quotas.values()) != per_category:
-                raise ValueError("Accessory subtype case quotas must sum to cases_per_category.")
-            for subcategory, quota in quotas.items():
-                available = sorted(
-                    accessory_buckets.get(subcategory, []),
-                    key=lambda row: (row["_order"], row["case_id"]),
-                )
-                if len(available) < quota:
-                    raise ValueError(
-                        f"Only {len(available)} accessory/{subcategory!s} cases are available; "
-                        f"{quota} required."
-                    )
-                selected.extend(available[:quota])
-            continue
         available = sorted(buckets[category], key=lambda row: (row["_order"], row["case_id"]))
         if len(available) < per_category:
             raise ValueError(
@@ -647,13 +534,6 @@ def build_candidate_pool(
 ) -> pd.DataFrame:
     settings = config["candidate_pool"]
     category_items = frame[frame["broad_category"] == case["target_category"]]
-    requested_subcategory = str(case.get("target_accessory_subcategory", ""))
-    if case["target_category"] == "accessories" and not requested_subcategory:
-        requested_subcategory = resolve_accessory_request_subcategory(case["user_request"], config)
-    if requested_subcategory:
-        category_items = category_items[
-            category_items["accessory_subcategory"].eq(requested_subcategory)
-        ]
     if settings["negative_source_split"] == "case_split":
         category_items = category_items[
             category_items["research_split"] == case["research_split"]

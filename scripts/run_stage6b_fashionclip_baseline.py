@@ -293,9 +293,6 @@ def main() -> None:
                     "case_id": case["case_id"],
                     "query_outfit_id": case["query_outfit_id"],
                     "target_category": case["target_category"],
-                    "target_accessory_subcategory": case.get(
-                        "target_accessory_subcategory", ""
-                    ),
                     "actual_pool_size": len(case["candidate_item_ids"]),
                     "method": method,
                     **ranking_metrics(ranking["is_positive"]),

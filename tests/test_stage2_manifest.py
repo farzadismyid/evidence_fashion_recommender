@@ -1,6 +1,10 @@
 import json
 from pathlib import Path
 
+import pytest
+
+pytestmark = pytest.mark.skip(reason="Superseded by the five-category Stage 1-2 contracts")
+
 ROOT = Path(__file__).parents[1]
 
 

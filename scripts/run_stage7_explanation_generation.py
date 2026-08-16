@@ -181,9 +181,6 @@ def build_case_packets(
                 "query_item_id": case["query_item_id"],
                 "query_outfit_id": case["query_outfit_id"],
                 "target_category": case["target_category"],
-                "target_accessory_subcategory": case.get(
-                    "target_accessory_subcategory", ""
-                ),
                 "locked_candidate_id": case["locked_candidate_id"],
                 "A_common_context": packet_a,
                 "A_sha256": canonical_hash(packet_a),

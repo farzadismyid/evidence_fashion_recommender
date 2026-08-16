@@ -7,9 +7,9 @@ strictly separate from textual explanation evidence.
 
 ## Current scope
 
-Experimental Stages 1–8 and the additive FashionCLIP Stage 6b are complete. The final
-study uses automated system evaluation only. The repository includes exact category cleaning, a
-configuration-driven accessory hierarchy, deterministic Polyvore cases, validated MiniLM/CLIP
+The repository is being rebuilt under `new_approach.md`; previous experimental outputs are not
+current evidence for the five-category run. Stages 1 and 2 introduce exact category cleaning, a
+configuration-driven five-category bag taxonomy, deterministic Polyvore cases, validated MiniLM/CLIP
 retrieval, preserved validation sensitivities, a researcher-selected approximately 100-candidate
 main Stage 4 run, auditable five-rule reranking, fresh `rag_c3` validation, and a disjoint 50-case
 pilot with a separate length-matched sensitivity, the 1,000-case confirmatory recommendation
@@ -20,6 +20,14 @@ citation integrity while retaining visible-evidence grounding as secondary. All 
 explanation-evaluation results come from the saved Stage 8 system outputs; no human or external
 audit result is claimed.
 
+Current gate status: Stage 1 is frozen in
+`artifacts/manifests/stage1_taxonomy_freeze_manifest.json`. Stage 2 is not frozen: the required
+pre-experiment 200-case bag applicability audit currently supports 9 cases and rejects 191. The
+audit now includes explicitly observed text from the other items in each outfit as permitted
+context. See
+`reports/stage2_bag_case_applicability_audit.json` and
+`reports/five_category_kb_audit.md`. Later stages must not start until this gate is resolved.
+
 The dataset is pinned to `Marqo/polyvore` revision
 `8c782ee447faf2d2a0402ac883cf07d3b3f43e1c`. Runtime datasets, images, model caches, and
 embedding arrays are ignored. Compact manifests under `artifacts/manifests/` bind runs to the
@@ -28,10 +36,9 @@ Exact duplicate image hashes are grouped at outfit-component level before evalua
 frozen. Deterministic minimal-change reassignment plus singleton rebalancing preserves the
 configured outfit quotas while preventing exact-image hashes from crossing splits.
 Raw data is never modified: 377 observed category values are mapped by exact configured keys,
-with unlisted and review categories excluded from prepared data. Accessories retain the broad
-evaluation label while using seven candidate-filtering subcategories: bags, eyewear, jewellery,
-belts, watches, headwear, and others. The complete audit is
-`artifacts/tables/table_category_audit.csv`.
+with unlisted and review categories excluded from prepared data. Bags use the exact eight-value
+allowlist in the configuration; backpacks, briefcases, luggage and non-bag accessories are
+excluded. Dataset counts and the category audit must be regenerated before Stage 1 is frozen.
 
 ## Repository map
 
@@ -39,9 +46,13 @@ belts, watches, headwear, and others. The complete audit is
   evaluation, and output decision.
 - `configs/models.yaml`: immutable embedding revisions and later approved LLM settings.
 - `configs/fashionclip_baseline.yaml`: pinned FashionCLIP 2.0 additive baseline.
-- `data/kb/fashion_rules.csv`: approved, auditable KB v3; raw Polyvore data is not committed.
+- `data/kb/fashion_rules.csv`: canonical 75-rule, five-category, citation-audited KB.
+- `data/kb/legacy_rule_audit.csv`: row-level disposition and provenance for all 126 legacy rules.
+- `data/kb/kb_source_registry.csv`: unique-page source validation and rule concentration registry.
+- `data/kb/kb_rule_similarity_audit.csv`: reviewed near-duplicate rule pairs.
+- `reports/five_category_kb_audit.md`: coverage matrix, unsupported contexts, and pass/fail gates.
 - `src/evidence_fashion/data.py`: pinned dataset adaptation, exact taxonomy, splits, and
-  deterministic broad/subtype-controlled candidate pools.
+  deterministic broad-category candidate pools.
 - `src/evidence_fashion/retrieval.py`: MiniLM/CLIP encoding, normalized fusion, scoring, and
   deterministic ranking.
 - `scripts/prepare_data.py` and `scripts/build_embeddings.py`: Stage 2 and Stage 3 commands.

@@ -9,6 +9,7 @@ from typing import Any
 import numpy as np
 import pandas as pd
 
+from .kb_audit import declared_values, matches_declared_terms
 from .retrieval import l2_normalize
 
 
@@ -75,6 +76,11 @@ class RuleRetriever:
             "input_category",
             "recommended_category",
             "source_reliability",
+            "audit_status",
+            "applicable_query_categories",
+            "required_context",
+            "query_terms",
+            "candidate_terms",
         }
         missing = required.difference(rules.columns)
         if missing:
@@ -96,9 +102,71 @@ class RuleRetriever:
         selected_top_k = top_k or self.settings["candidate_top_k"]
         target = str(case["target_category"])
         eligible_mask = self.rules[self.settings["category_filter_field"]].astype(str).eq(target)
+        category_eligible_count = int(eligible_mask.sum())
+        audit_excluded = 0
+        applicability_excluded = 0
+        context_excluded = 0
+        query_terms_excluded = 0
+        candidate_terms_excluded = 0
+        audit_field = self.settings["audit_status_field"]
+        applicability_field = self.settings["applicability_filter_field"]
+        context_field = self.settings["required_context_field"]
+        query_terms_field = self.settings["query_terms_field"]
+        candidate_terms_field = self.settings["candidate_terms_field"]
+        approved = self.rules[audit_field].astype(str).eq(
+            self.settings["approved_audit_status"]
+        )
+        audit_excluded = category_eligible_count - int((eligible_mask & approved).sum())
+        query_group = str(case["query_group"])
+        applicable = self.rules[applicability_field].astype(str).map(
+            lambda value: query_group.lower() in declared_values(value)
+            or "all" in declared_values(value)
+        )
+        applicability_excluded = int((eligible_mask & approved & ~applicable).sum())
+        observed_context = case.get("applicability_contexts", [])
+        if isinstance(observed_context, str):
+            observed_context = [part.strip() for part in observed_context.split("|")]
+        observed_context = {str(value).lower() for value in observed_context}
+        context_applicable = self.rules[context_field].astype(str).map(
+            lambda value: "none" in declared_values(value)
+            or declared_values(value).issubset(observed_context)
+        )
+        context_excluded = int((eligible_mask & approved & applicable & ~context_applicable).sum())
+        query_text = " | ".join(
+            str(case.get(field, ""))
+            for field in ("query_category", "query_text", "outfit_context_text", "user_request")
+        )
+        query_matches = self.rules[query_terms_field].map(
+            lambda value: matches_declared_terms(value, query_text)
+        )
+        query_terms_excluded = int(
+            (eligible_mask & approved & applicable & context_applicable & ~query_matches).sum()
+        )
+        candidate_text = " | ".join(
+            str(candidate.get(field, "")) for field in ("category", "text")
+        )
+        candidate_matches = self.rules[candidate_terms_field].map(
+            lambda value: matches_declared_terms(value, candidate_text)
+        )
+        candidate_terms_excluded = int(
+            (
+                eligible_mask
+                & approved
+                & applicable
+                & context_applicable
+                & query_matches
+                & ~candidate_matches
+            ).sum()
+        )
+        eligible_mask &= (
+            approved & applicable & context_applicable & query_matches & candidate_matches
+        )
         eligible_rows = np.flatnonzero(eligible_mask.to_numpy())
         if not len(eligible_rows):
-            raise ValueError(f"No rules are eligible for target category {target!r}.")
+            raise ValueError(
+                f"No audited applicable rules are eligible for target category {target!r} "
+                f"and query group {case['query_group']!r}."
+            )
         vector = l2_normalize(np.asarray(representation_embedding).reshape(1, -1))[0]
         similarities = self.rule_embeddings[eligible_rows] @ vector
         scored = []
@@ -168,7 +236,12 @@ class RuleRetriever:
                 "rules_before_filter": len(self.rules),
                 "category_filter": target,
                 "rules_after_category_filter": len(eligible_rows),
-                "rules_excluded_by_category": len(self.rules) - len(eligible_rows),
+                "rules_excluded_by_category": len(self.rules) - category_eligible_count,
+                "rules_excluded_by_audit": audit_excluded,
+                "rules_excluded_by_applicability": applicability_excluded,
+                "rules_excluded_by_context": context_excluded,
+                "rules_excluded_by_query_terms": query_terms_excluded,
+                "rules_excluded_by_candidate_terms": candidate_terms_excluded,
                 "top_k_requested": selected_top_k,
                 "rules_retained": len(contributions),
                 "rules_not_selected_after_scoring": len(eligible_rows) - len(contributions),

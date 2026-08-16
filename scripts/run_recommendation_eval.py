@@ -21,6 +21,7 @@ from evidence_fashion.data import (
     load_pinned_split,
     write_jsonl,
 )
+from evidence_fashion.kb_audit import load_audited_rules
 from evidence_fashion.manifest import (
     configuration_hash,
     environment_summary,
@@ -92,9 +93,6 @@ def _stage4_cases(frame: pd.DataFrame, config: dict[str, Any]) -> pd.DataFrame:
             "cases_per_category": settings["cases_per_category"],
             "case_split": settings["split"],
             "case_seed": settings["case_seed"],
-            "accessory_subcategory_case_counts": settings[
-                "accessory_subcategory_case_counts"
-            ],
         }
     )
     local["candidate_pool"]["max_negatives"] = settings["candidate_max_negatives"]
@@ -369,7 +367,10 @@ def _candidate_pool_sensitivity(
 
 
 def _diversity(
-    all_traces: list[dict[str, Any]], locked_cases: list[dict[str, Any]], config: dict[str, Any]
+    all_traces: list[dict[str, Any]],
+    locked_cases: list[dict[str, Any]],
+    config: dict[str, Any],
+    kb_size: int,
 ) -> tuple[pd.DataFrame, dict[str, Any]]:
     packet_count = len(all_traces)
     slot_counter: Counter[str] = Counter()
@@ -429,7 +430,7 @@ def _diversity(
     return frequency, {
         "candidate_packets": packet_count,
         "kb_rules_used": len(slot_counter),
-        "kb_rule_coverage": len(slot_counter) / 126,
+        "kb_rule_coverage": len(slot_counter) / kb_size,
         "shannon_entropy": float(-(probabilities * np.log2(probabilities)).sum()),
         "within_category_mean_jaccard": within,
         "between_category_mean_jaccard": float(np.mean(between_values)),
@@ -570,7 +571,7 @@ def main() -> None:
         item_id: candidate_clip[index] for index, item_id in enumerate(candidate_ids)
     }
 
-    kb = pd.read_csv(config["paths"]["knowledge_base"])
+    kb = load_audited_rules(config)
     rule_embeddings = mini.encode(kb["rule_text"].astype(str).tolist(), batch_size=batch_size)
     retriever = RuleRetriever(kb, rule_embeddings, config["rule_retrieval"])
     representation_records = []
@@ -721,9 +722,6 @@ def main() -> None:
                 "query_item_minimal_name": str(case["query_text"] or case["query_category"]),
                 "request": case["user_request"],
                 "target_category": case["target_category"],
-                "target_accessory_subcategory": case.get(
-                    "target_accessory_subcategory", ""
-                ),
                 "locked_candidate_id": str(top["item_id"]),
                 "locked_candidate_minimal_name": str(candidate["text"] or candidate["category"]),
                 "clip_score": float(top["clip_score"]),
@@ -736,7 +734,7 @@ def main() -> None:
                 "evidence_trace": exact_trace.to_dict(),
             }
         )
-    frequency, diversity = _diversity(trace_records, locked_cases, config)
+    frequency, diversity = _diversity(trace_records, locked_cases, config, len(kb))
 
     run_dir.mkdir(parents=True)
     cases_path = run_dir / "validation_cases.jsonl"
@@ -794,6 +792,24 @@ def main() -> None:
         "input_artifact_hashes": {
             str(items_path): items_hash,
             config["paths"]["knowledge_base"]: sha256_file(Path(config["paths"]["knowledge_base"])),
+            config["paths"]["kb_expansion_source"]: sha256_file(
+                Path(config["paths"]["kb_expansion_source"])
+            ),
+            config["paths"]["legacy_kb_audit"]: sha256_file(
+                Path(config["paths"]["legacy_kb_audit"])
+            ),
+            config["paths"]["legacy_rule_audit"]: sha256_file(
+                Path(config["paths"]["legacy_rule_audit"])
+            ),
+            config["paths"]["kb_coverage_matrix"]: sha256_file(
+                Path(config["paths"]["kb_coverage_matrix"])
+            ),
+            config["paths"]["kb_source_registry"]: sha256_file(
+                Path(config["paths"]["kb_source_registry"])
+            ),
+            config["paths"]["kb_rule_similarity_audit"]: sha256_file(
+                Path(config["paths"]["kb_rule_similarity_audit"])
+            ),
             "dataset_fingerprint": dataset_fingerprint,
         },
         "output_artifact_hashes": output_hashes,

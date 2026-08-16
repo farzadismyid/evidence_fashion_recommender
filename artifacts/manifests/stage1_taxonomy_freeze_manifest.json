@@ -1,0 +1,76 @@
+{
+  "bag_allowlist": [
+    "Bags",
+    "Handbags",
+    "Shoulder Bags",
+    "Tote Bags",
+    "Clutches",
+    "Messenger Bags",
+    "Men's Bags",
+    "Men's Messenger Bags"
+  ],
+  "bag_audit_case_count": 200,
+  "bag_excluded_categories": [
+    "Backpacks",
+    "Men's Backpacks",
+    "Briefcases",
+    "Men's Briefcases",
+    "Luggage"
+  ],
+  "bound_artifact_hashes": {
+    ".runtime\\data\\data-6c7ecd2fda7f\\bag_audit_cases.jsonl": "5e03e6e373d486100e295e56c5a7446b417f322faf663685c60806afa7936453",
+    ".runtime\\data\\data-6c7ecd2fda7f\\evaluation_cases.jsonl": "cdc5bb288d57ae4b47f13e2aa506e94e75b13e6fc4ae68c104f6d7e5c5c7edb7",
+    ".runtime\\data\\data-6c7ecd2fda7f\\prepared_items.parquet": "c7adf4a9e9ff01f1dc8e37f2bed8de107ca2649c6cc3e199661d9b658f30f2a0",
+    "artifacts\\manifests\\data_preparation_leakage_resolved_manifest.json": "80ca4a2a257cf8a5ca9f5c496d22c373b8500fc6f548c11b7c8c425fbbbff220",
+    "artifacts\\tables\\table_category_audit.csv": "83cbd9a47e937d396f13cd3c5c552aaf71fef09e625be938a3ad4530a9e254fe"
+  },
+  "case_counts": {
+    "bags": 200,
+    "bottoms": 200,
+    "outerwear": 200,
+    "shoes": 200,
+    "tops": 200
+  },
+  "configuration_hash": "6c7ecd2fda7fec996476e12ff4d1bf463e8c2533b54f8e803937ac303893f45e",
+  "dataset_fingerprint": "9c97dc763773e2a2",
+  "dataset_revision": "8c782ee447faf2d2a0402ac883cf07d3b3f43e1c",
+  "exact_outfit_counts": {
+    "development": 13365,
+    "test": 2865,
+    "validation": 2864
+  },
+  "expected_counts": {
+    "development_outfits": 13365,
+    "items": 47872,
+    "outfits": 19094,
+    "target_category_items": 47872,
+    "test_outfits": 2865,
+    "validation_outfits": 2864
+  },
+  "experimental_condition_results_inspected": false,
+  "next_gate": "Stage 2 bag-case applicability must pass before Stage 2 can be frozen.",
+  "query_categories": [
+    "tops",
+    "bottoms",
+    "shoes",
+    "outerwear",
+    "bags"
+  ],
+  "schema_version": 1,
+  "stage": 1,
+  "status": "frozen",
+  "target_categories": [
+    "tops",
+    "bottoms",
+    "shoes",
+    "outerwear",
+    "bags"
+  ],
+  "taxonomy_version": "five_category_bags_v1",
+  "timestamp_utc": "2026-08-16T20:19:06Z",
+  "validation": {
+    "cross_split_exact_image_groups": 0,
+    "duplicate_item_ids": 0,
+    "split_outfit_overlap": 0
+  }
+}

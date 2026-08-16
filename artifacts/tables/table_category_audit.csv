@@ -1,0 +1,378 @@
+raw_category,item_count,current_broad_category,proposed_broad_category,decision,reason
+Accent Chairs,153,other,,exclude,Outside the configured five-group wearable outfit taxonomy.
+Accent Tables,267,other,,exclude,Outside the configured five-group wearable outfit taxonomy.
+Accessories,330,other,,review,Ambiguous aggregate category; excluded pending researcher review.
+Activewear,18,other,,review,Ambiguous aggregate category; excluded pending researcher review.
+Activewear Jackets,9,outerwear,outerwear,keep,Explicit wearable outerwear category.
+Activewear Pants,116,bottoms,bottoms,keep,Explicit wearable bottoms category.
+Activewear Shorts,20,bottoms,bottoms,keep,Explicit wearable bottoms category.
+Activewear Skirts,1,bottoms,bottoms,keep,Explicit wearable bottoms category.
+Activewear Tank Tops,20,tops,tops,keep,Explicit wearable tops category.
+Activewear Tops,11,tops,tops,keep,Explicit wearable tops category.
+Ankle Booties,2355,shoes,shoes,keep,Explicit wearable shoes category.
+Aprons,5,other,,exclude,Outside the configured five-group wearable outfit taxonomy.
+Armoires,3,other,,exclude,Outside the configured five-group wearable outfit taxonomy.
+Athletic Shoes,47,shoes,shoes,keep,Explicit wearable shoes category.
+Baby,129,other,,review,Ambiguous aggregate category; excluded pending researcher review.
+Baby Bedding,4,other,,exclude,Outside the configured five-group wearable outfit taxonomy.
+Backpacks,1109,other,,exclude,Outside the configured five-group wearable outfit taxonomy.
+Bags,206,bags,bags,keep,Explicit wearable bags category.
+Bags & Cases,92,bags,,review,Ambiguous aggregate category; excluded pending researcher review.
+Bakeware,3,other,,exclude,Outside the configured five-group wearable outfit taxonomy.
+Bar Cabinets,3,other,,exclude,Outside the configured five-group wearable outfit taxonomy.
+Bar Tools,43,other,,exclude,Outside the configured five-group wearable outfit taxonomy.
+Barstools,4,other,,exclude,Outside the configured five-group wearable outfit taxonomy.
+Bath,4,other,,exclude,Outside the configured five-group wearable outfit taxonomy.
+Bath & Body,19,other,,exclude,Outside the configured five-group wearable outfit taxonomy.
+Bath Accessories,14,other,,exclude,Outside the configured five-group wearable outfit taxonomy.
+Bath Rugs & Mats,3,other,,exclude,Outside the configured five-group wearable outfit taxonomy.
+Bath Towels,35,other,,exclude,Outside the configured five-group wearable outfit taxonomy.
+Beach Towels,28,other,,exclude,Outside the configured five-group wearable outfit taxonomy.
+Beauty Accessories,22,other,,exclude,Outside the configured five-group wearable outfit taxonomy.
+Beauty Products,343,other,,exclude,Outside the configured five-group wearable outfit taxonomy.
+Bed Accessories,21,other,,exclude,Outside the configured five-group wearable outfit taxonomy.
+Bed Pillows,8,other,,exclude,Outside the configured five-group wearable outfit taxonomy.
+Bedding,14,other,,exclude,Outside the configured five-group wearable outfit taxonomy.
+Beds,48,other,,exclude,Outside the configured five-group wearable outfit taxonomy.
+Bedspreads,1,other,,exclude,Outside the configured five-group wearable outfit taxonomy.
+Belts,412,other,,exclude,Outside the configured five-group wearable outfit taxonomy.
+Benches,4,other,,exclude,Outside the configured five-group wearable outfit taxonomy.
+Bikini Bottoms,42,other,,exclude,Outside the configured five-group wearable outfit taxonomy.
+Bikini Tops,76,tops,,exclude,Rejected legacy substring match; category was not explicitly approved.
+Bikinis,116,other,,exclude,Outside the configured five-group wearable outfit taxonomy.
+Blankets,128,other,,exclude,Outside the configured five-group wearable outfit taxonomy.
+Blazers,625,outerwear,outerwear,keep,Explicit wearable outerwear category.
+Blouses,1481,tops,tops,keep,Explicit wearable tops category.
+Blow Dryers & Irons,33,other,,exclude,Outside the configured five-group wearable outfit taxonomy.
+Blush,180,other,,exclude,Outside the configured five-group wearable outfit taxonomy.
+Body Art,83,other,,exclude,Outside the configured five-group wearable outfit taxonomy.
+Body Cleansers,113,other,,exclude,Outside the configured five-group wearable outfit taxonomy.
+Body Moisturizers,123,other,,exclude,Outside the configured five-group wearable outfit taxonomy.
+Bookcases,19,other,,exclude,Outside the configured five-group wearable outfit taxonomy.
+Books,110,other,,exclude,Outside the configured five-group wearable outfit taxonomy.
+Bootcut Jeans,51,bottoms,bottoms,keep,Explicit wearable bottoms category.
+Boots,585,shoes,shoes,keep,Explicit wearable shoes category.
+Bow Ties,11,other,,exclude,Outside the configured five-group wearable outfit taxonomy.
+Boyfriend Jeans,278,bottoms,bottoms,keep,Explicit wearable bottoms category.
+Boys,31,other,,review,Ambiguous aggregate category; excluded pending researcher review.
+Bracelets & Bangles,2505,other,,exclude,Outside the configured five-group wearable outfit taxonomy.
+Bras,206,other,,exclude,Outside the configured five-group wearable outfit taxonomy.
+Briefcases,16,other,,exclude,Outside the configured five-group wearable outfit taxonomy.
+Brooches,232,other,,exclude,Outside the configured five-group wearable outfit taxonomy.
+Brushes & Combs,46,other,,exclude,Outside the configured five-group wearable outfit taxonomy.
+Cabinets,8,other,,exclude,Outside the configured five-group wearable outfit taxonomy.
+Camisoles,29,tops,tops,keep,Explicit wearable tops category.
+Candles & Candleholders,163,other,,exclude,Outside the configured five-group wearable outfit taxonomy.
+Capri & Cropped Pants,281,bottoms,bottoms,keep,Explicit wearable bottoms category.
+Cardigans,526,tops,tops,keep,Explicit wearable tops category.
+Ceiling Lights,205,other,,exclude,Outside the configured five-group wearable outfit taxonomy.
+Chairs,68,other,,exclude,Outside the configured five-group wearable outfit taxonomy.
+Charms & Pendants,139,other,,exclude,Outside the configured five-group wearable outfit taxonomy.
+Cheek Bronzer,65,other,,exclude,Outside the configured five-group wearable outfit taxonomy.
+Cheek Makeup,9,other,,exclude,Outside the configured five-group wearable outfit taxonomy.
+Chemises,2,other,,exclude,Outside the configured five-group wearable outfit taxonomy.
+Children's Bedding,2,other,,exclude,Outside the configured five-group wearable outfit taxonomy.
+Children's Decor,8,other,,exclude,Outside the configured five-group wearable outfit taxonomy.
+Children's Furniture,5,other,,exclude,Outside the configured five-group wearable outfit taxonomy.
+Children's Room,3,other,,exclude,Outside the configured five-group wearable outfit taxonomy.
+Cleaning,5,other,,exclude,Outside the configured five-group wearable outfit taxonomy.
+Clocks,88,other,,exclude,Outside the configured five-group wearable outfit taxonomy.
+Clogs,21,other,shoes,keep,Explicit wearable shoes category.
+Clothing,1146,other,,review,Ambiguous aggregate category; excluded pending researcher review.
+Clutches,2377,bags,bags,keep,Explicit wearable bags category.
+Coats,1986,outerwear,outerwear,keep,Explicit wearable outerwear category.
+Cocktail Dresses,1064,other,,exclude,Outside the configured five-group wearable outfit taxonomy.
+Comforters,7,other,,exclude,Outside the configured five-group wearable outfit taxonomy.
+Concealer,60,other,,exclude,Outside the configured five-group wearable outfit taxonomy.
+Cookbooks,6,other,,exclude,Outside the configured five-group wearable outfit taxonomy.
+Cookware,6,other,,exclude,Outside the configured five-group wearable outfit taxonomy.
+Costumes,41,other,,exclude,Outside the configured five-group wearable outfit taxonomy.
+Cover-ups,32,other,,exclude,Outside the configured five-group wearable outfit taxonomy.
+Cuff Links,8,other,,exclude,Outside the configured five-group wearable outfit taxonomy.
+Curtain Rods,1,other,,exclude,Outside the configured five-group wearable outfit taxonomy.
+Curtains,37,other,,exclude,Outside the configured five-group wearable outfit taxonomy.
+Cutlery,5,other,,exclude,Outside the configured five-group wearable outfit taxonomy.
+Day Dresses,2525,other,,exclude,Outside the configured five-group wearable outfit taxonomy.
+Decorative Hardware,1,other,,exclude,Outside the configured five-group wearable outfit taxonomy.
+Deodorant,4,other,,exclude,Outside the configured five-group wearable outfit taxonomy.
+Desk Lamps,13,other,,exclude,Outside the configured five-group wearable outfit taxonomy.
+Desks,17,other,,exclude,Outside the configured five-group wearable outfit taxonomy.
+Dining Chairs,35,other,,exclude,Outside the configured five-group wearable outfit taxonomy.
+Dining Tables,28,other,,exclude,Outside the configured five-group wearable outfit taxonomy.
+Dinnerware,45,other,,exclude,Outside the configured five-group wearable outfit taxonomy.
+Dressers,20,other,,exclude,Outside the configured five-group wearable outfit taxonomy.
+Dresses,383,other,,exclude,Outside the configured five-group wearable outfit taxonomy.
+Drinkware,210,other,,exclude,Outside the configured five-group wearable outfit taxonomy.
+Duvet Covers,17,other,,exclude,Outside the configured five-group wearable outfit taxonomy.
+Earrings,3606,other,,exclude,Outside the configured five-group wearable outfit taxonomy.
+Electronics,148,other,,exclude,Outside the configured five-group wearable outfit taxonomy.
+Entertainment Units,3,other,,exclude,Outside the configured five-group wearable outfit taxonomy.
+Eye Care,24,other,,exclude,Outside the configured five-group wearable outfit taxonomy.
+Eye Makeup,276,other,,exclude,Outside the configured five-group wearable outfit taxonomy.
+Eyeglasses,221,other,,exclude,Outside the configured five-group wearable outfit taxonomy.
+Eyelash Curlers,10,other,,exclude,Outside the configured five-group wearable outfit taxonomy.
+Eyeliner,342,other,,exclude,Outside the configured five-group wearable outfit taxonomy.
+Eyeshadow,759,other,,exclude,Outside the configured five-group wearable outfit taxonomy.
+Eyewear,22,other,,exclude,Outside the configured five-group wearable outfit taxonomy.
+Face Care,74,other,,exclude,Outside the configured five-group wearable outfit taxonomy.
+Face Cleansers,35,other,,exclude,Outside the configured five-group wearable outfit taxonomy.
+Face Makeup,100,other,,exclude,Outside the configured five-group wearable outfit taxonomy.
+Face Masks,40,other,,exclude,Outside the configured five-group wearable outfit taxonomy.
+Face Moisturizers,35,other,,exclude,Outside the configured five-group wearable outfit taxonomy.
+Face Powder,142,other,,exclude,Outside the configured five-group wearable outfit taxonomy.
+Face Toners,4,other,,exclude,Outside the configured five-group wearable outfit taxonomy.
+False Eyelashes,72,other,,exclude,Outside the configured five-group wearable outfit taxonomy.
+Fans,2,other,,exclude,Outside the configured five-group wearable outfit taxonomy.
+File Cabinets,3,other,,exclude,Outside the configured five-group wearable outfit taxonomy.
+Fireplace Accessories,8,other,,exclude,Outside the configured five-group wearable outfit taxonomy.
+Flared Jeans,71,bottoms,bottoms,keep,Explicit wearable bottoms category.
+Flats,786,shoes,shoes,keep,Explicit wearable shoes category.
+Flatware,33,shoes,,exclude,Rejected legacy substring match; category was not explicitly approved.
+Flip Flops,85,other,shoes,keep,Explicit wearable shoes category.
+Floor Lamps,59,other,,exclude,Outside the configured five-group wearable outfit taxonomy.
+Flooring,1,other,,exclude,Outside the configured five-group wearable outfit taxonomy.
+Floral Decor,580,other,,exclude,Outside the configured five-group wearable outfit taxonomy.
+Font,158,other,,exclude,Outside the configured five-group wearable outfit taxonomy.
+Food & Drink,150,other,,exclude,Outside the configured five-group wearable outfit taxonomy.
+Food Storage Containers,24,other,,exclude,Outside the configured five-group wearable outfit taxonomy.
+Foundation,149,other,,exclude,Outside the configured five-group wearable outfit taxonomy.
+Fragrance,843,other,,exclude,Outside the configured five-group wearable outfit taxonomy.
+Frames,47,other,,exclude,Outside the configured five-group wearable outfit taxonomy.
+Furniture,13,other,,exclude,Outside the configured five-group wearable outfit taxonomy.
+Garden Tools,6,other,,exclude,Outside the configured five-group wearable outfit taxonomy.
+Gift Cards,4,other,,exclude,Outside the configured five-group wearable outfit taxonomy.
+Gift Sets & Kits,61,other,,exclude,Outside the configured five-group wearable outfit taxonomy.
+Girls,81,other,,review,Ambiguous aggregate category; excluded pending researcher review.
+Gloves,173,other,,exclude,Outside the configured five-group wearable outfit taxonomy.
+Gowns,293,other,,exclude,Outside the configured five-group wearable outfit taxonomy.
+Hair Accessories,714,other,,exclude,Outside the configured five-group wearable outfit taxonomy.
+Hair Color,32,other,,exclude,Outside the configured five-group wearable outfit taxonomy.
+Hair Conditioner,12,other,,exclude,Outside the configured five-group wearable outfit taxonomy.
+Hair Removal,1,other,,exclude,Outside the configured five-group wearable outfit taxonomy.
+Hair Shampoo,13,other,,exclude,Outside the configured five-group wearable outfit taxonomy.
+Hair Styling Tools,248,other,,exclude,Outside the configured five-group wearable outfit taxonomy.
+Haircare,51,other,,exclude,Outside the configured five-group wearable outfit taxonomy.
+Hammocks & Swings,9,other,,exclude,Outside the configured five-group wearable outfit taxonomy.
+Handbags,1863,bags,bags,keep,Explicit wearable bags category.
+Handkerchiefs,4,other,,exclude,Outside the configured five-group wearable outfit taxonomy.
+Hats,1417,other,,exclude,Outside the configured five-group wearable outfit taxonomy.
+Health,3,other,,exclude,Outside the configured five-group wearable outfit taxonomy.
+Holiday Decorations,213,other,,exclude,Outside the configured five-group wearable outfit taxonomy.
+Home Decor,565,other,,exclude,Outside the configured five-group wearable outfit taxonomy.
+Home Fragrance,19,other,,exclude,Outside the configured five-group wearable outfit taxonomy.
+Home Improvement,11,other,,exclude,Outside the configured five-group wearable outfit taxonomy.
+Hoodies,240,tops,tops,keep,Explicit wearable tops category.
+Hosiery,8,other,,exclude,Outside the configured five-group wearable outfit taxonomy.
+Intimates,30,other,,exclude,Outside the configured five-group wearable outfit taxonomy.
+Jackets,2095,outerwear,outerwear,keep,Explicit wearable outerwear category.
+Jeans,512,bottoms,bottoms,keep,Explicit wearable bottoms category.
+Jewelry,367,other,,exclude,Outside the configured five-group wearable outfit taxonomy.
+Jewelry Storage,8,other,,exclude,Outside the configured five-group wearable outfit taxonomy.
+Jumpsuits,104,other,,exclude,Outside the configured five-group wearable outfit taxonomy.
+Juniors,5,other,,review,Ambiguous aggregate category; excluded pending researcher review.
+Kids,113,other,,review,Ambiguous aggregate category; excluded pending researcher review.
+Kitchen & Dining,127,other,,exclude,Outside the configured five-group wearable outfit taxonomy.
+Kitchen Gadgets & Tools,40,other,,exclude,Outside the configured five-group wearable outfit taxonomy.
+Kitchen Linens,9,other,,exclude,Outside the configured five-group wearable outfit taxonomy.
+Knee High Boots,193,shoes,shoes,keep,Explicit wearable shoes category.
+Knee Length Skirts,1692,bottoms,bottoms,keep,Explicit wearable bottoms category.
+Leggings,370,bottoms,bottoms,keep,Explicit wearable bottoms category.
+Lighting,55,other,,exclude,Outside the configured five-group wearable outfit taxonomy.
+Lip Gloss,278,other,,exclude,Outside the configured five-group wearable outfit taxonomy.
+Lip Makeup,185,other,,exclude,Outside the configured five-group wearable outfit taxonomy.
+Lip Pencils,48,other,,exclude,Outside the configured five-group wearable outfit taxonomy.
+Lip Stain,13,other,,exclude,Outside the configured five-group wearable outfit taxonomy.
+Lip Treatments,151,other,,exclude,Outside the configured five-group wearable outfit taxonomy.
+Lipstick,962,other,,exclude,Outside the configured five-group wearable outfit taxonomy.
+Loafers & Moccasins,225,shoes,shoes,keep,Explicit wearable shoes category.
+Long Skirts,245,bottoms,bottoms,keep,Explicit wearable bottoms category.
+Luggage,136,other,,exclude,Outside the configured five-group wearable outfit taxonomy.
+Makeup,309,other,,exclude,Outside the configured five-group wearable outfit taxonomy.
+Makeup Brushes,247,other,,exclude,Outside the configured five-group wearable outfit taxonomy.
+Makeup Primer,42,other,,exclude,Outside the configured five-group wearable outfit taxonomy.
+Makeup Remover,15,other,,exclude,Outside the configured five-group wearable outfit taxonomy.
+Makeup Tools,7,other,,exclude,Outside the configured five-group wearable outfit taxonomy.
+Manicure Tools,18,other,,exclude,Outside the configured five-group wearable outfit taxonomy.
+Mascara,369,other,,exclude,Outside the configured five-group wearable outfit taxonomy.
+Maternity,4,other,,review,Ambiguous aggregate category; excluded pending researcher review.
+Media,30,other,,exclude,Outside the configured five-group wearable outfit taxonomy.
+Men's Accessories,9,other,,review,Ambiguous aggregate category; excluded pending researcher review.
+Men's Activewear,1,other,,review,Ambiguous aggregate category; excluded pending researcher review.
+Men's Activewear Jackets,1,outerwear,outerwear,keep,Explicit wearable outerwear category.
+Men's Activewear Pants,9,bottoms,bottoms,keep,Explicit wearable bottoms category.
+Men's Activewear Shorts,2,bottoms,bottoms,keep,Explicit wearable bottoms category.
+Men's Activewear Tops,2,tops,tops,keep,Explicit wearable tops category.
+Men's Athletic Shoes,7,shoes,shoes,keep,Explicit wearable shoes category.
+Men's Backpacks,63,other,,exclude,Outside the configured five-group wearable outfit taxonomy.
+Men's Bags,27,bags,bags,keep,Explicit wearable bags category.
+Men's Bags & Wallets,7,bags,,review,Ambiguous aggregate category; excluded pending researcher review.
+Men's Belts,52,other,,exclude,Outside the configured five-group wearable outfit taxonomy.
+Men's Boots,57,shoes,shoes,keep,Explicit wearable shoes category.
+Men's Bracelets,49,other,,exclude,Outside the configured five-group wearable outfit taxonomy.
+Men's Briefcases,11,other,,exclude,Outside the configured five-group wearable outfit taxonomy.
+Men's Casual Pants,103,bottoms,bottoms,keep,Explicit wearable bottoms category.
+Men's Casual Shirts,121,tops,tops,keep,Explicit wearable tops category.
+Men's Clothing,67,other,,review,Ambiguous aggregate category; excluded pending researcher review.
+Men's Coats,32,outerwear,outerwear,keep,Explicit wearable outerwear category.
+Men's Deodorant,5,other,,exclude,Outside the configured five-group wearable outfit taxonomy.
+Men's Dress Pants,30,bottoms,bottoms,keep,Explicit wearable bottoms category.
+Men's Dress Shirts,44,tops,tops,keep,Explicit wearable tops category.
+Men's Dress Shoes,34,shoes,shoes,keep,Explicit wearable shoes category.
+Men's Eyeglasses,19,other,,exclude,Outside the configured five-group wearable outfit taxonomy.
+Men's Fashion,74,other,,review,Ambiguous aggregate category; excluded pending researcher review.
+Men's Flip Flops,2,other,shoes,keep,Explicit wearable shoes category.
+Men's Fragrance,66,other,,exclude,Outside the configured five-group wearable outfit taxonomy.
+Men's Gift Sets & Kits,3,other,,exclude,Outside the configured five-group wearable outfit taxonomy.
+Men's Gloves,11,other,,exclude,Outside the configured five-group wearable outfit taxonomy.
+Men's Grooming,19,other,,exclude,Outside the configured five-group wearable outfit taxonomy.
+Men's Grooming Bags,1,bags,,exclude,Rejected legacy substring match; category was not explicitly approved.
+Men's Hair Care,1,other,,exclude,Outside the configured five-group wearable outfit taxonomy.
+Men's Hats,98,other,,exclude,Outside the configured five-group wearable outfit taxonomy.
+Men's Hoodies,8,tops,tops,keep,Explicit wearable tops category.
+Men's Jackets,122,outerwear,outerwear,keep,Explicit wearable outerwear category.
+Men's Jeans,168,bottoms,bottoms,keep,Explicit wearable bottoms category.
+Men's Key Rings & Chains,19,other,,exclude,Outside the configured five-group wearable outfit taxonomy.
+Men's Loafers & Moccasins,16,shoes,shoes,keep,Explicit wearable shoes category.
+Men's Messenger Bags,20,bags,bags,keep,Explicit wearable bags category.
+Men's Money Clips,3,other,,exclude,Outside the configured five-group wearable outfit taxonomy.
+Men's Necklaces,15,other,,exclude,Outside the configured five-group wearable outfit taxonomy.
+Men's Outerwear,5,other,outerwear,keep,Explicit wearable outerwear category.
+Men's Oxfords,14,shoes,shoes,keep,Explicit wearable shoes category.
+Men's Pants,6,bottoms,bottoms,keep,Explicit wearable bottoms category.
+Men's Polos,18,tops,tops,keep,Explicit wearable tops category.
+Men's Rings,18,other,,exclude,Outside the configured five-group wearable outfit taxonomy.
+Men's Sandals,5,shoes,shoes,keep,Explicit wearable shoes category.
+Men's Scarves,30,other,,exclude,Outside the configured five-group wearable outfit taxonomy.
+Men's Shaving,10,other,,exclude,Outside the configured five-group wearable outfit taxonomy.
+Men's Shirts,20,tops,tops,keep,Explicit wearable tops category.
+Men's Shoes,68,shoes,shoes,keep,Explicit wearable shoes category.
+Men's Shorts,32,bottoms,bottoms,keep,Explicit wearable bottoms category.
+Men's Skincare,3,other,,exclude,Outside the configured five-group wearable outfit taxonomy.
+Men's Sleepwear,2,other,,exclude,Outside the configured five-group wearable outfit taxonomy.
+Men's Slippers,2,shoes,shoes,keep,Explicit wearable shoes category.
+Men's Sneakers,153,shoes,shoes,keep,Explicit wearable shoes category.
+Men's Socks,14,other,,exclude,Outside the configured five-group wearable outfit taxonomy.
+Men's Sportcoats & Blazers,18,outerwear,outerwear,keep,Explicit wearable outerwear category.
+Men's Suits,13,other,,exclude,Outside the configured five-group wearable outfit taxonomy.
+Men's Sunglasses,95,other,,exclude,Outside the configured five-group wearable outfit taxonomy.
+Men's Sweaters,20,tops,tops,keep,Explicit wearable tops category.
+Men's Sweatshirts,5,tops,tops,keep,Explicit wearable tops category.
+Men's Swimwear,4,other,,exclude,Outside the configured five-group wearable outfit taxonomy.
+Men's T-Shirts,141,tops,tops,keep,Explicit wearable tops category.
+Men's Tank Tops,11,tops,tops,keep,Explicit wearable tops category.
+Men's Tech Accessories,60,other,,exclude,Outside the configured five-group wearable outfit taxonomy.
+Men's Umbrellas,3,other,,exclude,Outside the configured five-group wearable outfit taxonomy.
+Men's Underwear,6,other,,exclude,Outside the configured five-group wearable outfit taxonomy.
+Men's Vests,9,outerwear,outerwear,keep,Explicit wearable outerwear category.
+Men's Wallets,78,other,,exclude,Outside the configured five-group wearable outfit taxonomy.
+Men's Watches,161,other,,exclude,Outside the configured five-group wearable outfit taxonomy.
+Men's Watches & Jewelry,7,other,,review,Ambiguous aggregate category; excluded pending researcher review.
+Men's Work Boots,14,shoes,shoes,keep,Explicit wearable shoes category.
+Messenger Bags,153,bags,bags,keep,Explicit wearable bags category.
+Mid Calf Boots,89,shoes,shoes,keep,Explicit wearable shoes category.
+Mini Skirts,825,bottoms,bottoms,keep,Explicit wearable bottoms category.
+Mirrors,55,other,,exclude,Outside the configured five-group wearable outfit taxonomy.
+Nail Care,59,other,,exclude,Outside the configured five-group wearable outfit taxonomy.
+Nail Polish,687,other,,exclude,Outside the configured five-group wearable outfit taxonomy.
+Nail Treatments,155,other,,exclude,Outside the configured five-group wearable outfit taxonomy.
+Napkin Rings,3,other,,exclude,Outside the configured five-group wearable outfit taxonomy.
+Necklaces,3379,other,,exclude,Outside the configured five-group wearable outfit taxonomy.
+Nightstands,8,other,,exclude,Outside the configured five-group wearable outfit taxonomy.
+Nursery Furniture,1,other,,exclude,Outside the configured five-group wearable outfit taxonomy.
+Office Accessories,286,other,,exclude,Outside the configured five-group wearable outfit taxonomy.
+Office Chairs,16,other,,exclude,Outside the configured five-group wearable outfit taxonomy.
+One Piece Swimsuits,74,other,,exclude,Outside the configured five-group wearable outfit taxonomy.
+Oral Care,1,other,,exclude,Outside the configured five-group wearable outfit taxonomy.
+Ottomans,32,other,,exclude,Outside the configured five-group wearable outfit taxonomy.
+Outdoor Benches,1,other,,exclude,Outside the configured five-group wearable outfit taxonomy.
+Outdoor Chairs,10,other,,exclude,Outside the configured five-group wearable outfit taxonomy.
+Outdoor Decor,85,other,,exclude,Outside the configured five-group wearable outfit taxonomy.
+Outdoor Lighting,26,other,,exclude,Outside the configured five-group wearable outfit taxonomy.
+Outdoor Loungers & Day Beds,3,other,,exclude,Outside the configured five-group wearable outfit taxonomy.
+Outdoor Patio Sets,2,other,,exclude,Outside the configured five-group wearable outfit taxonomy.
+Outdoor Stools,4,other,,exclude,Outside the configured five-group wearable outfit taxonomy.
+Outdoor Tables,6,other,,exclude,Outside the configured five-group wearable outfit taxonomy.
+Outdoors,17,other,,exclude,Outside the configured five-group wearable outfit taxonomy.
+Outerwear,227,other,outerwear,keep,Explicit wearable outerwear category.
+Over-The-Knee Boots,159,shoes,shoes,keep,Explicit wearable shoes category.
+Oxfords,171,shoes,shoes,keep,Explicit wearable shoes category.
+Paint,4,other,,exclude,Outside the configured five-group wearable outfit taxonomy.
+Pajamas,28,other,,exclude,Outside the configured five-group wearable outfit taxonomy.
+Panel Screens,4,other,,exclude,Outside the configured five-group wearable outfit taxonomy.
+Panties & Thongs,103,other,,exclude,Outside the configured five-group wearable outfit taxonomy.
+Pants,1235,bottoms,bottoms,keep,Explicit wearable bottoms category.
+Party Supplies,10,other,,exclude,Outside the configured five-group wearable outfit taxonomy.
+Patio Furniture,10,other,,exclude,Outside the configured five-group wearable outfit taxonomy.
+Patio Umbrellas,11,other,,exclude,Outside the configured five-group wearable outfit taxonomy.
+Pets,25,other,,exclude,Outside the configured five-group wearable outfit taxonomy.
+Pumps,2422,shoes,shoes,keep,Explicit wearable shoes category.
+Quilts & Coverlets,3,other,,exclude,Outside the configured five-group wearable outfit taxonomy.
+Rings,2116,other,,exclude,Outside the configured five-group wearable outfit taxonomy.
+Robes,20,other,,exclude,Outside the configured five-group wearable outfit taxonomy.
+Rompers,152,other,,exclude,Outside the configured five-group wearable outfit taxonomy.
+Rugs,186,other,,exclude,Outside the configured five-group wearable outfit taxonomy.
+Sandals,2689,shoes,shoes,keep,Explicit wearable shoes category.
+Scarves,745,other,,exclude,Outside the configured five-group wearable outfit taxonomy.
+Serveware,86,other,,exclude,Outside the configured five-group wearable outfit taxonomy.
+Shapewear,91,other,,exclude,Outside the configured five-group wearable outfit taxonomy.
+Sharpeners,2,other,,exclude,Outside the configured five-group wearable outfit taxonomy.
+Sheets & Pillowcases,28,other,,exclude,Outside the configured five-group wearable outfit taxonomy.
+Shoes,837,shoes,shoes,keep,Explicit wearable shoes category.
+Shorts,1451,bottoms,bottoms,keep,Explicit wearable bottoms category.
+Shoulder Bags,3525,bags,bags,keep,Explicit wearable bags category.
+Shower Curtains,3,other,,exclude,Outside the configured five-group wearable outfit taxonomy.
+Sideboards,10,other,,exclude,Outside the configured five-group wearable outfit taxonomy.
+Skincare,6,other,,exclude,Outside the configured five-group wearable outfit taxonomy.
+Skinny Jeans,1373,bottoms,bottoms,keep,Explicit wearable bottoms category.
+Skirts,223,bottoms,bottoms,keep,Explicit wearable bottoms category.
+Sleepwear,1,other,,exclude,Outside the configured five-group wearable outfit taxonomy.
+Slippers,96,shoes,shoes,keep,Explicit wearable shoes category.
+Small Appliances,10,other,,exclude,Outside the configured five-group wearable outfit taxonomy.
+Small Storage,120,other,,exclude,Outside the configured five-group wearable outfit taxonomy.
+Sneakers,1578,shoes,shoes,keep,Explicit wearable shoes category.
+Socks,220,other,,exclude,Outside the configured five-group wearable outfit taxonomy.
+Sofas,154,other,,exclude,Outside the configured five-group wearable outfit taxonomy.
+Sports & Outdoors,105,other,,review,Ambiguous aggregate category; excluded pending researcher review.
+Sports Accessories,2,other,,exclude,Outside the configured five-group wearable outfit taxonomy.
+Sports Bras,65,other,,exclude,Outside the configured five-group wearable outfit taxonomy.
+Standing Fans,2,other,,exclude,Outside the configured five-group wearable outfit taxonomy.
+Stationery,289,other,,exclude,Outside the configured five-group wearable outfit taxonomy.
+Stools,8,other,,exclude,Outside the configured five-group wearable outfit taxonomy.
+Storage & Organization,13,other,,exclude,Outside the configured five-group wearable outfit taxonomy.
+Storage & Shelves,8,other,,exclude,Outside the configured five-group wearable outfit taxonomy.
+Straight Leg Jeans,126,bottoms,bottoms,keep,Explicit wearable bottoms category.
+Styling Products,41,other,,exclude,Outside the configured five-group wearable outfit taxonomy.
+Suits,3,other,,exclude,Outside the configured five-group wearable outfit taxonomy.
+Sun Care,58,other,,exclude,Outside the configured five-group wearable outfit taxonomy.
+Sunglasses,2021,other,,exclude,Outside the configured five-group wearable outfit taxonomy.
+Suspenders,8,other,,exclude,Outside the configured five-group wearable outfit taxonomy.
+Sweaters,2037,tops,tops,keep,Explicit wearable tops category.
+Sweatshirts,518,tops,tops,keep,Explicit wearable tops category.
+Swimwear,15,other,,exclude,Outside the configured five-group wearable outfit taxonomy.
+T-Shirts,1478,tops,tops,keep,Explicit wearable tops category.
+Table Lamps,123,other,,exclude,Outside the configured five-group wearable outfit taxonomy.
+Table Linens,30,other,,exclude,Outside the configured five-group wearable outfit taxonomy.
+Tables,12,other,,exclude,Outside the configured five-group wearable outfit taxonomy.
+Tank Tops,1158,tops,tops,keep,Explicit wearable tops category.
+Teapots,15,other,,exclude,Outside the configured five-group wearable outfit taxonomy.
+Tech Accessories,1693,other,,exclude,Outside the configured five-group wearable outfit taxonomy.
+Throw Pillows,275,other,,exclude,Outside the configured five-group wearable outfit taxonomy.
+Ties,24,other,,exclude,Outside the configured five-group wearable outfit taxonomy.
+Tights,141,other,,exclude,Outside the configured five-group wearable outfit taxonomy.
+Tinted Moisturizer,22,other,,exclude,Outside the configured five-group wearable outfit taxonomy.
+Tops,2851,tops,tops,keep,Explicit wearable tops category.
+Tote Bags,1512,bags,bags,keep,Explicit wearable bags category.
+Toys,56,other,,exclude,Outside the configured five-group wearable outfit taxonomy.
+Tunics,100,tops,tops,keep,Explicit wearable tops category.
+Tweezers & Brow Tools,3,other,,exclude,Outside the configured five-group wearable outfit taxonomy.
+Umbrellas,25,other,,exclude,Outside the configured five-group wearable outfit taxonomy.
+Vases,102,other,,exclude,Outside the configured five-group wearable outfit taxonomy.
+Vests,264,outerwear,outerwear,keep,Explicit wearable outerwear category.
+Wall Lights,22,other,,exclude,Outside the configured five-group wearable outfit taxonomy.
+Wallets,423,other,,exclude,Outside the configured five-group wearable outfit taxonomy.
+Wallpaper,68,other,,exclude,Outside the configured five-group wearable outfit taxonomy.
+Watches,1099,other,,exclude,Outside the configured five-group wearable outfit taxonomy.
+Wedding Dresses,11,other,,exclude,Outside the configured five-group wearable outfit taxonomy.
+Wide Leg Jeans,27,bottoms,bottoms,keep,Explicit wearable bottoms category.
+Window Blinds,2,other,,exclude,Outside the configured five-group wearable outfit taxonomy.
+Window Treatments,2,other,,exclude,Outside the configured five-group wearable outfit taxonomy.
