@@ -1,0 +1,85 @@
+schema_version: 1
+
+embedders:
+  minilm:
+    provider: sentence_transformers
+    model_id: sentence-transformers/all-MiniLM-L6-v2
+    revision: 1110a243fdf4706b3f48f1d95db1a4f5529b4d41
+    immutable_digest: 1110a243fdf4706b3f48f1d95db1a4f5529b4d41
+    dimension: 384
+    max_sequence_length: 256
+    batch_size: 256
+    normalize: true
+    device: auto
+    precision: float32
+  clip:
+    provider: transformers
+    model_id: openai/clip-vit-base-patch32
+    revision: 3d74acf9a28c67741b2f4f2ea7635f0aaf6f0268
+    immutable_digest: 3d74acf9a28c67741b2f4f2ea7635f0aaf6f0268
+    dimension: 512
+    max_sequence_length: 77
+    batch_size: 64
+    normalize: true
+    device: auto
+    precision: float32
+
+generators:
+  roster:
+    - model_id: gemma4:12b
+      immutable_digest: 4eb23ef187e2c5462566d6a1d3bbbc2f1346d0b4327cbb66d58fffbcc9b2b05c
+      architecture: gemma4
+      parameters: 11.9B
+      quantization: Q4_K_M
+      context_length: 262144
+    - model_id: llama3.1:8b-instruct-q8_0
+      immutable_digest: b158ded76fa05be6bce8a682099ce5df8c5571340a04cf63a2923464679db576
+      architecture: llama
+      parameters: 8.0B
+      quantization: Q8_0
+      context_length: 131072
+    - model_id: ministral-3:14b-instruct-2512-q4_K_M
+      immutable_digest: 4760c35aeb9d9e9c6174c2492562c0b999e80a222804fd96b1915ab72bbcdcf7
+      architecture: mistral3
+      parameters: 13.9B
+      quantization: Q4_K_M
+      context_length: 262144
+  approval_status: calibrated_fresh_start_20260816
+
+extractor:
+  model_id: qwen3.5:9b
+  immutable_digest: 6488c96fa5faab64bb65cbd30d4289e20e6130ef535a93ef9a49f42eda893ea7
+  architecture: qwen35
+  parameters: 9.7B
+  quantization: Q4_K_M
+  approval_status: calibrated_fresh_start_20260816
+
+verifier:
+  model_id: phi4:14b
+  immutable_digest: ac896e5b8b34a1f4efa7b14d7520725140d5512484457fab45d2a4ea14c69dba
+  architecture: phi3
+  parameters: 14.7B
+  quantization: Q4_K_M
+  approval_status: calibrated_fresh_start_20260816
+
+judges:
+  roster:
+    - model_id: deepseek-r1:14b
+      immutable_digest: c333b7232bdb521236694ffbb5f5a6b11cc45d98e9142c73123b670fca400b09
+      architecture: qwen2
+      parameters: 14.8B
+      quantization: Q4_K_M
+  approval_status: calibrated_optional_fresh_start_20260816
+
+generation_defaults:
+  context_length: 8192
+  temperature: 0.0
+  top_p: 1.0
+  top_k: 1
+  seed: 42
+  token_limit: 512
+  structured_token_limit: 2048
+  timeout_seconds: 120
+  inference_server_version: 0.32.13
+  device: cuda
+  precision: Q4_K_M

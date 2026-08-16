@@ -1,136 +1,153 @@
 # Evidence-Constrained Multimodal Fashion Recommendation
 
-A reproducible research pipeline for complementary fashion recommendation and faithful,
-evidence-grounded explanations. It combines text and image retrieval, validation-selected
-CLIP fusion, evidence-in-the-loop reranking, controlled RAG variants, atomic-claim
-verification, and cross-model explanation judging.
+This is the clean research implementation specified by
+`Evidence_Fashion_Recommender_Project_Proposal.md`. It studies sampled controlled-pool fashion
+ranking and evidence-grounded explanations while keeping the recommendation image pathway
+strictly separate from textual explanation evidence.
 
-The original notebook implementation is preserved under [`archive/`](archive/README.md).
-The completed modular final evaluation is implemented under `src/` and configured by
-[`configs/final_eval_v2.yaml`](configs/final_eval_v2.yaml).
+## Current scope
 
-## Final evaluation status
+Experimental Stages 1–8 and the additive FashionCLIP Stage 6b are complete. The final
+study uses automated system evaluation only. The repository includes exact category cleaning, a
+configuration-driven accessory hierarchy, deterministic Polyvore cases, validated MiniLM/CLIP
+retrieval, preserved validation sensitivities, a researcher-selected approximately 100-candidate
+main Stage 4 run, auditable five-rule reranking, fresh `rag_c3` validation, and a disjoint 50-case
+pilot with a separate length-matched sensitivity, the 1,000-case confirmatory recommendation
+evaluation, the corrected 3,000-output shared-cap explanation corpus, atomic-claim extraction,
+cross-model claim verification, paired automated judging, and zero-call study-specific explanation metrics.
+Those metrics distinguish decision-trace alignment, conservative unsupported item attributes, and
+citation integrity while retaining visible-evidence grounding as secondary. All reported
+explanation-evaluation results come from the saved Stage 8 system outputs; no human or external
+audit result is claimed.
 
-The v2 evaluation is complete through Stage 4D targeted recovery:
+The dataset is pinned to `Marqo/polyvore` revision
+`8c782ee447faf2d2a0402ac883cf07d3b3f43e1c`. Runtime datasets, images, model caches, and
+embedding arrays are ignored. Compact manifests under `artifacts/manifests/` bind runs to the
+resolved configuration, inputs, outputs, models, row counts, environment, seed, and command.
+Exact duplicate image hashes are grouped at outfit-component level before evaluation splits are
+frozen. Deterministic minimal-change reassignment plus singleton rebalancing preserves the
+configured outfit quotas while preventing exact-image hashes from crossing splits.
+Raw data is never modified: 377 observed category values are mapped by exact configured keys,
+with unlisted and review categories excluded from prepared data. Accessories retain the broad
+evaluation label while using seven candidate-filtering subcategories: bags, eyewear, jewellery,
+belts, watches, headwear, and others. The complete audit is
+`artifacts/tables/table_category_audit.csv`.
 
-- Stage 1: frozen validation/test retrieval and evidence packets.
-- Stage 2: validation-only Hybrid-RAG configuration selection.
-- Stage 3: 3,600 preserved explanations: 300 cases x 4 variants x 3 generators.
-- Stage 4A: separate extraction of all atomic claims, with no three-claim cap.
-- Stage 4B: separate claim verification; unavailable rows remain N/A.
-- Stage 4C: 10,800 general judgments from three judges. Cross-model-only results are
-  primary; self-judge-inclusive results are sensitivity diagnostics.
-- Stage 4D: key-targeted recovery of explicit failed/N/A rows followed by one deterministic
-  post-recovery merge and analysis.
+## Repository map
 
-The proposed reranker is the validation-selected evidence-in-loop operating point:
+- `configs/experiment.yaml`: every experiment-facing dataset, split, sampling, fusion,
+  evaluation, and output decision.
+- `configs/models.yaml`: immutable embedding revisions and later approved LLM settings.
+- `configs/fashionclip_baseline.yaml`: pinned FashionCLIP 2.0 additive baseline.
+- `data/kb/fashion_rules.csv`: approved, auditable KB v3; raw Polyvore data is not committed.
+- `src/evidence_fashion/data.py`: pinned dataset adaptation, exact taxonomy, splits, and
+  deterministic broad/subtype-controlled candidate pools.
+- `src/evidence_fashion/retrieval.py`: MiniLM/CLIP encoding, normalized fusion, scoring, and
+  deterministic ranking.
+- `scripts/prepare_data.py` and `scripts/build_embeddings.py`: Stage 2 and Stage 3 commands.
+- `reports/methodology.md`: stable methods, migration decisions, validations, and limitations.
+- `reports/final_results.md`: stable results report populated only by approved later stages.
+- `artifacts/`: compact manifests plus later figures, tables, and examples.
+- `tests/`: deterministic unit, contract, and validation tests.
 
-```text
-selection policy: evidence_in_loop_pareto_v2
-CLIP weight:      0.75
-evidence weight:  0.25
+## Environment and Stage 2–5 commands
+
+Python 3.11 is supported. Install and validate with:
+
+```bash
+uv sync --extra cuda --extra dev
+uv run --extra cuda --extra dev ruff check .
+uv run --extra cuda --extra dev pytest
 ```
 
-CLIP 1.00 / evidence 0.00 is retained only as the accuracy-optimal baseline, not as the
-proposed method.
+Prepare the pinned data and validation cases without downloading or writing in dry-run mode:
 
-## Installation
-
-Python 3.11 or 3.12 and [`uv`](https://docs.astral.sh/uv/) are required. The exact resolved
-environment is committed in `uv.lock`.
-
-```powershell
-uv sync --extra dev --extra cuda
-uv run --extra cuda efr --config configs/final_eval_v2.yaml validate-config
-uv run --extra cuda efr --config configs/final_eval_v2.yaml doctor
+```bash
+uv run python scripts/prepare_data.py --config configs/experiment.yaml --dry-run
 ```
 
-For CPU-only inspection and tests, replace `cuda` with `cpu`. Explanation generation and
-LLM evaluation require the configured Ollama models and their recorded model digests.
+Run Stage 2 preparation, then the approved small Stage 3 embedding validation:
 
-## Reproducing the final pipeline
-
-Generated datasets, embeddings, caches, and full checkpoints are intentionally excluded from
-Git. Restore the inputs at the paths recorded by the manifests before running expensive
-commands. Then follow [`docs/reproducibility.md`](docs/reproducibility.md), which documents
-the stage order, resume behavior, integrity rules, and exact final commands.
-
-The final Stage 3-4 command sequence is:
-
-```powershell
-uv run --extra cuda efr --config configs/final_eval_v2.yaml freeze-final-eval-v2
-uv run --extra cuda efr --config configs/final_eval_v2.yaml run-final-explanations-v2
-uv run --extra cuda efr --config configs/final_eval_v2.yaml extract-claims-v2
-uv run --extra cuda efr --config configs/final_eval_v2.yaml verify-claims-v2
-uv run --extra cuda efr --config configs/final_eval_v2.yaml judge-general-quality-v2
+```bash
+uv run --extra cuda --extra dev python scripts/prepare_data.py --config configs/experiment.yaml --validate-only
+uv run --extra cuda --extra dev python scripts/build_embeddings.py --config configs/experiment.yaml --validate-only
 ```
 
-Each costly evaluation command is checkpointed and resumes completed rows. Stage 3 explanation
-text is never rewritten during evaluation or recovery.
+Both scripts also accept `--resume`; successful hash-bound outputs are reused rather than
+overwritten. The runtime root defaults to ignored `.runtime/` and can be redirected with
+`--runtime-root` to storage outside the repository.
 
-Stage 4D is a recovery operation, not part of a clean first run. It targets only explicit
-failed/N/A keys and uses a larger output allowance without changing prompts or scoring:
+Run validation-only recommendation evaluation, then explanation optimisation and the pilot:
 
-```powershell
-uv run --extra cuda efr --config configs/final_eval_v2.yaml recover-stage4d-v2 `
-  --artifact-root outputs/final_eval_v2 `
-  --recovery-root outputs/final_eval_v2/recovery/stage4d `
-  --post-root outputs/final_eval_v2/post_recovery `
-  --max-tokens 1600
+```bash
+uv run --extra cuda --extra dev python scripts/run_recommendation_eval.py --config configs/experiment.yaml --validate-only
+uv run --extra cuda --extra dev python scripts/run_explanation_eval.py --config configs/experiment.yaml --optimize-only
+uv run --extra cuda --extra dev python scripts/run_explanation_eval.py --config configs/experiment.yaml --pilot-cases 50
 ```
 
-## Evaluation contract
+Do not run the full 500-case explanation experiment before the required pilot and researcher
+approval.
 
-- Validation selects fusion, evidence-reranking, and Hybrid-RAG settings; test does not.
-- The proposed method always has evidence in the reranking loop.
-- Extraction and verification remain separate model calls and artifacts.
-- Empty or failed extraction is N/A, never perfect support.
-- Failed extraction, verification, or judging is N/A, never zero, one, unsupported, or a
-  fabricated score.
-- Length compliance (`word_count` and `over_35_words`) is reported separately from explanation
-  quality. Over-length explanations are retained unchanged.
-- Cross-model-only judging is the primary analysis. All-judge results, including self-judging,
-  are sensitivity diagnostics only.
-- Recovery copies successful source rows byte-for-byte at the record level and validates their
-  canonical hashes before accepting a merged table.
+Run the frozen 1,000-case Stage 6 recommendation evaluation with:
 
-## Results and audit artifacts
-
-The committed compact result bundles are:
-
-- [`reports/final_eval_v2/pre_recovery`](reports/final_eval_v2/pre_recovery): immutable
-  pre-recovery analysis.
-- [`reports/final_eval_v2/post_recovery`](reports/final_eval_v2/post_recovery): final
-  post-recovery tables, figures, artifact inventory, and handoff.
-- [`reports/final_eval_v2/post_recovery/STAGE4D_HANDOFF.md`](reports/final_eval_v2/post_recovery/STAGE4D_HANDOFF.md):
-  recovery counts, integrity checks, and headline results.
-- `outputs/final_eval_v2/recovery/stage4d`: committed compact source hashes, completion manifest,
-  and per-key recovery audits. Large merged tables remain ignored under `outputs/`.
-
-## Repository structure
-
-```text
-configs/     validated experiment configurations
-data/        local datasets and knowledge base (large derived data ignored)
-docs/        methodology, protocols, architecture, and reproducibility
-outputs/     generated runs, caches, checkpoints, and merged tables (ignored by default)
-reports/     committed compact tables, figures, manifests, and handoffs
-src/         installable evidence_fashion_recommender package
-tests/       unit and synthetic integration tests
-archive/     preserved exploratory notebook implementation
+```bash
+uv run --extra cuda --extra dev python scripts/run_stage6_recommendation_eval.py --config configs/experiment.yaml
 ```
 
-## Validation
+Run the additive FashionCLIP baseline on the locked cases with:
 
-```powershell
-uv run --extra cuda --extra dev ruff check src tests
-uv run --extra cuda --extra dev pytest -q
+```bash
+uv run --extra cuda --extra dev python scripts/run_stage6b_fashionclip_baseline.py --config configs/fashionclip_baseline.yaml
 ```
 
-The completed Stage 4D commit passed Ruff and all 79 tests. Run manifests additionally bind
-configuration, source artifacts, model identities, row counts, and hashes.
+Run or resume the frozen Stage 7 generation-only experiment with:
 
-## Citation and license
+```bash
+uv run --extra cuda --extra dev python scripts/run_stage7_explanation_generation.py --config configs/experiment.yaml
+uv run --extra cuda --extra dev python scripts/run_stage7_explanation_generation.py --config configs/experiment.yaml --resume
+```
 
-Citation metadata is in [`CITATION.cff`](CITATION.cff). The project is released under the
-[`MIT License`](LICENSE).
+Stage 7 does not extract, verify, or judge claims; those operations belong to Stage 8.
+
+Run or resume Stage 8 assessment with:
+
+```bash
+uv run --extra cuda --extra dev python scripts/run_stage8_explanation_assessment.py --config configs/experiment.yaml
+uv run --extra cuda --extra dev python scripts/run_stage8_explanation_assessment.py --config configs/experiment.yaml --resume
+```
+
+The post-completion Stage 8 verification revision is a deterministic aggregation of saved records
+and makes no model calls:
+
+```bash
+uv run --extra dev python scripts/revise_stage8_verification_metrics.py
+```
+
+It reports visible-evidence grounding as a secondary analysis in the final study-specific layer,
+preserves common-reference A+B support as post-hoc alignment, audits refusal handling, and
+stratifies results by verifier structural normalization.
+
+Derive the additive study-specific explanation metrics with:
+
+```bash
+uv run --extra dev python scripts/derive_stage8_study_metrics.py
+```
+
+Run the deterministic Stage 10 cleanup/release integrity review with:
+
+```bash
+uv run --extra dev python scripts/run_stage10_release_review.py
+```
+
+The command verifies the completed Stage 1–8 manifests and canonical artifacts, confirms that no
+human or external evaluation-audit footprint remains, and writes the current release-readiness table and Stage 10
+manifest. It makes no model calls.
+
+## Research boundary
+
+CLIP consumes images only for retrieval and ranking. Explanation evidence is restricted to A
+(the request plus frozen query/recommended item identities, categories, and item text) and, in the
+later evidence condition, B
+(the exact stored scoring trace). The system does not caption images or infer textual visual
+attributes. Candidate ranking is reported as sampled controlled-pool ranking, not full-catalogue
+retrieval.

@@ -1,9 +1,0 @@
-extends: paper_baseline.yaml
-
-run:
-  experiment_name: paper-improved-light-rerank
-
-reranking:
-  clip_weight: 0.90
-  evidence_weight: 0.10
-
