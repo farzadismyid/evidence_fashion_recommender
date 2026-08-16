@@ -65,6 +65,7 @@ def main() -> None:
     run_dir = runtime_root / "data" / run_id
     items_path = run_dir / "prepared_items.parquet"
     cases_path = run_dir / "evaluation_cases.jsonl"
+    bag_audit_cases_path = run_dir / "bag_audit_cases.jsonl"
     runtime_manifest_path = run_dir / "manifest.json"
     tracked_manifest_path = Path(config["paths"]["active_data_manifest"])
 
@@ -98,6 +99,14 @@ def main() -> None:
     run_dir.mkdir(parents=True)
     frame.to_parquet(items_path, index=False)
     write_jsonl(cases_path, cases.to_dict("records"))
+    bag_audit_cases = cases.loc[cases["target_category"].eq("bags")].copy()
+    expected_bag_cases = config["recommendation_evaluation"]["cases_per_category"]
+    if len(bag_audit_cases) != expected_bag_cases:
+        raise ValueError(
+            f"Stage 1 requires {expected_bag_cases} deterministic bag audit cases; "
+            f"found {len(bag_audit_cases)}."
+        )
+    write_jsonl(bag_audit_cases_path, bag_audit_cases.to_dict("records"))
     manifest = {
         "schema_version": 1,
         "stage": 2,
@@ -113,12 +122,14 @@ def main() -> None:
         "output_artifact_hashes": {
             str(items_path): sha256_file(items_path),
             str(cases_path): sha256_file(cases_path),
+            str(bag_audit_cases_path): sha256_file(bag_audit_cases_path),
             str(audit_path): sha256_file(audit_path),
         },
         "models": {},
         "row_counts": validation.counts
         | {
             "evaluation_cases": len(cases),
+            "bag_audit_cases": len(bag_audit_cases),
             "candidate_rows": int(cases["candidate_pool_size"].sum()),
         },
         "failure_counts": {"invalid_item_ids": validation.invalid_item_ids, "invalid_pools": 0},

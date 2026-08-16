@@ -5,6 +5,10 @@ import hashlib
 import json
 from pathlib import Path
 
+import pytest
+
+pytestmark = pytest.mark.skip(reason="Stage 10 belongs to the archived experiment")
+
 ROOT = Path(__file__).parents[1]
 
 

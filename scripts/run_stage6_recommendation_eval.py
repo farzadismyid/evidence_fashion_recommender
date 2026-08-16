@@ -27,6 +27,7 @@ from evidence_fashion.evaluation.statistics import (
     holm_adjust,
     two_sided_bootstrap_pvalue,
 )
+from evidence_fashion.kb_audit import load_audited_rules
 from evidence_fashion.manifest import (
     configuration_hash,
     environment_summary,
@@ -539,7 +540,7 @@ def main() -> None:
         text_weight=float(fusion["text_weight"]),
     )
 
-    kb = pd.read_csv(config["paths"]["knowledge_base"])
+    kb = load_audited_rules(config)
     rule_embeddings = mini.encode(kb["rule_text"].astype(str).tolist(), batch_size=batch_size)
     retriever = RuleRetriever(kb, rule_embeddings, config["rule_retrieval"])
     case_candidate_pairs = []
@@ -611,7 +612,6 @@ def main() -> None:
                     "case_id": case["case_id"],
                     "query_outfit_id": case["query_outfit_id"],
                     "target_category": case["target_category"],
-                    "target_accessory_subcategory": case.get("target_accessory_subcategory", ""),
                     "actual_pool_size": count,
                     "method": method,
                     **ranking_metrics(ranking["is_positive"]),
@@ -654,7 +654,6 @@ def main() -> None:
                 "query_item_minimal_name": str(case["query_text"] or case["query_category"]),
                 "request": case["user_request"],
                 "target_category": case["target_category"],
-                "target_accessory_subcategory": case.get("target_accessory_subcategory", ""),
                 "locked_candidate_id": str(top["item_id"]),
                 "locked_candidate_minimal_name": str(
                     item_lookup.loc[top["item_id"], "text"]
@@ -850,6 +849,24 @@ def main() -> None:
         "input_artifact_hashes": {
             str(items_path): items_hash,
             config["paths"]["knowledge_base"]: sha256_file(Path(config["paths"]["knowledge_base"])),
+            config["paths"]["kb_expansion_source"]: sha256_file(
+                Path(config["paths"]["kb_expansion_source"])
+            ),
+            config["paths"]["legacy_kb_audit"]: sha256_file(
+                Path(config["paths"]["legacy_kb_audit"])
+            ),
+            config["paths"]["legacy_rule_audit"]: sha256_file(
+                Path(config["paths"]["legacy_rule_audit"])
+            ),
+            config["paths"]["kb_coverage_matrix"]: sha256_file(
+                Path(config["paths"]["kb_coverage_matrix"])
+            ),
+            config["paths"]["kb_source_registry"]: sha256_file(
+                Path(config["paths"]["kb_source_registry"])
+            ),
+            config["paths"]["kb_rule_similarity_audit"]: sha256_file(
+                Path(config["paths"]["kb_rule_similarity_audit"])
+            ),
             "dataset_fingerprint": dataset_fingerprint,
         },
         "output_artifact_hashes": {str(path): sha256_file(path) for path in all_outputs},

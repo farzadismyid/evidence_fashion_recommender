@@ -2,6 +2,8 @@ import csv
 import json
 from pathlib import Path
 
+import pytest
+
 from evidence_fashion.study_metrics import (
     classify_item_attribute,
     dta_entailed,
@@ -87,6 +89,7 @@ def test_blinded_rendering_removes_rule_ids_and_citation_markers() -> None:
     assert "evidence" not in rendered.casefold()
 
 
+@pytest.mark.skip(reason="Stage 8 outputs belong to the archived experiment")
 def test_canonical_study_metrics_preserve_baselines_and_no_rag_citations_are_na() -> None:
     manifest = json.loads(
         (ROOT / "artifacts/manifests/stage8_study_metrics_manifest.json").read_text(

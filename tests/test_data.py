@@ -11,11 +11,9 @@ from evidence_fashion.data import (
     attach_candidate_pools,
     build_candidate_pool,
     build_evaluation_cases,
-    map_accessory_subcategory,
     map_broad_category,
     map_query_category,
     prepare_metadata,
-    resolve_accessory_request_subcategory,
     resolve_exact_image_duplicate_splits,
 )
 
@@ -24,13 +22,12 @@ from evidence_fashion.data import (
 def config() -> dict:
     loaded = yaml.safe_load(open("configs/experiment.yaml", encoding="utf-8"))
     loaded["dataset"]["expected_counts"] = {}
-    loaded["splits"].pop("exact_outfit_counts")
+    loaded["splits"].pop("exact_outfit_counts", None)
     loaded["recommendation_evaluation"].update(
         {
             "case_count": 5,
             "cases_per_category": 1,
             "case_split": "test",
-            "accessory_subcategory_case_counts": {"bags": 1},
         }
     )
     loaded["candidate_pool"].update({"max_negatives": 2, "negative_source_split": "case_split"})
@@ -43,7 +40,9 @@ def config() -> dict:
         ("Day Dresses", "other"),
         ("Skinny Jeans", "bottoms"),
         ("Ankle Booties", "shoes"),
-        ("Shoulder Bags", "accessories"),
+        ("Shoulder Bags", "bags"),
+        ("Backpacks", "other"),
+        ("Briefcases", "other"),
         ("Blazers", "outerwear"),
         ("Dining Tables", "other"),
     ],
@@ -56,10 +55,11 @@ def test_categories_outside_five_group_ontology_are_excluded(config: dict) -> No
     assert map_query_category("Day Dresses", config) == "other"
 
 
-def test_accessory_subcategory_is_exact_and_configured(config: dict) -> None:
-    assert map_accessory_subcategory("Shoulder Bags", config) == "bags"
-    assert map_accessory_subcategory("Bath Accessories", config) == ""
-    assert resolve_accessory_request_subcategory("Recommend sunglasses.", config) == "eyewear"
+def test_bag_allowlist_is_exact_and_exclusions_are_enforced(config: dict) -> None:
+    taxonomy = config["preprocessing"]["category_taxonomy"]
+    assert set(taxonomy["broad_category_mapping"]["bags"]) == set(taxonomy["bag_allowlist"])
+    for category in taxonomy["bag_excluded_categories"]:
+        assert map_broad_category(category, config) == "other"
 
 
 def test_split_is_deterministic_and_outfit_grouped() -> None:
@@ -75,7 +75,7 @@ def test_split_is_deterministic_and_outfit_grouped() -> None:
 def _synthetic_rows(config: dict) -> list[dict[str, str]]:
     rows = []
     categories = {
-        "accessories": "Shoulder Bags",
+        "bags": "Shoulder Bags",
         "bottoms": "Skinny Jeans",
         "outerwear": "Blazers",
         "shoes": "Ankle Booties",

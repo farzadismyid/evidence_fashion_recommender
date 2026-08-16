@@ -7,6 +7,13 @@ project:
 
 paths:
   knowledge_base: data/kb/fashion_rules.csv
+  kb_expansion_source: data/kb/fashion_rules_expansion.csv
+  legacy_kb_audit: data/kb/legacy_kb_audit.yaml
+  legacy_rule_audit: data/kb/legacy_rule_audit.csv
+  kb_coverage_matrix: data/kb/coverage_matrix.csv
+  kb_source_registry: data/kb/kb_source_registry.csv
+  kb_rule_similarity_audit: data/kb/kb_rule_similarity_audit.csv
+  kb_audit_report: reports/five_category_kb_audit.md
   runtime_root: .runtime
   data_runs: .runtime/data
   embedding_runs: .runtime/embeddings
@@ -38,18 +45,18 @@ dataset:
   outfit_id_separator: _
   approved_minimal_identity_fields: [category, text]
   expected_counts:
-    items: 69725
-    outfits: 20225
-    target_category_items: 69725
-    development_outfits: 14157
-    validation_outfits: 3033
-    test_outfits: 3035
+    items: 47872
+    outfits: 19094
+    target_category_items: 47872
+    development_outfits: 13365
+    validation_outfits: 2864
+    test_outfits: 2865
   proposal_reported_target_category_items: 66749
 
 preprocessing:
-  target_categories: [accessories, bottoms, outerwear, shoes, tops]
-  query_categories: [accessories, bottoms, outerwear, shoes, tops]
-  category_mapping_version: audited_exact_v2
+  target_categories: [tops, bottoms, shoes, outerwear, bags]
+  query_categories: [tops, bottoms, shoes, outerwear, bags]
+  category_mapping_version: five_category_bags_v1
   review_category_policy: frozen_exclude_after_pre_stage6_audit
   exclude_same_effective_type_query_target: true
   category_taxonomy:
@@ -146,56 +153,17 @@ preprocessing:
         - Men's Vests
         - Outerwear
         - Vests
-      accessories:
-        - Backpacks
+      bags:
         - Bags
-        - Belts
-        - Bow Ties
-        - Bracelets & Bangles
-        - Briefcases
-        - Brooches
-        - Charms & Pendants
         - Clutches
-        - Cuff Links
-        - Earrings
-        - Eyeglasses
-        - Eyewear
-        - Gloves
-        - Hair Accessories
         - Handbags
-        - Hats
-        - Hosiery
-        - Jewelry
-        - Men's Backpacks
         - Men's Bags
-        - Men's Belts
-        - Men's Bracelets
-        - Men's Briefcases
-        - Men's Eyeglasses
-        - Men's Gloves
-        - Men's Hats
         - Men's Messenger Bags
-        - Men's Money Clips
-        - Men's Necklaces
-        - Men's Rings
-        - Men's Scarves
-        - Men's Socks
-        - Men's Sunglasses
-        - Men's Wallets
-        - Men's Watches
         - Messenger Bags
-        - Necklaces
-        - Rings
-        - Scarves
         - Shoulder Bags
-        - Socks
-        - Sunglasses
-        - Suspenders
-        - Ties
-        - Tights
         - Tote Bags
-        - Wallets
-        - Watches
+    bag_allowlist: [Bags, Handbags, Shoulder Bags, Tote Bags, Clutches, Messenger Bags, Men's Bags, Men's Messenger Bags]
+    bag_excluded_categories: [Backpacks, Men's Backpacks, Briefcases, Men's Briefcases, Luggage]
     review_categories:
       - Accessories
       - Activewear
@@ -214,32 +182,8 @@ preprocessing:
       - Men's Fashion
       - Men's Watches & Jewelry
       - Sports & Outdoors
-    accessory_subcategory_mapping:
-      bags: [Backpacks, Bags, Briefcases, Clutches, Handbags, Men's Backpacks, Men's Bags, Men's Briefcases, Men's Messenger Bags, Messenger Bags, Shoulder Bags, Tote Bags]
-      eyewear: [Eyeglasses, Eyewear, Men's Eyeglasses, Men's Sunglasses, Sunglasses]
-      jewellery: [Bracelets & Bangles, Brooches, Charms & Pendants, Cuff Links, Earrings, Jewelry, Men's Bracelets, Men's Necklaces, Men's Rings, Necklaces, Rings]
-      belts: [Belts, Men's Belts, Suspenders]
-      watches: [Men's Watches, Watches]
-      headwear: [Hats, Men's Hats]
-      others: [Bow Ties, Gloves, Hair Accessories, Hosiery, Men's Gloves, Men's Money Clips, Men's Scarves, Men's Socks, Men's Wallets, Scarves, Socks, Ties, Tights, Wallets]
-    accessory_request_mapping:
-      bags: [bag, bags, backpack, backpacks, briefcase, briefcases, clutch, clutches, handbag, handbags, messenger bag, shoulder bag, tote, tote bag]
-      eyewear: [eyeglasses, eyewear, glasses, sunglasses]
-      jewellery: [bracelet, bracelets, brooch, brooches, charm, charms, cuff links, cufflinks, earrings, jewelry, jewellery, necklace, necklaces, pendant, pendants, ring, rings]
-      belts: [belt, belts, suspenders]
-      watches: [watch, watches]
-      headwear: [hat, hats]
-      others: [another accessory, bow tie, bow ties, glove, gloves, hair accessory, hair accessories, hosiery, money clip, other accessory, other accessories, scarf, scarves, socks, tie, ties, tights, wallet, wallets]
-    accessory_request_templates:
-      bags: Recommend a bag that completes this outfit.
-      eyewear: Recommend eyewear that completes this outfit.
-      jewellery: Recommend jewellery that completes this outfit.
-      belts: Recommend a belt that completes this outfit.
-      watches: Recommend a watch that completes this outfit.
-      headwear: Recommend a hat that completes this outfit.
-      others: Recommend another accessory that completes this outfit.
     broad_request_templates:
-      accessories: Recommend accessories that complete this outfit.
+      bags: Recommend a bag that completes this outfit.
       bottoms: Recommend bottoms that work with this outfit.
       outerwear: Recommend outerwear that works with this outfit.
       shoes: Recommend shoes that complete this outfit.
@@ -257,9 +201,9 @@ splits:
     validation: 0.15
     test: 0.15
   exact_outfit_counts:
-    development: 14157
-    validation: 3033
-    test: 3035
+    development: 13365
+    validation: 2864
+    test: 2865
   exact_image_duplicate_policy:
     enabled: true
     hash_algorithm: sha256
@@ -272,19 +216,12 @@ splits:
     require_zero_cross_split_exact_hash_groups: true
 
 recommendation_evaluation:
+  case_context_schema_version: 2
   case_count: 1000
   case_split: test
   case_seed: 42
-  target_category_order: [accessories, bottoms, outerwear, shoes, tops]
+  target_category_order: [tops, bottoms, shoes, outerwear, bags]
   cases_per_category: 200
-  accessory_subcategory_case_counts:
-    bags: 45
-    eyewear: 35
-    jewellery: 45
-    belts: 20
-    watches: 20
-    headwear: 15
-    others: 20
   metrics: [hr_at_1, hr_at_5, hr_at_10, ndcg_at_1, ndcg_at_5, ndcg_at_10, mrr]
 
 candidate_pool:
@@ -335,6 +272,12 @@ rule_retrieval:
   score_mean_weight: 0.3
   filter_before_top_k: true
   category_filter_field: recommended_category
+  applicability_filter_field: applicable_query_categories
+  required_context_field: required_context
+  query_terms_field: query_terms
+  candidate_terms_field: candidate_terms
+  audit_status_field: audit_status
+  approved_audit_status: retain
   candidate_representation_fields: [query_category, query_text, user_request, candidate_category, candidate_text, target_category]
   candidate_representation_template: labelled_pipe_v1
   deterministic_tie_breaker: rule_id_ascending
@@ -364,14 +307,6 @@ reranking_search:
 stage4_validation:
   case_count: 300
   cases_per_category: 60
-  accessory_subcategory_case_counts:
-    bags: 10
-    eyewear: 10
-    jewellery: 10
-    belts: 5
-    watches: 5
-    headwear: 10
-    others: 10
   split: validation
   case_seed: 4242
   candidate_max_negatives: 99

@@ -1,0 +1,12 @@
+left_rule_id,right_rule_id,sequence_similarity,same_target,same_query_applicability,same_source_page,audit_decision
+K023,K063,0.754545,true,false,false,retain_distinct_query_or_context
+K042,K043,0.736402,true,true,false,retain_distinct_query_or_context
+K043,K061,0.792,false,true,true,retain_distinct_target
+K044,K065,0.733871,false,true,false,retain_distinct_target
+K051,K053,0.724891,true,false,true,retain_distinct_query_or_context
+K057,K067,0.83682,false,true,true,retain_distinct_target
+K062,K063,0.736434,true,true,false,retain_distinct_query_or_context
+K063,K069,0.744,true,false,false,retain_distinct_query_or_context
+K064,K069,0.738676,true,false,false,retain_distinct_query_or_context
+K065,K066,0.739726,true,false,false,retain_distinct_query_or_context
+K065,K069,0.814229,true,false,true,retain_distinct_query_or_context

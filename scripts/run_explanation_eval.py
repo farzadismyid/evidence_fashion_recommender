@@ -209,7 +209,6 @@ def _generate_pair(
     return {
         "case_id": case["case_id"],
         "target_category": case["target_category"],
-        "target_accessory_subcategory": case.get("target_accessory_subcategory", ""),
         "generator": generator,
         "settings": dict(settings),
         "A": {

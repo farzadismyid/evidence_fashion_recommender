@@ -44,6 +44,10 @@ Backpacks, briefcases, luggage and every non-bag accessory are excluded. The int
 
 The recommendation design remains 1,000 cases, with 200 cases per category. HR@K, NDCG@K, MRR and the established paired recommendation analyses remain unchanged.
 
+Stage 1 data preparation must also produce the deterministic audit-only 200-case bag sample used
+by Stage 2. Stage 7 later reproduces these cases from the frozen configuration; it does not select
+replacement cases after the KB audit.
+
 ## Stage 2 — Audit and freeze bag rules
 
 Audit the currently identified bag-explicit rules for actual applicability rather than relying on keyword matching alone.
@@ -56,6 +60,14 @@ The audit must:
 - verify that each bag case can retrieve applicable evidence rather than merely five technically eligible rules;
 - measure rule frequency, concentration, packet duplication and pairwise overlap; and
 - identify unsupported contexts before the experimental protocol is frozen.
+
+The minimum Stage 2 pass gates are: every bag case has at least one directly supported applicable
+rule; no generic accessory-only rule enters a bag packet; every retained online rule records a
+source locator and access date; and every unsupported context is either covered before result
+inspection or explicitly excluded. If a later prompt requires exactly five rules, every included
+case must have five applicable rules; otherwise the prompt must state "up to five" before it is
+frozen. Rule concentration and packet-overlap thresholds must be approved alongside the expanded
+KB, before recommendation results are inspected.
 
 If important contexts lack adequate support, properly sourced rules must be added before the experiment, or those contexts must be explicitly excluded and reported as limitations. Rules must not be added after inspecting final condition results.
 

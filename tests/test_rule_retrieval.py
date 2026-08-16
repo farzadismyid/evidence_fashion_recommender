@@ -13,6 +13,12 @@ def _settings() -> dict:
     return {
         "candidate_top_k": 2,
         "category_filter_field": "recommended_category",
+        "applicability_filter_field": "applicable_query_categories",
+        "required_context_field": "required_context",
+        "query_terms_field": "query_terms",
+        "candidate_terms_field": "candidate_terms",
+        "audit_status_field": "audit_status",
+        "approved_audit_status": "retain",
         "reliability_weights": {"high": 1.0, "medium": 0.85, "low": 0.65},
         "query_group_bonus": 0.1,
         "score_max_weight": 0.7,
@@ -29,6 +35,11 @@ def _rules() -> pd.DataFrame:
                 "input_category": "dresses",
                 "recommended_category": "shoes",
                 "source_reliability": "medium",
+                "audit_status": "retain",
+                "applicable_query_categories": "dresses",
+                "required_context": "none",
+                "query_terms": "none",
+                "candidate_terms": "none",
             },
             {
                 "rule_id": "R1",
@@ -36,6 +47,11 @@ def _rules() -> pd.DataFrame:
                 "input_category": "dresses",
                 "recommended_category": "shoes",
                 "source_reliability": "high",
+                "audit_status": "retain",
+                "applicable_query_categories": "dresses",
+                "required_context": "none",
+                "query_terms": "none",
+                "candidate_terms": "none",
             },
             {
                 "rule_id": "R3",
@@ -43,6 +59,11 @@ def _rules() -> pd.DataFrame:
                 "input_category": "dresses",
                 "recommended_category": "tops",
                 "source_reliability": "high",
+                "audit_status": "retain",
+                "applicable_query_categories": "dresses",
+                "required_context": "none",
+                "query_terms": "none",
+                "candidate_terms": "none",
             },
         ]
     )
@@ -104,3 +125,23 @@ def test_candidate_representation_contains_only_approved_dataset_and_request_fie
     assert "day dress" in text
     assert "black pumps" in text
     assert "image" not in text.lower()
+
+
+def test_query_term_conjunction_fails_closed_until_every_clause_is_present() -> None:
+    rules = _rules().iloc[[0]].copy()
+    rules.loc[:, "query_terms"] = "dress & smart casual|smart-casual"
+    retriever = RuleRetriever(rules, np.array([[1.0, 0.0]]), _settings())
+    with pytest.raises(ValueError, match="No audited applicable rules"):
+        retriever.retrieve_and_score(
+            case=_case(),
+            candidate=_candidate(),
+            representation_embedding=np.array([1.0, 0.0]),
+        )
+    case = _case()
+    case["user_request"] = "Recommend shoes for a smart-casual look."
+    trace = retriever.retrieve_and_score(
+        case=case,
+        candidate=_candidate(),
+        representation_embedding=np.array([1.0, 0.0]),
+    )
+    assert [rule.rule_id for rule in trace.rules] == ["R2"]
