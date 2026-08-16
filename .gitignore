@@ -1,27 +1,23 @@
-.venv/
+# Python and test tooling
 __pycache__/
 *.py[cod]
 .pytest_cache/
 .ruff_cache/
-.mypy_cache/
-.ipynb_checkpoints/
+.coverage
+htmlcov/
+.venv/
+archive/
 
-.env
-.DS_Store
-
+# Local runtime data: raw datasets, model caches, and embedding arrays stay outside Git.
+.runtime/
 data/raw/
 data/processed/
-data/findings/
-
-outputs/*
-!outputs/.gitkeep
-
-archive/original_notebook_outputs/
-
 *.npy
 *.npz
-*.faiss
-*.index
+*.parquet
 
-# Local temporary files
-.tmp/
+# Notebook and editor state
+.ipynb_checkpoints/
+.idea/
+.vscode/
+thesis/.cache/
