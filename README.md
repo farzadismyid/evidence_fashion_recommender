@@ -21,12 +21,13 @@ explanation-evaluation results come from the saved Stage 8 system outputs; no hu
 audit result is claimed.
 
 Current gate status: Stage 1 is frozen in
-`artifacts/manifests/stage1_taxonomy_freeze_manifest.json`. Stage 2 is not frozen: the required
-pre-experiment 200-case bag applicability audit currently supports 9 cases and rejects 191. The
-audit now includes explicitly observed text from the other items in each outfit as permitted
-context. See
+`artifacts/manifests/stage1_taxonomy_freeze_manifest.json`. Stage 2 is frozen in
+`artifacts/manifests/stage2_kb_freeze_manifest.json`: the pre-experiment 200-case bag audit
+supports all cases, maximum rule prevalence is 28%, and 104 unique non-empty packets satisfy the
+frozen diversity gates. The audit includes explicitly observed text from the other items in each
+outfit as permitted context. See
 `reports/stage2_bag_case_applicability_audit.json` and
-`reports/five_category_kb_audit.md`. Later stages must not start until this gate is resolved.
+`reports/five_category_kb_audit.md`. The repository is ready to proceed to Stage 3.
 
 The dataset is pinned to `Marqo/polyvore` revision
 `8c782ee447faf2d2a0402ac883cf07d3b3f43e1c`. Runtime datasets, images, model caches, and
@@ -46,7 +47,7 @@ excluded. Dataset counts and the category audit must be regenerated before Stage
   evaluation, and output decision.
 - `configs/models.yaml`: immutable embedding revisions and later approved LLM settings.
 - `configs/fashionclip_baseline.yaml`: pinned FashionCLIP 2.0 additive baseline.
-- `data/kb/fashion_rules.csv`: canonical 75-rule, five-category, citation-audited KB.
+- `data/kb/fashion_rules.csv`: canonical 100-rule, five-category, citation-audited KB.
 - `data/kb/legacy_rule_audit.csv`: row-level disposition and provenance for all 126 legacy rules.
 - `data/kb/kb_source_registry.csv`: unique-page source validation and rule concentration registry.
 - `data/kb/kb_rule_similarity_audit.csv`: reviewed near-duplicate rule pairs.
