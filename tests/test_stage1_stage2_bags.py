@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import hashlib
+import json
 from pathlib import Path
 
 import numpy as np
@@ -73,13 +75,13 @@ def test_five_category_kb_and_legacy_audit_are_complete() -> None:
     config = _config()
     rules = load_canonical_rules(ROOT / config["paths"]["knowledge_base"])
     audit = load_legacy_audit(ROOT / config["paths"]["legacy_kb_audit"])
-    assert len(rules) == 75
+    assert len(rules) == 100
     assert rules["recommended_category"].value_counts().to_dict() == {
-        "bags": 15,
-        "tops": 15,
-        "bottoms": 15,
-        "shoes": 15,
-        "outerwear": 15,
+        "bags": 20,
+        "tops": 20,
+        "bottoms": 20,
+        "shoes": 20,
+        "outerwear": 20,
     }
     assert set(rules["input_category"]) <= {"tops", "bottoms", "shoes", "outerwear", "bags"}
     assert rules["audit_status"].eq("retain").all()
@@ -95,16 +97,47 @@ def test_five_category_kb_and_legacy_audit_are_complete() -> None:
     off_diagonal = matrix.to_numpy()[~np.eye(len(matrix), dtype=bool)]
     assert (off_diagonal >= 3).all()
     source_registry = pd.read_csv(ROOT / config["paths"]["kb_source_registry"])
-    assert len(source_registry) == 36
+    assert len(source_registry) == 43
     assert source_registry["rule_count"].max() <= 7
-    assert source_registry["rule_count"].sum() == 75
+    assert source_registry["rule_count"].sum() == 100
     similarity_audit = pd.read_csv(ROOT / config["paths"]["kb_rule_similarity_audit"])
-    assert len(similarity_audit) == 11
+    assert len(similarity_audit) == 63
     assert similarity_audit["audit_decision"].str.startswith("retain_distinct_").all()
     report = (ROOT / config["paths"]["kb_audit_report"]).read_text(encoding="utf-8")
     assert "126 / 126" in report
     assert "experimental condition results were not inspected" in report
-    assert "75/75 reachable direct HTTPS citations" in report
+    assert "100/100 direct HTTPS citations" in report
+
+
+def test_stage2_static_bag_audit_passes_coverage_and_diversity_gates() -> None:
+    audit = json.loads(
+        (ROOT / "reports/stage2_bag_case_applicability_audit.json").read_text(
+            encoding="utf-8"
+        )
+    )
+    assert audit["supported_case_count"] == 200
+    assert audit["unsupported_case_count"] == 0
+    assert audit["maximum_rule_prevalence"] <= 0.30
+    assert audit["duplicate_packet_case_fraction"] <= 0.70
+    assert audit["unique_nonempty_packets"] >= 100
+    assert audit["stage2_pass"] is True
+    assert audit["experimental_condition_results_inspected"] is False
+
+
+def test_stage2_freeze_manifest_binds_the_reviewed_kb_artifacts() -> None:
+    manifest = json.loads(
+        (ROOT / "artifacts/manifests/stage2_kb_freeze_manifest.json").read_text(
+            encoding="utf-8"
+        )
+    )
+    assert manifest["status"] == "frozen"
+    assert manifest["rule_count"] == 100
+    assert set(manifest["rule_counts_by_target"].values()) == {20}
+    assert manifest["audit_gates"]["stage2_pass"] is True
+    assert manifest["experimental_condition_results_inspected"] is False
+    for relative_path, expected_hash in manifest["bound_artifact_hashes"].items():
+        artifact = ROOT / relative_path
+        assert hashlib.sha256(artifact.read_bytes()).hexdigest() == expected_hash
 
 
 def _settings() -> dict:

@@ -10,12 +10,12 @@ ROOT = Path(__file__).parents[1]
 def test_canonical_five_category_kb_has_expected_hash_and_rows() -> None:
     path = ROOT / "data" / "kb" / "fashion_rules.csv"
     assert hashlib.sha256(path.read_bytes()).hexdigest() == (
-        "3be6286c3f50f792f527d45e6aa5cef7e4e93cafdbd99d0641086a801c491260"
+        "ec4b56c78c674116c558a4aeab98c1fe74b9e7dbba392d8cba0b62799c5398d1"
     )
     with path.open(encoding="utf-8", newline="") as handle:
         rows = list(csv.DictReader(handle))
-    assert len(rows) == 75
-    assert len({row["rule_id"] for row in rows if row["rule_id"]}) == 75
+    assert len(rows) == 100
+    assert len({row["rule_id"] for row in rows if row["rule_id"]}) == 100
     assert {row["recommended_category"] for row in rows} == {
         "tops", "bottoms", "shoes", "outerwear", "bags"
     }
