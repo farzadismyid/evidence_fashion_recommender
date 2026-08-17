@@ -217,7 +217,13 @@ def coverage_matrix(rules: pd.DataFrame) -> pd.DataFrame:
 
 
 def audit_static_case_applicability(
-    cases: list[dict[str, Any]], rules: pd.DataFrame, target_category: str
+    cases: list[dict[str, Any]],
+    rules: pd.DataFrame,
+    target_category: str,
+    *,
+    maximum_rule_prevalence_threshold: float = 0.30,
+    maximum_duplicate_packet_case_fraction: float = 0.70,
+    minimum_unique_nonempty_packets: int = 100,
 ) -> dict[str, Any]:
     """Audit pre-experiment case-to-rule applicability without rankings or model outputs."""
     validate_canonical_rules(rules)
@@ -261,6 +267,22 @@ def audit_static_case_applicability(
                 }
             )
     supported_count = len(target_cases) - len(unsupported)
+    maximum_rule_prevalence = (
+        max(frequency.values()) / len(target_cases) if target_cases and frequency else 0.0
+    )
+    duplicate_nonempty_packet_cases = sum(
+        count for packet, count in packet_counts.items() if packet and count > 1
+    )
+    duplicate_packet_case_fraction = (
+        duplicate_nonempty_packet_cases / len(target_cases) if target_cases else 0.0
+    )
+    unique_nonempty_packets = len([packet for packet in packet_counts if packet])
+    coverage_pass = bool(target_cases) and not unsupported
+    prevalence_pass = maximum_rule_prevalence <= maximum_rule_prevalence_threshold
+    duplicate_packet_pass = (
+        duplicate_packet_case_fraction <= maximum_duplicate_packet_case_fraction
+    )
+    packet_diversity_pass = unique_nonempty_packets >= minimum_unique_nonempty_packets
     return {
         "target_category": target_category,
         "case_count": len(target_cases),
@@ -270,14 +292,25 @@ def audit_static_case_applicability(
         "unsupported_cases": unsupported,
         "query_category_coverage": query_counts,
         "rule_frequency": dict(sorted(frequency.items())),
-        "maximum_rule_prevalence": (
-            max(frequency.values()) / len(target_cases) if target_cases and frequency else 0.0
+        "maximum_rule_prevalence": maximum_rule_prevalence,
+        "unique_nonempty_packets": unique_nonempty_packets,
+        "duplicate_nonempty_packet_cases": duplicate_nonempty_packet_cases,
+        "duplicate_packet_case_fraction": duplicate_packet_case_fraction,
+        "thresholds": {
+            "maximum_rule_prevalence": maximum_rule_prevalence_threshold,
+            "maximum_duplicate_packet_case_fraction": maximum_duplicate_packet_case_fraction,
+            "minimum_unique_nonempty_packets": minimum_unique_nonempty_packets,
+        },
+        "coverage_pass": coverage_pass,
+        "prevalence_pass": prevalence_pass,
+        "duplicate_packet_pass": duplicate_packet_pass,
+        "packet_diversity_pass": packet_diversity_pass,
+        "stage2_pass": (
+            coverage_pass
+            and prevalence_pass
+            and duplicate_packet_pass
+            and packet_diversity_pass
         ),
-        "unique_nonempty_packets": len([packet for packet in packet_counts if packet]),
-        "duplicate_nonempty_packet_cases": sum(
-            count for packet, count in packet_counts.items() if packet and count > 1
-        ),
-        "coverage_pass": bool(target_cases) and not unsupported,
         "experimental_condition_results_inspected": False,
     }
 

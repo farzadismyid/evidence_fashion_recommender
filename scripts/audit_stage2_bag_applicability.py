@@ -25,8 +25,8 @@ def main() -> None:
     args.output.write_text(json.dumps(result, indent=2, sort_keys=True) + "\n", encoding="utf-8")
     summary = {key: value for key, value in result.items() if key != "unsupported_cases"}
     print(json.dumps(summary, indent=2, sort_keys=True))
-    if not result["coverage_pass"]:
-        raise SystemExit("Stage 2 applicability gate failed; Stage 2 must not be frozen.")
+    if not result["stage2_pass"]:
+        raise SystemExit("Stage 2 KB gates failed; Stage 2 must not be frozen.")
 
 
 if __name__ == "__main__":
