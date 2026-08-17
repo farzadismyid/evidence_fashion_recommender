@@ -1,0 +1,50 @@
+{
+  "audit_gates": {
+    "coverage_pass": true,
+    "duplicate_packet_pass": true,
+    "packet_diversity_pass": true,
+    "prevalence_pass": true,
+    "stage2_pass": true
+  },
+  "audit_metrics": {
+    "case_count": 200,
+    "duplicate_nonempty_packet_cases": 135,
+    "duplicate_packet_case_fraction": 0.675,
+    "maximum_rule_prevalence": 0.28,
+    "supported_case_count": 200,
+    "unique_nonempty_packets": 104,
+    "unsupported_case_count": 0
+  },
+  "bound_artifact_hashes": {
+    "artifacts\\manifests\\stage1_taxonomy_freeze_manifest.json": "1084f4d305bd0b3ea28a5e9f7aedbb63f12a7ff3f81438c6304b4ad54920f132",
+    "data\\kb\\coverage_matrix.csv": "be7fa53d88a4c52c5edd238826d95ad82c07f1f327b56cfdf566a8a7a5542145",
+    "data\\kb\\fashion_rules.csv": "ec4b56c78c674116c558a4aeab98c1fe74b9e7dbba392d8cba0b62799c5398d1",
+    "data\\kb\\kb_rule_similarity_audit.csv": "92203c275062f54c4f34f3742c93ca6b04216ace40e536df1f610b763f6869d4",
+    "data\\kb\\kb_source_registry.csv": "e77a89c26540088ced8a813203c1c74221a60f408ba54e0981f8b6bb39456996",
+    "reports\\stage2_bag_case_applicability_audit.json": "880c64da0e840c96c7d6b6238ba3a5a989dc2643f4261e0cd8a32e4caeeb5114"
+  },
+  "experimental_condition_results_inspected": false,
+  "git_commit": "56bbbd6562ae9c0b6a29e748a56e0c47d6c85916",
+  "next_gate": "Proceed to Stage 3 without changing the frozen taxonomy or KB.",
+  "rule_count": 100,
+  "rule_counts_by_target": {
+    "bags": 20,
+    "bottoms": 20,
+    "outerwear": 20,
+    "shoes": 20,
+    "tops": 20
+  },
+  "schema_version": 1,
+  "source_page_count": 43,
+  "source_validation_statuses": [
+    "verified_reachable_and_direct_2026-08-16"
+  ],
+  "stage": 2,
+  "status": "frozen",
+  "thresholds": {
+    "maximum_duplicate_packet_case_fraction": 0.7,
+    "maximum_rule_prevalence": 0.3,
+    "minimum_unique_nonempty_packets": 100
+  },
+  "timestamp_utc": "2026-08-16T21:34:19Z"
+}
