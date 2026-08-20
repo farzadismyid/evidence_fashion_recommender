@@ -1,0 +1,63 @@
+{
+  "blind_judge": {
+    "approval_required": true,
+    "enabled": false
+  },
+  "bound_artifact_hashes": {
+    "artifacts\\manifests\\stage1_taxonomy_freeze_manifest.json": "1084f4d305bd0b3ea28a5e9f7aedbb63f12a7ff3f81438c6304b4ad54920f132",
+    "artifacts\\manifests\\stage2_kb_freeze_manifest.json": "f5156e8ca1a55d3e99a31a9250af964c56939c862c8bad84f367e19e2b3f1784",
+    "configs\\models.yaml": "f82191ffd9009812b06ef1a3504ebb1d8dd391d9baca5ae3487fa449ece361e5",
+    "configs\\prompts.yaml": "522414f406e86aa7aa88dd042f7d5521373441e90e234662d512a2fa9cf804c5",
+    "scripts\\freeze_stage3_prompts.py": "bbad45774b9b478075b2c3e29664f3731b04a96a80504008e00d4feb80559789",
+    "src\\evidence_fashion\\prompt_registry.py": "0ed36ca60b6b729301cc7751d44e61041fb4a4c014d0a27ebe2335568b6c6355"
+  },
+  "git_commit": "dd438945517b1205f2fdf9679534c6dafd2ac604",
+  "next_gate": "Stage 4 must enforce complete sequential model batches before calibration.",
+  "prompt_registry_schema_version": 1,
+  "prompt_registry_sha256": "522414f406e86aa7aa88dd042f7d5521373441e90e234662d512a2fa9cf804c5",
+  "rendered_prompt_manifest_contract": {
+    "implementation": "evidence_fashion.prompt_registry.prompt_manifest_fields",
+    "required_per_completed_model_call": [
+      "role",
+      "system_prompt",
+      "user_prompt",
+      "system_prompt_sha256",
+      "user_prompt_sha256",
+      "rendered_prompt_sha256",
+      "role_contract_sha256"
+    ]
+  },
+  "role_contract_sha256": {
+    "blind_judge": "c4547f69e5f1f39c5f1a2810d2ec632f6fb6043e222041f3eba974ac97a29746",
+    "claim_extraction": "5372fdf300a76f8b5780d7a8d95633725da999f886c81558d1ee48a008642336",
+    "claim_verification": "4039596d6e13c16f8df985d559a88d9dfe6f6bbb141105bcb6ad3faa8a4211e4",
+    "no_rag_explanation": "e0ff43aa05c34d625b2123426342c0408ac125dd744621a0e7bf652f0b1040ed",
+    "rule_rag_explanation": "726f4919f737b1fe281cba225d65d27653bfe54537a112b749aa0b9a03545b70"
+  },
+  "schema_version": 1,
+  "stage": 3,
+  "status": "frozen",
+  "template_sha256": {
+    "blind_judge": {
+      "system_prompt": "05dd7e33d5dc9721513aab2b67fb6b0231cc81347628283b3664361f7f2dd53c",
+      "user_template": "96f926b1fe032751f4d5d41bf4399e9d36b6d47d97c0ad3658c3ea87c75ec1c7"
+    },
+    "claim_extraction": {
+      "system_prompt": "14c1c627067fdc9cc5b941d998c56b6aa751fa4ac1df176fc8d4b4cc8028844d",
+      "user_template": "92dedef27ec2d280319f34a9e1cbd259702601884acbcc2c298ea98205e7a8f2"
+    },
+    "claim_verification": {
+      "system_prompt": "f53f085837100297ecca067a93c89b1a11c75487e089df2f26064ba1389cbd51",
+      "user_template": "f2b734bae9326b1f47b4f4f844b4349c67d93c0960fae7d0fda219131277d2e1"
+    },
+    "no_rag_explanation": {
+      "system_prompt": "bbf2b8fa3952d6c51848b905c44ea8bcd78380f4dcc15bd8f1db3724c5cf6933",
+      "user_template": "6dbb940549e241db4247ea255a764ef3464aaf40fc6ddeaeed7fbafb5573d6b5"
+    },
+    "rule_rag_explanation": {
+      "system_prompt": "defb87d08fa12ae2c6539e5bd58e87fc6358fe2a630c624b26f137dba5eaafce",
+      "user_template": "f219c1c1d2dbb364e1d4bd26eecd59e74789ed04a3816ac9b7f8f7352187f7cc"
+    }
+  },
+  "timestamp_utc": "2026-08-20T15:08:22Z"
+}
