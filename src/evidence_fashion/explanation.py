@@ -78,7 +78,7 @@ def build_rule_rag_prompt(
             " | ".join(f"{key}={value}" for key, value in rule.items()) for rule in projected
         )
     citation_instruction = (
-        "Cite supporting rules using square-bracket rule IDs such as [R12]."
+        "Cite supporting rules using separate square-bracket K IDs such as [K012] [K099]."
         if settings["citation_mode"] == "required"
         else "Rule-ID citations are optional."
     )

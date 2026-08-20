@@ -52,9 +52,16 @@ def _record(condition: str) -> dict:
         "human_verification": [
             {
                 "claim_id": "C1",
+                "full_kb_candidate_applicable_rule_ids": ["K001"],
                 "full_kb_entailment": "supported",
+                "full_kb_rule_ids": ["K001"],
+                "full_kb_reason": "The candidate rule applies and supports the claim.",
                 "exact_trace_entailment": "supported",
+                "exact_trace_rule_ids": ["K001"],
+                "exact_trace_reason": "The exact trace supports the claim.",
                 "common_reference_item_fact_support": "not_verifiable",
+                "common_reference_fields": [],
+                "common_reference_reason": "No item fact settles the relation.",
             }
         ],
         "human_citation_validation": [
@@ -62,7 +69,10 @@ def _record(condition: str) -> dict:
                 "claim_id": "C1",
                 "citation_present": False,
                 "canonical_citation_format": True,
+                "cited_rule_ids": [],
+                "invalid_rule_ids": [],
                 "citation_entails_claim": None,
+                "brief_reason": "No citation is present.",
             }
         ],
     }

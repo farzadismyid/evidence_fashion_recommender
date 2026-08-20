@@ -10,11 +10,11 @@ from typing import Any
 from evidence_fashion.verification_analysis import SUPPORT_A, SUPPORT_B, claim_role
 
 TOKEN_RE = re.compile(r"[a-z0-9]+(?:'[a-z0-9]+)?")
-CITATION_RE = re.compile(r"\[(?:R\d{1,3})(?:\s*,\s*R\d{1,3})*\]", re.IGNORECASE)
+CITATION_RE = re.compile(r"\[(?:K\d{3})(?:\s*,\s*K\d{3})*\]", re.IGNORECASE)
 INLINE_RULE_RE = re.compile(
-    r"\b(?:rule|rules)\s+R\d{1,3}(?:\s*(?:,|and)\s*R\d{1,3})*", re.IGNORECASE
+    r"\b(?:rule|rules)\s+K\d{3}(?:\s*(?:,|and)\s*K\d{3})*", re.IGNORECASE
 )
-BARE_RULE_RE = re.compile(r"\bR\d{1,3}\b", re.IGNORECASE)
+BARE_RULE_RE = re.compile(r"\bK\d{3}\b", re.IGNORECASE)
 ANY_BRACKET_RE = re.compile(r"\[[^\]]*\]")
 EVIDENCE_META_RE = re.compile(r"\b(?:rules?|evidence)\b", re.IGNORECASE)
 RULE_FRAMING_RE = re.compile(

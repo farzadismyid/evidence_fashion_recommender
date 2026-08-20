@@ -10,8 +10,8 @@ from typing import Any
 
 CLAIM_STATUSES = {"supported", "unsupported", "contradicted", "not_verifiable"}
 SUPPORT_SOURCES = {"query_or_locked_item", "rule_evidence"}
-CANONICAL_CITATION_RE = re.compile(r"\[R\d{3}\]")
-GROUPED_CITATION_RE = re.compile(r"\[R\d{3}(?:\s*,\s*R\d{3})+\]")
+CANONICAL_CITATION_RE = re.compile(r"\[K\d{3}\]")
+GROUPED_CITATION_RE = re.compile(r"\[K\d{3}(?:\s*,\s*K\d{3})+\]")
 CONDITION_REVEALING_PHRASES = (
     r"\bno[- ]?rag\b",
     r"\brule[- ]?rag\b",
@@ -29,6 +29,10 @@ def separated_entailment_schema() -> dict[str, Any]:
         "type": "object",
         "properties": {
             "claim_id": {"type": "string"},
+            "full_kb_candidate_applicable_rule_ids": {
+                "type": "array",
+                "items": {"type": "string"},
+            },
             "full_kb_entailment": status,
             "full_kb_rule_ids": {"type": "array", "items": {"type": "string"}},
             "full_kb_reason": {"type": "string"},
@@ -41,6 +45,7 @@ def separated_entailment_schema() -> dict[str, Any]:
         },
         "required": [
             "claim_id",
+            "full_kb_candidate_applicable_rule_ids",
             "full_kb_entailment",
             "full_kb_rule_ids",
             "full_kb_reason",
@@ -94,23 +99,23 @@ def citation_occurrences(explanation: str) -> list[dict[str, Any]]:
     return [
         {
             "raw": value,
-            "rule_ids": re.findall(r"R\d{3}", value),
+            "rule_ids": re.findall(r"K\d{3}", value),
             "canonical_separate_format": bool(CANONICAL_CITATION_RE.fullmatch(value)),
         }
         for value in bracketed
-        if "R" in value
+        if "K" in value
     ]
 
 
 def strip_rule_citations(text: str) -> str:
     """Remove all bracketed rule citations before the citation-blind entailment pass."""
-    return re.sub(r"\[[^\]]*R\d{3}[^\]]*\]", "", text).replace("  ", " ").strip()
+    return re.sub(r"\[[^\]]*K\d{3}[^\]]*\]", "", text).replace("  ", " ").strip()
 
 
 def validate_canonical_citation_format(explanation: str) -> list[str]:
-    """Accept only individually bracketed IDs, e.g. ``[R025] [R099]``."""
+    """Accept only individually bracketed IDs, e.g. ``[K025] [K099]``."""
     if GROUPED_CITATION_RE.search(explanation):
-        raise ValueError("Grouped rule citations are not canonical; use separate [Rxxx] forms.")
+        raise ValueError("Grouped rule citations are not canonical; use separate [Kxxx] forms.")
     return list(dict.fromkeys(CANONICAL_CITATION_RE.findall(explanation)))
 
 

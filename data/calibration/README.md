@@ -13,7 +13,9 @@ The annotation decision rules are:
 - Atomize independently checkable propositions, retaining textual order and `C1`, `C2`, … IDs.
 - Label full-KB entailment, exact-trace entailment, and common-reference item-fact support
   independently. Do not fill one label by copying another.
-- Keep citation validity separate: mark grouped citations (for example `[R025, R099]`) invalid.
+- Treat the supplied full-KB rules as candidates: decide their antecedent applicability before
+  using them for full-KB entailment. Rule IDs and citations use the canonical `K###` namespace.
+- Keep citation validity separate: mark grouped citations (for example `[K025, K099]`) invalid.
 - Use `not_verifiable` when evidence cannot settle a claim and `contradicted` only for affirmative
   conflict.
 - Include the required coverage tags across the paired corpus, including both conditions and at
