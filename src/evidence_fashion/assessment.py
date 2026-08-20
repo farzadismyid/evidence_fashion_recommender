@@ -8,10 +8,16 @@ from collections.abc import Mapping, Sequence
 from hashlib import sha256
 from typing import Any
 
+from .grounding_contracts import (
+    canonical_citation_ids,
+)
+from .grounding_contracts import (
+    citation_occurrences as parse_citation_occurrences,
+)
+
 CLAIM_STATUSES = {"supported", "unsupported", "contradicted", "not_verifiable"}
 SUPPORT_SOURCES = {"query_or_locked_item", "rule_evidence"}
-CANONICAL_CITATION_RE = re.compile(r"\[K\d{3}\]")
-GROUPED_CITATION_RE = re.compile(r"\[K\d{3}(?:\s*,\s*K\d{3})+\]")
+
 CONDITION_REVEALING_PHRASES = (
     r"\bno[- ]?rag\b",
     r"\brule[- ]?rag\b",
@@ -95,16 +101,7 @@ def citation_validation_schema() -> dict[str, Any]:
 
 def citation_occurrences(explanation: str) -> list[dict[str, Any]]:
     """Preserve citations for the dedicated post-entailment citation assessment only."""
-    bracketed = re.findall(r"\[[^\]]*\]", explanation)
-    return [
-        {
-            "raw": value,
-            "rule_ids": re.findall(r"K\d{3}", value),
-            "canonical_separate_format": bool(CANONICAL_CITATION_RE.fullmatch(value)),
-        }
-        for value in bracketed
-        if "K" in value
-    ]
+    return parse_citation_occurrences(explanation)
 
 
 def strip_rule_citations(text: str) -> str:
@@ -114,9 +111,7 @@ def strip_rule_citations(text: str) -> str:
 
 def validate_canonical_citation_format(explanation: str) -> list[str]:
     """Accept only individually bracketed IDs, e.g. ``[K025] [K099]``."""
-    if GROUPED_CITATION_RE.search(explanation):
-        raise ValueError("Grouped rule citations are not canonical; use separate [Kxxx] forms.")
-    return list(dict.fromkeys(CANONICAL_CITATION_RE.findall(explanation)))
+    return [f"[{rule_id}]" for rule_id in canonical_citation_ids(explanation)]
 
 
 def build_separated_entailment_prompt(
@@ -326,9 +321,10 @@ def validate_extraction(
     return validated
 
 
-def cited_rule_ids(explanation: str, pattern: str) -> list[str]:
-    validate_canonical_citation_format(explanation)
-    return list(dict.fromkeys(re.findall(pattern, explanation)))
+def cited_rule_ids(explanation: str, pattern: str | None = None) -> list[str]:
+    """Use the study-wide K### parser; the legacy caller pattern is intentionally ignored."""
+    del pattern
+    return canonical_citation_ids(explanation)
 
 
 def build_verification_prompt(
@@ -401,8 +397,10 @@ def validate_verification(
             raise ValueError("Supporting rule IDs require the rule_evidence source label.")
         if not has_citations and citation_entails is not None:
             raise ValueError("Citation entailment must be null when the explanation is uncited.")
-        if has_citations and citation_entails is not None and not isinstance(
-            citation_entails, bool
+        if (
+            has_citations
+            and citation_entails is not None
+            and not isinstance(citation_entails, bool)
         ):
             raise ValueError("Citation entailment must be boolean or null for a cited explanation.")
         if not reason:
@@ -452,9 +450,7 @@ def normalize_verification_payload(
         else:
             sources = sources_value
         if isinstance(rules_value, list):
-            rule_ids = list(
-                dict.fromkeys(rule for rule in rules_value if rule in allowed_rule_ids)
-            )
+            rule_ids = list(dict.fromkeys(rule for rule in rules_value if rule in allowed_rule_ids))
         else:
             rule_ids = rules_value
         if isinstance(sources, list) and isinstance(rule_ids, list):

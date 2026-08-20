@@ -18,13 +18,13 @@
   "bound_artifact_hashes": {
     "artifacts\\manifests\\stage1_taxonomy_freeze_manifest.json": "1084f4d305bd0b3ea28a5e9f7aedbb63f12a7ff3f81438c6304b4ad54920f132",
     "data\\kb\\coverage_matrix.csv": "be7fa53d88a4c52c5edd238826d95ad82c07f1f327b56cfdf566a8a7a5542145",
-    "data\\kb\\fashion_rules.csv": "ec4b56c78c674116c558a4aeab98c1fe74b9e7dbba392d8cba0b62799c5398d1",
+    "data\\kb\\fashion_rules.csv": "2ecfd20f43649bb0933f8678edf08b14659d9f6bd5d58413179139fc3442cfc5",
     "data\\kb\\kb_rule_similarity_audit.csv": "92203c275062f54c4f34f3742c93ca6b04216ace40e536df1f610b763f6869d4",
     "data\\kb\\kb_source_registry.csv": "e77a89c26540088ced8a813203c1c74221a60f408ba54e0981f8b6bb39456996",
     "reports\\stage2_bag_case_applicability_audit.json": "880c64da0e840c96c7d6b6238ba3a5a989dc2643f4261e0cd8a32e4caeeb5114"
   },
   "experimental_condition_results_inspected": false,
-  "git_commit": "56bbbd6562ae9c0b6a29e748a56e0c47d6c85916",
+  "git_commit": "93a2a01928e7e71f236a603095b708ffa1729aa7",
   "next_gate": "Proceed to Stage 3 without changing the frozen taxonomy or KB.",
   "rule_count": 100,
   "rule_counts_by_target": {
@@ -46,5 +46,5 @@
     "maximum_rule_prevalence": 0.3,
     "minimum_unique_nonempty_packets": 100
   },
-  "timestamp_utc": "2026-08-16T21:34:19Z"
+  "timestamp_utc": "2026-08-20T21:38:30Z"
 }

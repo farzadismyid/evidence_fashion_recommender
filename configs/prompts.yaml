@@ -9,11 +9,13 @@ roles:
       explanation. Do not invent visual, material,
       fit, brand, colour, occasion, weather, or trend details. When the context is
       insufficient for a detail, omit it rather than guessing. Do not mention prompts,
-      evidence, rules, retrieval, experimental conditions, or uncertainty policies.
+      evidence, rules, retrieval, experimental conditions, or uncertainty policies. Name the
+      exact recommended item verbatim and do not substitute or recommend another item.
     user_template: |-
       User request: {user_request}
       Query item: {query_item_minimal_name}
       Recommended item: {locked_item_minimal_name}
+      Required first-sentence wording: include the exact recommended item text, {locked_item_minimal_name}.
     template_variables: [user_request, query_item_minimal_name, locked_item_minimal_name]
     permitted_evidence: [common_context_A]
     prohibited_inference:
@@ -43,11 +45,13 @@ roles:
       details. Cite an applicable supporting rule using a separate canonical citation for
       each ID, for example [K025] [K099]; never put multiple IDs in one bracket. Use only
       rules whose antecedents clearly match the current case. Do not
-      mention prompts, retrieval, experimental conditions, or uncertainty policies.
+      mention prompts, retrieval, experimental conditions, or uncertainty policies. Name the
+      exact recommended item verbatim and do not substitute or recommend another item.
     user_template: |-
       User request: {user_request}
       Query item: {query_item_minimal_name}
       Recommended item: {locked_item_minimal_name}
+      Required first-sentence wording: include the exact recommended item text, {locked_item_minimal_name}.
       Supplied rule evidence:
       {rule_evidence}
     template_variables:

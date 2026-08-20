@@ -4,6 +4,7 @@
 
 - Category: tops (query: bottoms)
 - Coverage tags: compound_claim
+- Example origin: synthetic_calibration
 - Request: Recommend a top that works with this outfit.
 - Query item: msgm cropped wide-leg pants
 - Recommended item: cashmere top
@@ -11,7 +12,7 @@
 
 ### Explanation
 
-A cashmere top provides a sophisticated texture contrast to the structured silhouette of cropped wide-leg pants, creating a balanced and elevated aesthetic.
+The cashmere top provides a sophisticated texture that complements the silhouette of the msgm cropped wide-leg pants. The exact item works with this outfit and keeps the overall look balanced.
 
 ### Exact trace (antecedent-matched rules)
 
@@ -37,6 +38,7 @@ A cashmere top provides a sophisticated texture contrast to the structured silho
 
 - Category: tops (query: bottoms)
 - Coverage tags: compound_claim
+- Example origin: synthetic_calibration
 - Request: Recommend a top that works with this outfit.
 - Query item: msgm cropped wide-leg pants
 - Recommended item: cashmere top
@@ -44,7 +46,7 @@ A cashmere top provides a sophisticated texture contrast to the structured silho
 
 ### Explanation
 
-A cashmere top is a suitable choice because a fitted top is a documented proportion option when wide-leg trousers are worn [K001].
+The cashmere top is a great choice because a fitted top or cardigan is a documented proportion option when wide-leg trousers are present [K001]. The exact item works with this outfit and keeps the overall look balanced.
 
 ### Exact trace (antecedent-matched rules)
 
@@ -70,6 +72,7 @@ A cashmere top is a suitable choice because a fitted top is a documented proport
 
 - Category: tops (query: bottoms)
 - Coverage tags: explicit_attribute
+- Example origin: validation_observed
 - Request: Recommend a top that works with this outfit.
 - Query item: alexander wang distressed low-rise wide-leg jeans
 - Recommended item: h&m v-neck top velvet
@@ -77,7 +80,7 @@ A cashmere top is a suitable choice because a fitted top is a documented proport
 
 ### Explanation
 
-The velvet texture of the V-neck top provides a sophisticated contrast to the distressed aesthetic of the wide-leg jeans, balancing the rugged denim with a polished finish.
+The h&m v-neck top velvet provides a sophisticated texture that complements the distressed aesthetic of the alexander wang distressed low-rise wide-leg jeans.
 
 ### Exact trace (antecedent-matched rules)
 
@@ -103,6 +106,7 @@ The velvet texture of the V-neck top provides a sophisticated contrast to the di
 
 - Category: tops (query: bottoms)
 - Coverage tags: explicit_attribute
+- Example origin: validation_observed
 - Request: Recommend a top that works with this outfit.
 - Query item: alexander wang distressed low-rise wide-leg jeans
 - Recommended item: h&m v-neck top velvet
@@ -110,7 +114,7 @@ The velvet texture of the V-neck top provides a sophisticated contrast to the di
 
 ### Explanation
 
-A fitted top is a recommended option to balance the proportions of wide-leg trousers [K001].
+The h&m v-neck top velvet is a great choice because a fitted top is a documented proportion option when wide-leg trousers are present [K001].
 
 ### Exact trace (antecedent-matched rules)
 
@@ -136,6 +140,7 @@ A fitted top is a recommended option to balance the proportions of wide-leg trou
 
 - Category: bottoms (query: tops)
 - Coverage tags: styling_inference
+- Example origin: synthetic_calibration
 - Request: Recommend bottoms that work with this outfit.
 - Query item: lucluc dark blue floral printed strappy crop top
 - Recommended item: choies pink high waist button ripped denim shorts
@@ -143,7 +148,7 @@ A fitted top is a recommended option to balance the proportions of wide-leg trou
 
 ### Explanation
 
-The high-waisted silhouette of the denim shorts complements the cropped length of the top, creating a balanced proportions. The contrast between the dark blue floral print and the pink denim provides a bold color play that enhances the overall look.
+The choies pink high waist button ripped denim shorts provide a balanced contrast to the dark blue floral print of the top. It creates a balanced silhouette with the outfit.
 
 ### Exact trace (antecedent-matched rules)
 
@@ -168,6 +173,7 @@ The high-waisted silhouette of the denim shorts complements the cropped length o
 
 - Category: bottoms (query: tops)
 - Coverage tags: styling_inference
+- Example origin: synthetic_calibration
 - Request: Recommend bottoms that work with this outfit.
 - Query item: lucluc dark blue floral printed strappy crop top
 - Recommended item: choies pink high waist button ripped denim shorts
@@ -175,7 +181,7 @@ The high-waisted silhouette of the denim shorts complements the cropped length o
 
 ### Explanation
 
-The high-waisted shorts are a suitable choice because high-waisted bottoms are recommended when wearing a cropped top [K008].
+The choies pink high waist button ripped denim shorts are a great choice because high-waisted bottoms are recommended when a cropped top is worn [K008]. It creates a balanced silhouette with the outfit.
 
 ### Exact trace (antecedent-matched rules)
 
@@ -200,6 +206,7 @@ The high-waisted shorts are a suitable choice because high-waisted bottoms are r
 
 - Category: bottoms (query: tops)
 - Coverage tags: functional_inference
+- Example origin: synthetic_calibration
 - Request: Recommend bottoms that work with this outfit.
 - Query item: lavender crop top pastel crop top sexy wrap top
 - Recommended item: women's mini skater skirt black large
@@ -207,7 +214,7 @@ The high-waisted shorts are a suitable choice because high-waisted bottoms are r
 
 ### Explanation
 
-A black mini skater skirt provides a classic contrast to the lavender crop top, creating a balanced silhouette that highlights the waistline.
+The women's mini skater skirt black large provides a structured contrast to the soft aesthetic of the lavender crop top pastel crop top sexy wrap top. It also provides practical everyday storage.
 
 ### Exact trace (antecedent-matched rules)
 
@@ -232,6 +239,7 @@ A black mini skater skirt provides a classic contrast to the lavender crop top, 
 
 - Category: bottoms (query: tops)
 - Coverage tags: functional_inference
+- Example origin: synthetic_calibration
 - Request: Recommend bottoms that work with this outfit.
 - Query item: lavender crop top pastel crop top sexy wrap top
 - Recommended item: women's mini skater skirt black large
@@ -239,7 +247,7 @@ A black mini skater skirt provides a classic contrast to the lavender crop top, 
 
 ### Explanation
 
-A high-waisted skirt is a suitable choice to pair with a cropped top [K008].
+The women's mini skater skirt black large is a suitable choice because a high-waisted skirt is a supported bottom for a cropped top [K008]. It also provides practical everyday storage.
 
 ### Exact trace (antecedent-matched rules)
 
@@ -264,6 +272,7 @@ A high-waisted skirt is a suitable choice to pair with a cropped top [K008].
 
 - Category: shoes (query: bottoms)
 - Coverage tags: unsupported_plausible_statement
+- Example origin: synthetic_calibration
 - Request: Recommend shoes that complete this outfit.
 - Query item: lanvin wide-leg flannel cropped trousers
 - Recommended item: flora suede pumps tabitha simmons
@@ -271,7 +280,7 @@ A high-waisted skirt is a suitable choice to pair with a cropped top [K008].
 
 ### Explanation
 
-The suede texture of the Flora pumps complements the weight of the flannel fabric, while the pointed-toe silhouette balances the volume of the wide-leg trousers.
+The flora suede pumps tabitha simmons provide a sophisticated finish to the lanvin wide-leg flannel cropped trousers. Its colours coordinate perfectly with the outfit.
 
 ### Exact trace (antecedent-matched rules)
 
@@ -298,6 +307,7 @@ The suede texture of the Flora pumps complements the weight of the flannel fabri
 
 - Category: shoes (query: bottoms)
 - Coverage tags: unsupported_plausible_statement
+- Example origin: synthetic_calibration
 - Request: Recommend shoes that complete this outfit.
 - Query item: lanvin wide-leg flannel cropped trousers
 - Recommended item: flora suede pumps tabitha simmons
@@ -305,7 +315,7 @@ The suede texture of the Flora pumps complements the weight of the flannel fabri
 
 ### Explanation
 
-The flora suede pumps are an excellent choice because pumps are a documented footwear direction for cropped wide-leg trousers, ensuring the shoes remain visible [K016].
+The flora suede pumps tabitha simmons are a great choice because pumps are a documented shoe direction for cropped wide-leg trousers to keep the footwear visible [K016]. Its colours coordinate perfectly with the outfit.
 
 ### Exact trace (antecedent-matched rules)
 
@@ -328,18 +338,19 @@ The flora suede pumps are an excellent choice because pumps are a documented foo
 - Completion time (UTC): ____________________
 - Human claims / verification / citation validation: complete in JSONL.
 
-## s5-shoes-2-211868733 — no_rag
+## s5-shoes-2-216832929 — no_rag
 
 - Category: shoes (query: bottoms)
 - Coverage tags: partial_entailment
+- Example origin: synthetic_calibration
 - Request: Recommend shoes that complete this outfit.
-- Query item: alexander mcqueen wide leg pants
-- Recommended item: adidas originals stan smith suede sneakers
-- Full outfit context: Sweatshirts: christmas graphic embellished sweatshirt | Pants: alexander mcqueen wide leg pants | Sneakers: adidas originals stan smith suede sneakers
+- Query item: malene birger cropped wide-leg pants
+- Recommended item: dolce gabbana floral embroidery sock booties
+- Full outfit context: Blouses: pink floral print wrap front tie side blouse | Capri & Cropped Pants: malene birger cropped wide-leg pants | Ankle Booties: dolce gabbana floral embroidery sock booties | Tote Bags: furla mini candy tote
 
 ### Explanation
 
-The structured silhouette of the wide-leg pants pairs well with the clean, minimalist profile of the Stan Smith sneakers to balance the proportions of the look.
+The dolce gabbana floral embroidery sock booties complement the silhouette of the malene birger cropped wide-leg pants by providing a streamlined transition from the hemline to the foot. The exact item is a suitable option and is waterproof.
 
 ### Exact trace (antecedent-matched rules)
 
@@ -362,18 +373,19 @@ The structured silhouette of the wide-leg pants pairs well with the clean, minim
 - Completion time (UTC): ____________________
 - Human claims / verification / citation validation: complete in JSONL.
 
-## s5-shoes-2-211868733 — rule_rag
+## s5-shoes-2-216832929 — rule_rag
 
 - Category: shoes (query: bottoms)
 - Coverage tags: partial_entailment
+- Example origin: synthetic_calibration
 - Request: Recommend shoes that complete this outfit.
-- Query item: alexander mcqueen wide leg pants
-- Recommended item: adidas originals stan smith suede sneakers
-- Full outfit context: Sweatshirts: christmas graphic embellished sweatshirt | Pants: alexander mcqueen wide leg pants | Sneakers: adidas originals stan smith suede sneakers
+- Query item: malene birger cropped wide-leg pants
+- Recommended item: dolce gabbana floral embroidery sock booties
+- Full outfit context: Blouses: pink floral print wrap front tie side blouse | Capri & Cropped Pants: malene birger cropped wide-leg pants | Ankle Booties: dolce gabbana floral embroidery sock booties | Tote Bags: furla mini candy tote
 
 ### Explanation
 
-To complement your wide-leg pants, consider a sleek silhouette like a slingback or mule to ensure the footwear remains visible [K016].
+To complete your look, I recommend the dolce gabbana floral embroidery sock booties. For cropped wide-leg trousers, choosing a style that keeps the footwear visible is a documented styling direction [K016]. The exact item is a suitable option and is waterproof.
 
 ### Exact trace (antecedent-matched rules)
 
@@ -396,18 +408,19 @@ To complement your wide-leg pants, consider a sleek silhouette like a slingback 
 - Completion time (UTC): ____________________
 - Human claims / verification / citation validation: complete in JSONL.
 
-## s5-outerwear-1-174265181 — no_rag
+## s5-outerwear-1-129178784 — no_rag
 
 - Category: outerwear (query: tops)
 - Coverage tags: contradiction
+- Example origin: synthetic_calibration
 - Request: Recommend outerwear that works with this outfit.
-- Query item: contrast collar striped loose t-shirt
-- Recommended item: acne petite jacket
-- Full outfit context: T-Shirts: contrast collar striped loose t-shirt | Jackets: acne petite jacket | Shoes: viva leather
+- Query item: black short casual t-shirt
+- Recommended item: light floral print crepe blazer
+- Full outfit context: T-Shirts: black short casual t-shirt | Blazers: light floral print crepe blazer | Pants: malene birger metallic jacquard pants | Shoulder Bags: burgundy pu leather single shoulder bag
 
 ### Explanation
 
-The structured silhouette of the acne petite jacket provides a tailored contrast to the relaxed fit of the loose t-shirt, creating a balanced proportion between the two pieces.
+The light floral print crepe blazer adds a sophisticated layer to the black short casual t-shirt. The exact recommended item is not suitable for this outfit.
 
 ### Exact trace (antecedent-matched rules)
 
@@ -427,18 +440,19 @@ The structured silhouette of the acne petite jacket provides a tailored contrast
 - Completion time (UTC): ____________________
 - Human claims / verification / citation validation: complete in JSONL.
 
-## s5-outerwear-1-174265181 — rule_rag
+## s5-outerwear-1-129178784 — rule_rag
 
 - Category: outerwear (query: tops)
 - Coverage tags: contradiction
+- Example origin: synthetic_calibration
 - Request: Recommend outerwear that works with this outfit.
-- Query item: contrast collar striped loose t-shirt
-- Recommended item: acne petite jacket
-- Full outfit context: T-Shirts: contrast collar striped loose t-shirt | Jackets: acne petite jacket | Shoes: viva leather
+- Query item: black short casual t-shirt
+- Recommended item: light floral print crepe blazer
+- Full outfit context: T-Shirts: black short casual t-shirt | Blazers: light floral print crepe blazer | Pants: malene birger metallic jacquard pants | Shoulder Bags: burgundy pu leather single shoulder bag
 
 ### Explanation
 
-A relaxed jacket is a category-appropriate choice to pair with a casual t-shirt [K026].
+You can pair your outfit with the light floral print crepe blazer. While a relaxed jacket is often suitable for a casual tee [K026], this piece provides a polished layer for your look. The exact recommended item is not suitable for this outfit.
 
 ### Exact trace (antecedent-matched rules)
 
@@ -458,22 +472,23 @@ A relaxed jacket is a category-appropriate choice to pair with a casual t-shirt 
 - Completion time (UTC): ____________________
 - Human claims / verification / citation validation: complete in JSONL.
 
-## s5-outerwear-2-197446409 — no_rag
+## s5-outerwear-2-214137192 — no_rag
 
 - Category: outerwear (query: tops)
 - Coverage tags: negation
+- Example origin: synthetic_calibration
 - Request: Recommend outerwear that works with this outfit.
-- Query item: luxury t-shirt
-- Recommended item: acne studios cropped denim jacket
-- Full outfit context: T-Shirts: luxury t-shirt | Jackets: acne studios cropped denim jacket | Skinny Jeans: pierre balmain skinny jeans | Sandals: chiara ferragni patent espadrille black/white trim women's shoes | Handbags: nine west patches please satchel
+- Query item: gucci flower print cotton tee
+- Recommended item: mango suede jacket
+- Full outfit context: T-Shirts: gucci flower print cotton tee | Jackets: mango suede jacket | Mini Skirts: stella mccartney mini skirt | Shoes: shein sheinside brown pu almond toe fur lined mary jane shoes
 
 ### Explanation
 
-The structured silhouette of the cropped denim jacket provides a tailored contrast to the relaxed fit of a luxury t-shirt, creating a balanced proportion.
+The mango suede jacket provides a structured contrast to the soft texture of the gucci flower print cotton tee. It is not a casual choice.
 
 ### Exact trace (antecedent-matched rules)
 
-- `K026`: For an explicit casual tee, a relaxed jacket such as a denim jacket or bomber is category-appropriate when the request remains casual.
+- `K093`: With an explicit T-shirt and pinstripe mini skirt, a worn leather bomber is a documented outerwear direction.
 
 ### Full-KB candidate rules (assess antecedent applicability)
 
@@ -489,22 +504,23 @@ The structured silhouette of the cropped denim jacket provides a tailored contra
 - Completion time (UTC): ____________________
 - Human claims / verification / citation validation: complete in JSONL.
 
-## s5-outerwear-2-197446409 — rule_rag
+## s5-outerwear-2-214137192 — rule_rag
 
 - Category: outerwear (query: tops)
 - Coverage tags: negation
+- Example origin: synthetic_calibration
 - Request: Recommend outerwear that works with this outfit.
-- Query item: luxury t-shirt
-- Recommended item: acne studios cropped denim jacket
-- Full outfit context: T-Shirts: luxury t-shirt | Jackets: acne studios cropped denim jacket | Skinny Jeans: pierre balmain skinny jeans | Sandals: chiara ferragni patent espadrille black/white trim women's shoes | Handbags: nine west patches please satchel
+- Query item: gucci flower print cotton tee
+- Recommended item: mango suede jacket
+- Full outfit context: T-Shirts: gucci flower print cotton tee | Jackets: mango suede jacket | Mini Skirts: stella mccartney mini skirt | Shoes: shein sheinside brown pu almond toe fur lined mary jane shoes
 
 ### Explanation
 
-A denim jacket is a suitable choice for a casual t-shirt as it provides a relaxed style that maintains a casual aesthetic. [K026]
+I recommend the mango suede jacket to complement your look. [K093] It is not a casual choice.
 
 ### Exact trace (antecedent-matched rules)
 
-- `K026`: For an explicit casual tee, a relaxed jacket such as a denim jacket or bomber is category-appropriate when the request remains casual.
+- `K093`: With an explicit T-shirt and pinstripe mini skirt, a worn leather bomber is a documented outerwear direction.
 
 ### Full-KB candidate rules (assess antecedent applicability)
 
@@ -515,7 +531,7 @@ A denim jacket is a suitable choice for a casual t-shirt as it provides a relaxe
 - `K069`: For an explicit button-down with extra-wide jeans in a polished request, a leather blazer is a directly documented outerwear direction.
 - `K093`: With an explicit T-shirt and pinstripe mini skirt, a worn leather bomber is a documented outerwear direction.
 
-- Observed citations: [K026]
+- Observed citations: [K093]
 - Annotator ID: ____________________
 - Completion time (UTC): ____________________
 - Human claims / verification / citation validation: complete in JSONL.
@@ -523,7 +539,8 @@ A denim jacket is a suitable choice for a casual t-shirt as it provides a relaxe
 ## s5-bags-1-208450129 — no_rag
 
 - Category: bags (query: tops)
-- Coverage tags: invalid_citation, bag_example
+- Coverage tags: invalid_citation
+- Example origin: synthetic_calibration
 - Request: Recommend a bag that completes this outfit.
 - Query item: vertical striped embroidered collar button shirt
 - Recommended item: karl lagerfeld cat crossbody mini shoulder bag
@@ -531,7 +548,7 @@ A denim jacket is a suitable choice for a casual t-shirt as it provides a relaxe
 
 ### Explanation
 
-The structured silhouette of the crossbody mini bag provides a balanced contrast to the detailed texture of the embroidered collar, creating a cohesive look.
+The karl lagerfeld cat crossbody mini shoulder bag adds a playful focal point that complements the detailed texture of the vertical striped embroidered collar button shirt. [K037, K037]
 
 ### Exact trace (antecedent-matched rules)
 
@@ -557,7 +574,7 @@ The structured silhouette of the crossbody mini bag provides a balanced contrast
 - `K075`: When a top tee tank blouse or shirt is explicit, a shoulder or tote bag is a documented finishing direction.
 - `K098`: With an explicit top plus a skirt, denim or trouser context, a shoulder or tote bag is a documented bag direction.
 
-- Observed citations: none
+- Observed citations: [K037, K037]
 - Annotator ID: ____________________
 - Completion time (UTC): ____________________
 - Human claims / verification / citation validation: complete in JSONL.
@@ -565,7 +582,8 @@ The structured silhouette of the crossbody mini bag provides a balanced contrast
 ## s5-bags-1-208450129 — rule_rag
 
 - Category: bags (query: tops)
-- Coverage tags: invalid_citation, bag_example
+- Coverage tags: invalid_citation
+- Example origin: synthetic_calibration
 - Request: Recommend a bag that completes this outfit.
 - Query item: vertical striped embroidered collar button shirt
 - Recommended item: karl lagerfeld cat crossbody mini shoulder bag
@@ -573,7 +591,7 @@ The structured silhouette of the crossbody mini bag provides a balanced contrast
 
 ### Explanation
 
-A shoulder bag is a documented finishing direction for an outfit featuring a shirt [K075].
+To complete your outfit, I recommend the karl lagerfeld cat crossbody mini shoulder bag. A shoulder bag is a documented finishing direction when a shirt is explicit [K075]. [K037, K037]
 
 ### Exact trace (antecedent-matched rules)
 
@@ -599,7 +617,7 @@ A shoulder bag is a documented finishing direction for an outfit featuring a shi
 - `K075`: When a top tee tank blouse or shirt is explicit, a shoulder or tote bag is a documented finishing direction.
 - `K098`: With an explicit top plus a skirt, denim or trouser context, a shoulder or tote bag is a documented bag direction.
 
-- Observed citations: [K075]
+- Observed citations: [K075], [K037, K037]
 - Annotator ID: ____________________
 - Completion time (UTC): ____________________
 - Human claims / verification / citation validation: complete in JSONL.
@@ -608,6 +626,7 @@ A shoulder bag is a documented finishing direction for an outfit featuring a shi
 
 - Category: bags (query: tops)
 - Coverage tags: bag_example
+- Example origin: validation_observed
 - Request: Recommend a bag that completes this outfit.
 - Query item: dorothy perkins tall green sleeveless shirt
 - Recommended item: saint laurent sac du jour small neon leather tote
@@ -615,7 +634,7 @@ A shoulder bag is a documented finishing direction for an outfit featuring a shi
 
 ### Explanation
 
-The structured silhouette of the leather tote provides a sophisticated contrast to the soft texture of the sleeveless shirt, creating a balanced and polished aesthetic.
+The saint laurent sac du jour small neon leather tote provides a bold contrast to the dorothy perkins tall green sleeveless shirt.
 
 ### Exact trace (antecedent-matched rules)
 
@@ -649,6 +668,7 @@ The structured silhouette of the leather tote provides a sophisticated contrast 
 
 - Category: bags (query: tops)
 - Coverage tags: bag_example
+- Example origin: validation_observed
 - Request: Recommend a bag that completes this outfit.
 - Query item: dorothy perkins tall green sleeveless shirt
 - Recommended item: saint laurent sac du jour small neon leather tote
@@ -656,7 +676,7 @@ The structured silhouette of the leather tote provides a sophisticated contrast 
 
 ### Explanation
 
-A tote bag is a documented finishing direction for an outfit featuring a shirt [K075].
+To complete your look, I recommend the saint laurent sac du jour small neon leather tote. Since your outfit features a shirt, a tote bag is a documented finishing direction [K075].
 
 ### Exact trace (antecedent-matched rules)
 

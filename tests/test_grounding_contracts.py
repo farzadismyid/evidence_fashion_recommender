@@ -1,0 +1,73 @@
+import pytest
+
+from evidence_fashion.grounding_contracts import (
+    canonical_citation_ids,
+    require_trace_applicability,
+    rule_applicability_gate,
+    validate_generated_explanation,
+)
+
+
+def _rule() -> dict:
+    return {
+        "rule_id": "K001",
+        "recommended_category": "tops",
+        "applicable_query_categories": "bottoms",
+        "required_context": "none",
+        "query_terms": "wide leg",
+        "candidate_terms": "cardigan",
+    }
+
+
+def _case() -> dict:
+    return {
+        "target_category": "tops",
+        "query_group": "bottoms",
+        "query_category": "bottoms",
+        "query_text": "wide leg trousers",
+        "outfit_context_text": "Bottoms: wide leg trousers",
+        "user_request": "Recommend a top.",
+    }
+
+
+def test_shared_gate_fails_closed_and_exact_trace_requires_the_passed_decision() -> None:
+    decision = rule_applicability_gate(
+        _rule(), case=_case(), candidate={"category": "Tops", "text": "rib cardigan"}
+    )
+    assert decision.established is True
+    require_trace_applicability({"rules": [{"rule_id": "K001", **decision.trace_metadata()}]})
+    failed = rule_applicability_gate(
+        _rule(), case=_case(), candidate={"category": "Tops", "text": "silk shirt"}
+    )
+    assert failed.established is False
+    with pytest.raises(ValueError, match="without established antecedents"):
+        require_trace_applicability({"rules": [{"rule_id": "K001", **failed.trace_metadata()}]})
+
+
+def test_locked_item_and_citation_contracts_reject_drift_grouping_and_out_of_trace_ids() -> None:
+    valid = "The rib cardigan is the recommended item. [K001]"
+    assert validate_generated_explanation(
+        valid,
+        locked_item_name="rib cardigan",
+        target_category="tops",
+        trace_rule_ids=["K001"],
+        citations_required=True,
+    ) == ["K001"]
+    with pytest.raises(ValueError, match="locked recommendation"):
+        validate_generated_explanation(
+            "A silk shirt is recommended. [K001]",
+            locked_item_name="rib cardigan",
+            target_category="tops",
+            trace_rule_ids=["K001"],
+            citations_required=True,
+        )
+    with pytest.raises(ValueError, match="Grouped"):
+        canonical_citation_ids("The rib cardigan works. [K001, K002]")
+    with pytest.raises(ValueError, match="outside"):
+        validate_generated_explanation(
+            "The rib cardigan works. [K002]",
+            locked_item_name="rib cardigan",
+            target_category="tops",
+            trace_rule_ids=["K001"],
+            citations_required=True,
+        )

@@ -7,15 +7,14 @@ from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
 from typing import Any
 
+from evidence_fashion.grounding_contracts import BRACKETED_RE, CANONICAL_CITATION_RE
 from evidence_fashion.verification_analysis import SUPPORT_A, SUPPORT_B, claim_role
 
 TOKEN_RE = re.compile(r"[a-z0-9]+(?:'[a-z0-9]+)?")
-CITATION_RE = re.compile(r"\[(?:K\d{3})(?:\s*,\s*K\d{3})*\]", re.IGNORECASE)
-INLINE_RULE_RE = re.compile(
-    r"\b(?:rule|rules)\s+K\d{3}(?:\s*(?:,|and)\s*K\d{3})*", re.IGNORECASE
-)
+CITATION_RE = CANONICAL_CITATION_RE
+INLINE_RULE_RE = re.compile(r"\b(?:rule|rules)\s+K\d{3}(?:\s*(?:,|and)\s*K\d{3})*", re.IGNORECASE)
 BARE_RULE_RE = re.compile(r"\bK\d{3}\b", re.IGNORECASE)
-ANY_BRACKET_RE = re.compile(r"\[[^\]]*\]")
+ANY_BRACKET_RE = BRACKETED_RE
 EVIDENCE_META_RE = re.compile(r"\b(?:rules?|evidence)\b", re.IGNORECASE)
 RULE_FRAMING_RE = re.compile(
     r"(?:based on|according to)\s+(?:the\s+)?(?:provided\s+|supplied\s+|"
