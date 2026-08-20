@@ -4,11 +4,181 @@ from __future__ import annotations
 
 import json
 import re
+from hashlib import sha256
 from collections.abc import Mapping, Sequence
 from typing import Any
 
 CLAIM_STATUSES = {"supported", "unsupported", "contradicted", "not_verifiable"}
 SUPPORT_SOURCES = {"query_or_locked_item", "rule_evidence"}
+CANONICAL_CITATION_RE = re.compile(r"\[R\d{3}\]")
+GROUPED_CITATION_RE = re.compile(r"\[R\d{3}(?:\s*,\s*R\d{3})+\]")
+CONDITION_REVEALING_PHRASES = (
+    r"\bno[- ]?rag\b",
+    r"\brule[- ]?rag\b",
+    r"\bretrieval[- ]augmented\b",
+    r"\bprovided rules?\b",
+    r"\brule evidence\b",
+    r"\bwithout rules?\b",
+)
+
+
+def separated_entailment_schema() -> dict[str, Any]:
+    """Schema for independent KB, trace, and common-reference assessments."""
+    status = {"type": "string", "enum": sorted(CLAIM_STATUSES)}
+    item = {
+        "type": "object",
+        "properties": {
+            "claim_id": {"type": "string"},
+            "full_kb_entailment": status,
+            "full_kb_rule_ids": {"type": "array", "items": {"type": "string"}},
+            "full_kb_reason": {"type": "string"},
+            "exact_trace_entailment": status,
+            "exact_trace_rule_ids": {"type": "array", "items": {"type": "string"}},
+            "exact_trace_reason": {"type": "string"},
+            "common_reference_item_fact_support": status,
+            "common_reference_fields": {"type": "array", "items": {"type": "string"}},
+            "common_reference_reason": {"type": "string"},
+        },
+        "required": [
+            "claim_id",
+            "full_kb_entailment",
+            "full_kb_rule_ids",
+            "full_kb_reason",
+            "exact_trace_entailment",
+            "exact_trace_rule_ids",
+            "exact_trace_reason",
+            "common_reference_item_fact_support",
+            "common_reference_fields",
+            "common_reference_reason",
+        ],
+    }
+    return {"type": "object", "properties": {"claims": {"type": "array", "items": item}}, "required": ["claims"]}
+
+
+def citation_validation_schema() -> dict[str, Any]:
+    item = {
+        "type": "object",
+        "properties": {
+            "claim_id": {"type": "string"},
+            "citation_present": {"type": "boolean"},
+            "canonical_citation_format": {"type": "boolean"},
+            "cited_rule_ids": {"type": "array", "items": {"type": "string"}},
+            "invalid_rule_ids": {"type": "array", "items": {"type": "string"}},
+            "citation_entails_claim": {"type": ["boolean", "null"]},
+            "brief_reason": {"type": "string"},
+        },
+        "required": [
+            "claim_id",
+            "citation_present",
+            "canonical_citation_format",
+            "cited_rule_ids",
+            "invalid_rule_ids",
+            "citation_entails_claim",
+            "brief_reason",
+        ],
+    }
+    return {"type": "object", "properties": {"claims": {"type": "array", "items": item}}, "required": ["claims"]}
+
+
+def citation_occurrences(explanation: str) -> list[dict[str, Any]]:
+    """Preserve citations for the dedicated post-entailment citation assessment only."""
+    bracketed = re.findall(r"\[[^\]]*\]", explanation)
+    return [
+        {
+            "raw": value,
+            "rule_ids": re.findall(r"R\d{3}", value),
+            "canonical_separate_format": bool(CANONICAL_CITATION_RE.fullmatch(value)),
+        }
+        for value in bracketed
+        if "R" in value
+    ]
+
+
+def strip_rule_citations(text: str) -> str:
+    """Remove all bracketed rule citations before the citation-blind entailment pass."""
+    return re.sub(r"\[[^\]]*R\d{3}[^\]]*\]", "", text).replace("  ", " ").strip()
+
+
+def validate_canonical_citation_format(explanation: str) -> list[str]:
+    """Accept only individually bracketed IDs, e.g. ``[R025] [R099]``."""
+    if GROUPED_CITATION_RE.search(explanation):
+        raise ValueError("Grouped rule citations are not canonical; use separate [Rxxx] forms.")
+    return list(dict.fromkeys(CANONICAL_CITATION_RE.findall(explanation)))
+
+
+def build_separated_entailment_prompt(
+    *,
+    explanation: str,
+    claims: Sequence[Mapping[str, Any]],
+    full_kb_rules: Sequence[Mapping[str, Any]],
+    exact_trace_rules: Sequence[Mapping[str, Any]],
+    common_reference_item_facts: Mapping[str, Any],
+) -> str:
+    """Build a citation-blind prompt with three non-derived verification dimensions."""
+    evidence = {
+        "frozen_full_knowledge_base": list(full_kb_rules),
+        "exact_stored_rule_trace": list(exact_trace_rules),
+        "common_reference_item_facts": dict(common_reference_item_facts),
+    }
+    return (
+        "Independently assess full-KB entailment, exact-trace entailment, and common-reference "
+        "item-fact support for every claim. Do not derive any field from another. No citation "
+        "information is available in this pass.\n\n"
+        f"Evidence: {json.dumps(evidence, sort_keys=True, ensure_ascii=False)}\n\n"
+        f"Explanation with citations removed: {strip_rule_citations(explanation)}\n\n"
+        f"Atomic claims: {json.dumps(list(claims), sort_keys=True, ensure_ascii=False)}"
+    )
+
+
+def build_citation_validation_prompt(
+    *, claims: Sequence[Mapping[str, Any]], explanation: str, exact_trace_rules: Sequence[Mapping[str, Any]]
+) -> str:
+    """Build the separate citation-validity pass after blind entailment is complete."""
+    return (
+        "Assess citation format, trace membership, and citation-to-claim entailment only. Do "
+        "not produce or modify any general support verdict. Grouped citations are invalid.\n\n"
+        f"Exact stored rule trace: {json.dumps(list(exact_trace_rules), sort_keys=True, ensure_ascii=False)}\n\n"
+        f"Citation occurrences: {json.dumps(citation_occurrences(explanation), sort_keys=True)}\n\n"
+        f"Atomic claims: {json.dumps(list(claims), sort_keys=True, ensure_ascii=False)}"
+    )
+
+
+def strip_condition_revealing_phrases(text: str) -> str:
+    sanitized = strip_rule_citations(text)
+    for phrase in CONDITION_REVEALING_PHRASES:
+        sanitized = re.sub(phrase, "", sanitized, flags=re.IGNORECASE)
+    return re.sub(r"\s+", " ", sanitized).strip()
+
+
+def prepare_true_blind_pair(
+    explanations: Mapping[str, str], *, case_id: str, generator: str, seed: int
+) -> dict[str, Any]:
+    """Sanitize and deterministically randomize positions without leaking the assignment."""
+    if set(explanations) != {"no_rag", "rule_rag"}:
+        raise ValueError("A blind pair requires exactly no_rag and rule_rag explanations.")
+    ordering = ["no_rag", "rule_rag"]
+    digest = sha256(f"{seed}:{case_id}:{generator}".encode()).hexdigest()
+    if int(digest, 16) % 2:
+        ordering.reverse()
+    return {
+        "first_explanation": strip_condition_revealing_phrases(explanations[ordering[0]]),
+        "second_explanation": strip_condition_revealing_phrases(explanations[ordering[1]]),
+        "position_assignment": {"first": ordering[0], "second": ordering[1]},
+    }
+
+
+def build_true_blind_judge_prompt(
+    *, common_reference_context: Mapping[str, Any], first_explanation: str, second_explanation: str
+) -> str:
+    dimensions = (
+        "relevance, clarity, usefulness, coherence, appropriate specificity, and non-redundancy"
+    )
+    return (
+        "Score each anonymized explanation independently from 1 to 5 only for "
+        f"{dimensions}. Do not infer evidence access or experimental conditions.\n\n"
+        f"Common reference context: {json.dumps(dict(common_reference_context), sort_keys=True)}\n\n"
+        f"First explanation:\n{first_explanation}\n\nSecond explanation:\n{second_explanation}"
+    )
 
 
 def extraction_schema(claim_types: Sequence[str]) -> dict[str, Any]:

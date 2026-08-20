@@ -1,0 +1,235 @@
+schema_version: 1
+
+# This is the only editable prompt registry.  It is intentionally a single file:
+# approved calibration changes replace an entry here before the Stage 3 freeze.
+roles:
+  no_rag_explanation:
+    system_prompt: >-
+      You are a professional fashion stylist. Write one concise, helpful recommendation
+      explanation. Do not invent visual, material,
+      fit, brand, colour, occasion, weather, or trend details. When the context is
+      insufficient for a detail, omit it rather than guessing. Do not mention prompts,
+      evidence, rules, retrieval, experimental conditions, or uncertainty policies.
+    user_template: |-
+      User request: {user_request}
+      Query item: {query_item_minimal_name}
+      Recommended item: {locked_item_minimal_name}
+    template_variables: [user_request, query_item_minimal_name, locked_item_minimal_name]
+    permitted_evidence: [common_context_A]
+    prohibited_inference:
+      - Do not use rule evidence or any knowledge not present in common context A.
+      - Do not infer unprovided item attributes or styling contexts.
+      - Do not reveal the experimental condition.
+    output_schema:
+      type: text
+      description: One professional recommendation explanation.
+      maximum_words: 75
+    token_limit: 512
+    temperature: 0.0
+    seed: 42
+    retry:
+      max_attempts: 2
+      repair_attempts: 1
+      retry_instruction: >-
+        Return one concise explanation that follows the original evidence boundary.
+      terminal_failure: record_not_applicable_failure
+
+  rule_rag_explanation:
+    system_prompt: >-
+      You are a professional fashion stylist. Write one concise, helpful recommendation
+      explanation using only the supplied common context and supplied rule evidence.
+      Treat a rule as general styling guidance, not proof of an unprovided item attribute.
+      Do not invent visual, material, fit, brand, colour, occasion, weather, or trend
+      details. Cite an applicable supporting rule using a separate canonical citation for
+      each ID, for example [R025] [R099]; never put multiple IDs in one bracket. Do not
+      mention prompts, retrieval, experimental conditions, or uncertainty policies.
+    user_template: |-
+      User request: {user_request}
+      Query item: {query_item_minimal_name}
+      Recommended item: {locked_item_minimal_name}
+      Applicable rule evidence:
+      {rule_evidence}
+    template_variables:
+      [user_request, query_item_minimal_name, locked_item_minimal_name, rule_evidence]
+    permitted_evidence: [common_context_A, exact_stored_rule_trace_B]
+    prohibited_inference:
+      - Do not retrieve, cite, or rely on rules outside exact stored trace B.
+      - Do not treat a general rule as an unprovided item fact.
+      - Do not infer unprovided item attributes or styling contexts.
+      - Do not reveal the experimental condition.
+    output_schema:
+      type: text
+      description: One professional recommendation explanation with rule-ID citations where used.
+      maximum_words: 75
+      citation_pattern: '[R[0-9]{3}]'
+      citation_format: separate_canonical_brackets_only
+      prohibited_citation_format: '[R025, R099]'
+    token_limit: 512
+    temperature: 0.0
+    seed: 42
+    retry:
+      max_attempts: 2
+      repair_attempts: 1
+      retry_instruction: >-
+        Return one concise explanation. Retain only claims supported by the supplied context
+        or rule evidence, and use only supplied rule IDs.
+      terminal_failure: record_not_applicable_failure
+
+  claim_extraction:
+    system_prompt: >-
+      Extract every independent atomic fashion or styling proposition from the supplied
+      explanation. Split compound propositions when their parts are independently
+      checkable. Do not assess support, plausibility, quality, or truth. Preserve textual
+      order, assign claim IDs C1, C2, and so on, and return each proposition once.
+    user_template: |-
+      Allowed claim types: {claim_types_json}
+      Complete explanation:
+      {explanation}
+    template_variables: [claim_types_json, explanation]
+    permitted_evidence: [explanation_text_only]
+    prohibited_inference:
+      - Do not use the recommendation context or rule evidence to decide what claims exist.
+      - Do not merge independently checkable propositions.
+      - Do not judge support or add claims absent from the explanation.
+    output_schema:
+      type: json_schema
+      name: atomic_claims_v1
+      required: [claims]
+      claim_fields: [claim_id, claim_text, claim_type]
+      claim_id_policy: consecutive_C_identifiers_in_textual_order
+    token_limit: 2048
+    temperature: 0.0
+    seed: 42
+    retry:
+      max_attempts: 2
+      repair_attempts: 1
+      retry_instruction: >-
+        Return only JSON matching the declared schema. Preserve every valid input claim ID
+        policy and do not duplicate claims.
+      terminal_failure: record_not_applicable_failure
+
+  claim_verification:
+    system_prompt: >-
+      Act as a strict closed-world entailment verifier. For every atomic claim, independently
+      assess full-KB entailment, exact-trace entailment, and common-reference item-fact
+      support. Do not derive one field from another. Supported requires semantic entailment;
+      unsupported means relevant evidence does not entail the claim; contradicted requires
+      affirmative conflict; not_verifiable means the supplied evidence cannot settle the
+      claim. Absence of support is not contradiction. Preserve every supplied claim ID exactly
+      once and do not introduce claims, rules, sources, or knowledge from outside the packet.
+    user_template: |-
+      Frozen full knowledge base:
+      {full_kb_rules_json}
+      Exact stored rule trace:
+      {exact_trace_rules_json}
+      Common-reference item facts:
+      {common_reference_facts_json}
+      Complete explanation:
+      {explanation}
+      Atomic claims:
+      {claims_json}
+    template_variables:
+      [full_kb_rules_json, exact_trace_rules_json, common_reference_facts_json,
+       explanation, claims_json]
+    permitted_evidence:
+      [frozen_full_knowledge_base, exact_stored_rule_trace_B, common_reference_item_facts]
+    prohibited_inference:
+      - Do not use external fashion knowledge or unprovided item details.
+      - Do not treat missing evidence as contradiction.
+      - Do not inspect, infer, or assess observed rule citations in this entailment pass.
+      - Do not change, omit, duplicate, or reorder claim IDs.
+    output_schema:
+      type: json_schema
+      name: separated_entailment_v2
+      required: [claims]
+      claim_fields:
+        [claim_id, full_kb_entailment, full_kb_rule_ids, full_kb_reason,
+         exact_trace_entailment, exact_trace_rule_ids, exact_trace_reason,
+         common_reference_item_fact_support, common_reference_fields,
+         common_reference_reason]
+      support_statuses: [supported, unsupported, contradicted, not_verifiable]
+    token_limit: 2048
+    temperature: 0.0
+    seed: 42
+    retry:
+      max_attempts: 2
+      repair_attempts: 1
+      retry_instruction: >-
+        Return only JSON matching the declared schema. Preserve all supplied claim IDs in
+        order and keep each of the three independent assessments internally consistent.
+      terminal_failure: record_not_applicable_failure
+
+  citation_validation:
+    system_prompt: >-
+      Assess citation validity separately from entailment. For each atomic claim, inspect only
+      the observed citation occurrences and the supplied exact stored rule trace. Report
+      whether citations use separate canonical [Rxxx] brackets, whether every cited rule ID is
+      present in the trace, and whether the cited rule text entails the claim. Do not revisit or
+      infer full-KB, exact-trace, or item-fact support verdicts from the entailment pass.
+    user_template: |-
+      Exact stored rule trace:
+      {exact_trace_rules_json}
+      Citation occurrences parsed from the explanation:
+      {citation_occurrences_json}
+      Atomic claims:
+      {claims_json}
+    template_variables: [exact_trace_rules_json, citation_occurrences_json, claims_json]
+    permitted_evidence: [observed_citation_occurrences, exact_stored_rule_trace_B, atomic_claims]
+    prohibited_inference:
+      - Do not use citations to derive an entailment verdict.
+      - Do not accept grouped citations such as [R025, R099].
+      - Do not credit a rule ID outside the supplied exact trace.
+      - Do not alter claim IDs.
+    output_schema:
+      type: json_schema
+      name: citation_validity_v1
+      required: [claims]
+      claim_fields:
+        [claim_id, citation_present, canonical_citation_format, cited_rule_ids,
+         invalid_rule_ids, citation_entails_claim, brief_reason]
+    token_limit: 2048
+    temperature: 0.0
+    seed: 42
+    retry:
+      max_attempts: 2
+      repair_attempts: 1
+      retry_instruction: >-
+        Return only JSON matching the declared schema. Preserve every claim ID and evaluate
+        citation format and validity independently from entailment.
+      terminal_failure: record_not_applicable_failure
+
+  blind_judge:
+    enabled: false
+    system_prompt: >-
+      Compare two anonymized recommendation explanations fairly. Each has had citations and
+      condition-revealing language removed and the display positions randomized. Score only
+      relevance, clarity, usefulness, coherence, appropriate specificity, and non-redundancy.
+      Do not infer experimental conditions, evidence access, or source quality.
+    user_template: |-
+      Common reference context:
+      {common_reference_context_json}
+      First explanation:
+      {first_explanation}
+      Second explanation:
+      {second_explanation}
+    template_variables: [common_reference_context_json, first_explanation, second_explanation]
+    permitted_evidence: [common_reference_context, first_explanation, second_explanation]
+    prohibited_inference:
+      - Do not infer, name, or prefer an experimental condition.
+      - Do not use knowledge outside the supplied evaluation context.
+      - Do not change the randomized first/second positions.
+    output_schema:
+      type: json_schema
+      name: true_blind_paired_quality_v2
+      required: [first, second]
+      score_range: [1, 5]
+      dimensions:
+        [relevance, clarity, usefulness, coherence, appropriate_specificity, non_redundancy]
+    token_limit: 2048
+    temperature: 0.0
+    seed: 42
+    retry:
+      max_attempts: 2
+      repair_attempts: 1
+      retry_instruction: Return only JSON matching the declared schema and position labels.
+      terminal_failure: record_not_applicable_failure
