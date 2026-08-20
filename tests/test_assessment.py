@@ -62,19 +62,19 @@ def test_verification_allows_multiple_sources_and_requires_exact_coverage() -> N
                         "rule_evidence",
                         "rule_evidence",
                     ],
-                    "supporting_rule_ids": ["R001"],
+                    "supporting_rule_ids": ["K001"],
                     "citation_entails_claim": True,
                     "brief_reason": "Both sources entail the relation.",
                 }
             ]
         },
         claims,
-        {"R001"},
-        ["R001"],
+        {"K001"},
+        ["K001"],
     )
     assert len(verified[0]["support_sources"]) == 2
     with pytest.raises(ValueError, match="cover every claim"):
-        validate_verification({"claims": []}, claims, {"R001"}, ["R001"])
+        validate_verification({"claims": []}, claims, {"K001"}, ["K001"])
 
 
 def test_invalid_rule_ids_and_uncited_boolean_are_rejected() -> None:
@@ -85,18 +85,18 @@ def test_invalid_rule_ids_and_uncited_boolean_are_rejected() -> None:
                 "claim_id": "C1",
                 "support_status": "supported",
                 "support_sources": ["rule_evidence"],
-                "supporting_rule_ids": ["R999"],
+                "supporting_rule_ids": ["K999"],
                 "citation_entails_claim": None,
                 "brief_reason": "Reason",
             }
         ]
     }
     with pytest.raises(ValueError, match="outside"):
-        validate_verification(payload, claims, {"R001"}, [])
-    payload["claims"][0]["supporting_rule_ids"] = ["R001"]
+        validate_verification(payload, claims, {"K001"}, [])
+    payload["claims"][0]["supporting_rule_ids"] = ["K001"]
     payload["claims"][0]["citation_entails_claim"] = True
     with pytest.raises(ValueError, match="must be null"):
-        validate_verification(payload, claims, {"R001"}, [])
+        validate_verification(payload, claims, {"K001"}, [])
 
 
 def test_verifier_structural_normalization_is_conservative() -> None:
@@ -107,13 +107,13 @@ def test_verifier_structural_normalization_is_conservative() -> None:
                     "claim_id": "C1",
                     "support_status": "supported",
                     "support_sources": ["rule_evidence"],
-                    "supporting_rule_ids": ["R999"],
+                    "supporting_rule_ids": ["K999"],
                     "citation_entails_claim": True,
                     "brief_reason": "Model supplied an unavailable rule.",
                 }
             ]
         },
-        {"R001"},
+        {"K001"},
         [],
     )
     row = payload["claims"][0]
@@ -125,9 +125,9 @@ def test_verifier_structural_normalization_is_conservative() -> None:
 
 
 def test_citations_and_paired_judge_scores_are_validated() -> None:
-    assert cited_rule_ids("Works [R001], repeats [R001], and [R126].", r"\[(R[0-9]{3})\]") == [
-        "R001",
-        "R126",
+    assert cited_rule_ids("Works [K001], repeats [K001], and [K126].", r"\[(K[0-9]{3})\]") == [
+        "K001",
+        "K126",
     ]
     dimensions = ["clarity", "specificity"]
     result = validate_judgment(
@@ -143,39 +143,39 @@ def test_citations_and_paired_judge_scores_are_validated() -> None:
 
 
 def test_separated_entailment_is_citation_blind_and_citation_format_is_separate() -> None:
-    explanation = "This works well [R025] [R099]."
+    explanation = "This works well [K025] [K099]."
     prompt = build_separated_entailment_prompt(
         explanation=explanation,
         claims=[{"claim_id": "C1", "claim_text": "This works well."}],
-        full_kb_rules=[{"rule_id": "R025", "rule_text": "Works well."}],
-        exact_trace_rules=[{"rule_id": "R025", "rule_text": "Works well."}],
+        full_kb_rules=[{"rule_id": "K025", "rule_text": "Works well."}],
+        exact_trace_rules=[{"rule_id": "K025", "rule_text": "Works well."}],
         common_reference_item_facts={"locked_item": "bag"},
     )
-    assert "[R025]" not in prompt
-    assert "[R099]" not in prompt
+    assert "[K025]" not in prompt
+    assert "[K099]" not in prompt
     citation_prompt = build_citation_validation_prompt(
         claims=[{"claim_id": "C1", "claim_text": "This works well."}],
         explanation=explanation,
-        exact_trace_rules=[{"rule_id": "R025", "rule_text": "Works well."}],
+        exact_trace_rules=[{"rule_id": "K025", "rule_text": "Works well."}],
     )
-    assert "[R025]" in citation_prompt
-    assert validate_canonical_citation_format(explanation) == ["[R025]", "[R099]"]
+    assert "[K025]" in citation_prompt
+    assert validate_canonical_citation_format(explanation) == ["[K025]", "[K099]"]
     with pytest.raises(ValueError, match="Grouped"):
-        validate_canonical_citation_format("This works [R025, R099].")
+        validate_canonical_citation_format("This works [K025, K099].")
 
 
 def test_true_blind_judging_removes_citations_and_condition_language() -> None:
     pair = prepare_true_blind_pair(
         {
             "no_rag": "No-RAG option: a clear choice.",
-            "rule_rag": "Based on provided rules, this works [R025].",
+            "rule_rag": "Based on provided rules, this works [K025].",
         },
         case_id="case-1",
         generator="gemma",
         seed=42,
     )
     displayed = f"{pair['first_explanation']} {pair['second_explanation']}".lower()
-    assert "[r025]" not in displayed
+    assert "[k025]" not in displayed
     assert "no-rag" not in displayed
     assert "provided rules" not in displayed
     prompt = build_true_blind_judge_prompt(
@@ -185,4 +185,4 @@ def test_true_blind_judging_removes_citations_and_condition_language() -> None:
     )
     assert "hallucination" not in prompt.lower()
     assert "non-redundancy" in prompt.lower()
-    assert strip_condition_revealing_phrases("Rule-RAG [R025]") == ""
+    assert strip_condition_revealing_phrases("Rule-RAG [K025]") == ""

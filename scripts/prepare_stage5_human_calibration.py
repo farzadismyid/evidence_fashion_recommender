@@ -5,6 +5,7 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import re
 from collections.abc import Mapping, Sequence
 from pathlib import Path
 from typing import Any
@@ -18,6 +19,7 @@ from evidence_fashion.assessment import (
     separated_entailment_schema,
 )
 from evidence_fashion.explanation import OllamaClient, text_sha256
+from evidence_fashion.kb_audit import declared_values, matches_declared_terms
 from evidence_fashion.manifest import sha256_file, utc_timestamp, write_new_json
 from evidence_fashion.prompt_registry import (
     load_prompt_registry,
@@ -26,6 +28,8 @@ from evidence_fashion.prompt_registry import (
 )
 
 ROOT = Path(__file__).parents[1]
+STAGE3_MANIFEST = ROOT / "artifacts/manifests/stage3_prompt_freeze_manifest.json"
+STAGE4_MANIFEST = ROOT / "artifacts/manifests/stage4_sequential_batch_manifest.json"
 CATEGORIES = ("tops", "bottoms", "shoes", "outerwear", "bags")
 QUERY_CATEGORY = {
     "tops": "bottoms",
@@ -71,13 +75,37 @@ def _write_jsonl_new(path: Path, rows: Sequence[Mapping[str, Any]]) -> None:
             handle.write(json.dumps(dict(row), sort_keys=True, ensure_ascii=False) + "\n")
 
 
-def _applicable_rules(rules: pd.DataFrame, target: str, query: str) -> list[dict[str, Any]]:
+def _candidate_rules(rules: pd.DataFrame, target: str, query: str) -> list[dict[str, Any]]:
     filtered = rules[
         rules["recommended_category"].eq(target)
         & rules["audit_status"].eq("retain")
         & rules["applicable_query_categories"].str.split("|").apply(lambda values: query in values)
     ].copy()
     return filtered.sort_values("rule_id").to_dict(orient="records")
+
+
+def _antecedent_matched_rules(
+    candidates: Sequence[Mapping[str, Any]],
+    *,
+    query: str,
+    query_text: str,
+    outfit_context_text: str,
+    candidate_text: str,
+) -> list[dict[str, Any]]:
+    observed_context: set[str] = set()
+    matched = []
+    permitted_query_text = f"{query} | {query_text} | {outfit_context_text}"
+    for rule in candidates:
+        if query not in declared_values(rule["applicable_query_categories"]):
+            continue
+        if not matches_declared_terms(rule["required_context"], " | ".join(observed_context)):
+            continue
+        if not matches_declared_terms(rule["query_terms"], permitted_query_text):
+            continue
+        if not matches_declared_terms(rule["candidate_terms"], candidate_text):
+            continue
+        matched.append(dict(rule))
+    return matched
 
 
 def _select_cases(
@@ -91,15 +119,27 @@ def _select_cases(
     selected: list[dict[str, Any]] = []
     for target in CATEGORIES:
         query = QUERY_CATEGORY[target]
-        applicable = _applicable_rules(rules, target, query)
-        if len(applicable) < 5:
-            raise ValueError(f"Fewer than five applicable rules for {query} to {target}.")
-        candidates: list[tuple[str, pd.Series, pd.Series]] = []
+        candidates_for_pair = _candidate_rules(rules, target, query)
+        candidates: list[tuple[str, pd.Series, pd.Series, str, list[dict[str, Any]]]] = []
         for outfit_id, outfit in validation.groupby("outfit_id", sort=False):
             targets = outfit[outfit["broad_category"].eq(target)].sort_values("item_id")
             queries = outfit[outfit["broad_category"].eq(query)].sort_values("item_id")
             if not targets.empty and not queries.empty:
-                candidates.append((str(outfit_id), queries.iloc[0], targets.iloc[0]))
+                query_item, locked_item = queries.iloc[0], targets.iloc[0]
+                outfit_context = " | ".join(
+                    f"{row.category}: {row.text}" for row in outfit.itertuples(index=False)
+                )
+                matched = _antecedent_matched_rules(
+                    candidates_for_pair,
+                    query=query,
+                    query_text=str(query_item["text"]),
+                    outfit_context_text=outfit_context,
+                    candidate_text=f"{locked_item['category']} | {locked_item['text']}",
+                )
+                if matched:
+                    candidates.append(
+                        (str(outfit_id), query_item, locked_item, outfit_context, matched)
+                    )
         ranked = sorted(
             candidates,
             key=lambda row: hashlib.sha256(f"{seed}:{target}:{row[0]}".encode()).hexdigest(),
@@ -108,10 +148,12 @@ def _select_cases(
             raise ValueError(
                 f"Insufficient validation outfits for {query} to {target} calibration."
             )
-        for index, (outfit_id, query_item, locked_item) in enumerate(ranked[:2], start=1):
+        for index, (outfit_id, query_item, locked_item, outfit_context, matched) in enumerate(
+            ranked[:2], start=1
+        ):
             calibration_case_id = f"s5-{target}-{index}-{outfit_id}"
             trace = sorted(
-                applicable,
+                matched,
                 key=lambda rule: hashlib.sha256(
                     f"{seed}:{calibration_case_id}:{rule['rule_id']}".encode()
                 ).hexdigest(),
@@ -135,10 +177,11 @@ def _select_cases(
                         "locked_item_id": str(locked_item["item_id"]),
                         "locked_item_category": str(locked_item["category"]),
                         "locked_item_minimal_name": str(locked_item["text"]),
+                        "outfit_context_text": outfit_context,
                     },
-                    "full_kb_applicable_rules": [
+                    "full_kb_candidate_rules": [
                         {"rule_id": rule["rule_id"], "rule_text": rule["rule_text"]}
-                        for rule in applicable
+                        for rule in candidates_for_pair
                     ],
                     "exact_trace_rules": [
                         {"rule_id": rule["rule_id"], "rule_text": rule["rule_text"]}
@@ -180,6 +223,12 @@ def _render_explanation(
         system_prompt=rendered["system_prompt"],
         token_limit=int(registry["roles"][role]["token_limit"]),
     )
+    noncanonical_rule_citations = re.findall(r"\[[A-Za-z]\d{3}[^\]]*\]", result.text)
+    if any(not citation.startswith("[K") for citation in noncanonical_rule_citations):
+        raise ValueError(
+            "Generated explanation contains a non-K canonical rule citation; "
+            "discard this calibration run and regenerate it."
+        )
     return {
         "condition": condition,
         "explanation": result.text,
@@ -221,9 +270,7 @@ def _run_qwen_batch(
             extraction_schema(claim_types),
             retries=int(registry["roles"]["claim_extraction"]["retry"]["max_attempts"]),
             system_prompt=rendered["system_prompt"],
-            repair_instruction=registry["roles"]["claim_extraction"]["retry"][
-                "retry_instruction"
-            ],
+            repair_instruction=registry["roles"]["claim_extraction"]["retry"]["retry_instruction"],
         )
         output.append(
             {
@@ -258,7 +305,7 @@ def _run_phi_batch(
             registry,
             "claim_verification",
             {
-                "full_kb_rules_json": _canonical_json(record["full_kb_applicable_rules"]),
+                "full_kb_rules_json": _canonical_json(record["full_kb_candidate_rules"]),
                 "exact_trace_rules_json": _canonical_json(record["exact_trace_rules"]),
                 "common_reference_facts_json": _canonical_json(
                     record["common_reference_item_facts"]
@@ -334,23 +381,24 @@ def _write_annotation_view(path: Path, records: Sequence[Mapping[str, Any]]) -> 
                 f"- Query item: {record['common_reference_item_facts']['query_item_minimal_name']}",
                 "- Recommended item: "
                 f"{record['common_reference_item_facts']['locked_item_minimal_name']}",
+                "- Full outfit context: "
+                f"{record['common_reference_item_facts']['outfit_context_text']}",
                 "",
                 "### Explanation",
                 "",
                 record["explanation"],
                 "",
-                "### Exact trace (five rules)",
+                "### Exact trace (antecedent-matched rules)",
                 "",
             ]
         )
         lines.extend(
-            f"- `{rule['rule_id']}`: {rule['rule_text']}"
-            for rule in record["exact_trace_rules"]
+            f"- `{rule['rule_id']}`: {rule['rule_text']}" for rule in record["exact_trace_rules"]
         )
-        lines.extend(["", "### Relevant full-KB rules", ""])
+        lines.extend(["", "### Full-KB candidate rules (assess antecedent applicability)", ""])
         lines.extend(
             f"- `{rule['rule_id']}`: {rule['rule_text']}"
-            for rule in record["full_kb_applicable_rules"]
+            for rule in record["full_kb_candidate_rules"]
         )
         lines.extend(
             [
@@ -371,6 +419,10 @@ def main() -> None:
     models = yaml.safe_load((ROOT / args.models_config).read_text(encoding="utf-8"))
     calibration = yaml.safe_load((ROOT / args.calibration_config).read_text(encoding="utf-8"))
     registry = load_prompt_registry(ROOT / args.prompts_config)
+    for stage, path in ((3, STAGE3_MANIFEST), (4, STAGE4_MANIFEST)):
+        manifest = json.loads(path.read_text(encoding="utf-8"))
+        if manifest.get("status") != "frozen":
+            raise ValueError(f"Stage {stage} must be frozen before calibration preparation.")
     packet_path = ROOT / calibration["calibration"]["annotation_path"]
     view_path = packet_path.with_name("stage5_annotation_view.md")
     if packet_path.exists() or view_path.exists():
@@ -452,7 +504,7 @@ def main() -> None:
                 for category in CATEGORIES
             },
             "coverage_tags": sorted({tag for row in records for tag in row["coverage_tags"]}),
-            "exact_trace_rule_count": 5,
+            "exact_trace_rule_counts": sorted({len(case["exact_trace_rules"]) for case in cases}),
         },
         "sealed_internal_outputs": {
             "qwen_claim_extraction": str(qwen_path.relative_to(ROOT)),
@@ -470,8 +522,11 @@ def main() -> None:
                 ROOT / args.models_config,
                 ROOT / args.prompts_config,
                 ROOT / args.calibration_config,
+                STAGE3_MANIFEST,
+                STAGE4_MANIFEST,
                 items_path,
                 rules_path,
+                Path(__file__),
                 qwen_path,
                 phi_path,
                 packet_path,

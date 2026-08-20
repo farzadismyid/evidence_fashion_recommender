@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import re
 from collections import Counter
 from collections.abc import Mapping, Sequence
 from typing import Any
@@ -11,6 +12,30 @@ ENTAILMENT_FIELDS = (
     "exact_trace_entailment",
     "common_reference_item_fact_support",
 )
+VERIFICATION_RULE_ID_FIELDS = (
+    "full_kb_candidate_applicable_rule_ids",
+    "full_kb_rule_ids",
+    "exact_trace_rule_ids",
+)
+VERIFICATION_REQUIRED_FIELDS = (
+    "claim_id",
+    *VERIFICATION_RULE_ID_FIELDS,
+    *ENTAILMENT_FIELDS,
+    "full_kb_reason",
+    "exact_trace_reason",
+    "common_reference_fields",
+    "common_reference_reason",
+)
+CITATION_REQUIRED_FIELDS = (
+    "claim_id",
+    "citation_present",
+    "canonical_citation_format",
+    "cited_rule_ids",
+    "invalid_rule_ids",
+    "citation_entails_claim",
+    "brief_reason",
+)
+CANONICAL_RULE_ID_RE = re.compile(r"K\d{3}\Z")
 
 
 def _normalized_claim(text: str) -> str:
@@ -76,10 +101,26 @@ def validate_human_calibration(
             if [row.get("claim_id") for row in rows] != claim_ids:
                 raise ValueError(f"Human {label} must cover each human claim exactly once.")
         for row in verification:
-            if any(field not in row for field in ENTAILMENT_FIELDS):
+            if any(field not in row for field in VERIFICATION_REQUIRED_FIELDS):
                 raise ValueError(
-                    "Human verification must contain all three independent dimensions."
+                    "Human verification must contain the independent dimensions "
+                    "and evidence fields."
                 )
+            for field in VERIFICATION_RULE_ID_FIELDS:
+                rule_ids = row[field]
+                if not isinstance(rule_ids, list) or any(
+                    not CANONICAL_RULE_ID_RE.fullmatch(str(rule_id)) for rule_id in rule_ids
+                ):
+                    raise ValueError("Human verification must use canonical K### rule IDs.")
+        for row in citations:
+            if any(field not in row for field in CITATION_REQUIRED_FIELDS):
+                raise ValueError("Human citation validation is missing a required field.")
+            for field in ("cited_rule_ids", "invalid_rule_ids"):
+                rule_ids = row.get(field, [])
+                if not isinstance(rule_ids, list) or any(
+                    not CANONICAL_RULE_ID_RE.fullmatch(str(rule_id)) for rule_id in rule_ids
+                ):
+                    raise ValueError("Human citation validation must use canonical K### rule IDs.")
     incomplete_pairs = sorted(case_id for case_id, values in pairs.items() if values != conditions)
     if incomplete_pairs:
         raise ValueError(f"Calibration cases must include both conditions: {incomplete_pairs}.")

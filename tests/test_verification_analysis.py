@@ -43,7 +43,7 @@ def test_normalization_reasons_are_reconstructed_from_raw_fields() -> None:
                     "claim_id": "C1",
                     "support_status": "supported",
                     "support_sources": ["rule_evidence", "rule_evidence"],
-                    "supporting_rule_ids": ["R999"],
+                    "supporting_rule_ids": ["K999"],
                     "citation_entails_claim": True,
                 }
             ]
@@ -59,7 +59,7 @@ def test_normalization_reasons_are_reconstructed_from_raw_fields() -> None:
         }
     ]
     reasons = normalization_reason_codes(
-        raw, final, allowed_rule_ids={"R001"}, citation_ids=[]
+        raw, final, allowed_rule_ids={"K001"}, citation_ids=[]
     )
     assert "duplicate_support_sources_removed" in reasons
     assert "invalid_rule_ids_removed" in reasons

@@ -1,26 +1,23 @@
 # Stage 5 human calibration packet
 
-## s5-tops-1-215358535 — no_rag
+## s5-tops-1-199670397 — no_rag
 
 - Category: tops (query: bottoms)
 - Coverage tags: compound_claim
 - Request: Recommend a top that works with this outfit.
-- Query item: jeans skinny jeans
-- Recommended item: floral vintage shirt
+- Query item: msgm cropped wide-leg pants
+- Recommended item: cashmere top
+- Full outfit context: Tops: cashmere top | Capri & Cropped Pants: msgm cropped wide-leg pants | Pumps: la leather pumps | Tote Bags: balenciaga women's papier tote
 
 ### Explanation
 
-A floral vintage shirt adds a soft, feminine contrast to the structured silhouette of skinny jeans, creating a balanced and balanced aesthetic.
+A cashmere top provides a sophisticated texture contrast to the structured silhouette of cropped wide-leg pants, creating a balanced and elevated aesthetic.
 
-### Exact trace (five rules)
+### Exact trace (antecedent-matched rules)
 
-- `K079`: With explicit Bermuda shorts and wedge sandals, a wrap top is a documented top direction.
-- `K041`: For explicit cuffed or loose wide-leg trousers, a simple white button-down is a directly documented top pairing.
-- `K002`: When chinos are explicit and the request is smart casual, prefer soft knitwear or relaxed shirting over ceremonial tops.
-- `K077`: With explicit loose indigo jeans, a crisp white button-down is a documented top direction.
-- `K076`: With explicit indigo jeans, a red or brightly coloured sweater is a documented top direction.
+- `K001`: When wide-leg trousers are explicit in the query, a fitted top or cardigan is a documented proportion option.
 
-### Relevant full-KB rules
+### Full-KB candidate rules (assess antecedent applicability)
 
 - `K001`: When wide-leg trousers are explicit in the query, a fitted top or cardigan is a documented proportion option.
 - `K002`: When chinos are explicit and the request is smart casual, prefer soft knitwear or relaxed shirting over ceremonial tops.
@@ -36,27 +33,24 @@ A floral vintage shirt adds a soft, feminine contrast to the structured silhouet
 - Completion time (UTC): ____________________
 - Human claims / verification / citation validation: complete in JSONL.
 
-## s5-tops-1-215358535 — rule_rag
+## s5-tops-1-199670397 — rule_rag
 
 - Category: tops (query: bottoms)
 - Coverage tags: compound_claim
 - Request: Recommend a top that works with this outfit.
-- Query item: jeans skinny jeans
-- Recommended item: floral vintage shirt
+- Query item: msgm cropped wide-leg pants
+- Recommended item: cashmere top
+- Full outfit context: Tops: cashmere top | Capri & Cropped Pants: msgm cropped wide-leg pants | Pumps: la leather pumps | Tote Bags: balenciaga women's papier tote
 
 ### Explanation
 
-A floral vintage shirt provides a stylish option to complement your skinny jeans. [R077]
+A cashmere top is a suitable choice because a fitted top is a documented proportion option when wide-leg trousers are worn [K001].
 
-### Exact trace (five rules)
+### Exact trace (antecedent-matched rules)
 
-- `K079`: With explicit Bermuda shorts and wedge sandals, a wrap top is a documented top direction.
-- `K041`: For explicit cuffed or loose wide-leg trousers, a simple white button-down is a directly documented top pairing.
-- `K002`: When chinos are explicit and the request is smart casual, prefer soft knitwear or relaxed shirting over ceremonial tops.
-- `K077`: With explicit loose indigo jeans, a crisp white button-down is a documented top direction.
-- `K076`: With explicit indigo jeans, a red or brightly coloured sweater is a documented top direction.
+- `K001`: When wide-leg trousers are explicit in the query, a fitted top or cardigan is a documented proportion option.
 
-### Relevant full-KB rules
+### Full-KB candidate rules (assess antecedent applicability)
 
 - `K001`: When wide-leg trousers are explicit in the query, a fitted top or cardigan is a documented proportion option.
 - `K002`: When chinos are explicit and the request is smart casual, prefer soft knitwear or relaxed shirting over ceremonial tops.
@@ -67,32 +61,29 @@ A floral vintage shirt provides a stylish option to complement your skinny jeans
 - `K079`: With explicit Bermuda shorts and wedge sandals, a wrap top is a documented top direction.
 - `K080`: With explicit pleated wide-leg trousers and low-profile sneakers, a slim knit or ribbed polo is a documented top direction.
 
-- Observed citations: [R077]
+- Observed citations: [K001]
 - Annotator ID: ____________________
 - Completion time (UTC): ____________________
 - Human claims / verification / citation validation: complete in JSONL.
 
-## s5-tops-2-143890943 — no_rag
+## s5-tops-2-215235706 — no_rag
 
 - Category: tops (query: bottoms)
 - Coverage tags: explicit_attribute
 - Request: Recommend a top that works with this outfit.
-- Query item: mankind low-rise skinny jeans
-- Recommended item: warehouse denim shirt
+- Query item: alexander wang distressed low-rise wide-leg jeans
+- Recommended item: h&m v-neck top velvet
+- Full outfit context: Tank Tops: h&m v-neck top velvet | Jackets: shearling biker jacket | Wide Leg Jeans: alexander wang distressed low-rise wide-leg jeans | Loafers & Moccasins: h&m loafer | Shoulder Bags: micro crystal-embellished satin shoulder bag
 
 ### Explanation
 
-A denim shirt provides a cohesive, tonal look when paired with skinny jeans, creating a cohesive texture and a balanced silhouette.
+The velvet texture of the V-neck top provides a sophisticated contrast to the distressed aesthetic of the wide-leg jeans, balancing the rugged denim with a polished finish.
 
-### Exact trace (five rules)
+### Exact trace (antecedent-matched rules)
 
-- `K079`: With explicit Bermuda shorts and wedge sandals, a wrap top is a documented top direction.
-- `K077`: With explicit loose indigo jeans, a crisp white button-down is a documented top direction.
-- `K080`: With explicit pleated wide-leg trousers and low-profile sneakers, a slim knit or ribbed polo is a documented top direction.
-- `K040`: For explicit wide-leg trousers, an oversized band T-shirt is a documented casual top option.
-- `K076`: With explicit indigo jeans, a red or brightly coloured sweater is a documented top direction.
+- `K001`: When wide-leg trousers are explicit in the query, a fitted top or cardigan is a documented proportion option.
 
-### Relevant full-KB rules
+### Full-KB candidate rules (assess antecedent applicability)
 
 - `K001`: When wide-leg trousers are explicit in the query, a fitted top or cardigan is a documented proportion option.
 - `K002`: When chinos are explicit and the request is smart casual, prefer soft knitwear or relaxed shirting over ceremonial tops.
@@ -108,27 +99,24 @@ A denim shirt provides a cohesive, tonal look when paired with skinny jeans, cre
 - Completion time (UTC): ____________________
 - Human claims / verification / citation validation: complete in JSONL.
 
-## s5-tops-2-143890943 — rule_rag
+## s5-tops-2-215235706 — rule_rag
 
 - Category: tops (query: bottoms)
 - Coverage tags: explicit_attribute
 - Request: Recommend a top that works with this outfit.
-- Query item: mankind low-rise skinny jeans
-- Recommended item: warehouse denim shirt
+- Query item: alexander wang distressed low-rise wide-leg jeans
+- Recommended item: h&m v-neck top velvet
+- Full outfit context: Tank Tops: h&m v-neck top velvet | Jackets: shearling biker jacket | Wide Leg Jeans: alexander wang distressed low-rise wide-leg jeans | Loafers & Moccasins: h&m loafer | Shoulder Bags: micro crystal-embellished satin shoulder bag
 
 ### Explanation
 
-A warehouse denim shirt is a suitable choice to pair with your low-rise skinny jeans. [K076]
+A fitted top is a recommended option to balance the proportions of wide-leg trousers [K001].
 
-### Exact trace (five rules)
+### Exact trace (antecedent-matched rules)
 
-- `K079`: With explicit Bermuda shorts and wedge sandals, a wrap top is a documented top direction.
-- `K077`: With explicit loose indigo jeans, a crisp white button-down is a documented top direction.
-- `K080`: With explicit pleated wide-leg trousers and low-profile sneakers, a slim knit or ribbed polo is a documented top direction.
-- `K040`: For explicit wide-leg trousers, an oversized band T-shirt is a documented casual top option.
-- `K076`: With explicit indigo jeans, a red or brightly coloured sweater is a documented top direction.
+- `K001`: When wide-leg trousers are explicit in the query, a fitted top or cardigan is a documented proportion option.
 
-### Relevant full-KB rules
+### Full-KB candidate rules (assess antecedent applicability)
 
 - `K001`: When wide-leg trousers are explicit in the query, a fitted top or cardigan is a documented proportion option.
 - `K002`: When chinos are explicit and the request is smart casual, prefer soft knitwear or relaxed shirting over ceremonial tops.
@@ -139,32 +127,29 @@ A warehouse denim shirt is a suitable choice to pair with your low-rise skinny j
 - `K079`: With explicit Bermuda shorts and wedge sandals, a wrap top is a documented top direction.
 - `K080`: With explicit pleated wide-leg trousers and low-profile sneakers, a slim knit or ribbed polo is a documented top direction.
 
-- Observed citations: none
+- Observed citations: [K001]
 - Annotator ID: ____________________
 - Completion time (UTC): ____________________
 - Human claims / verification / citation validation: complete in JSONL.
 
-## s5-bottoms-1-106418956 — no_rag
+## s5-bottoms-1-163214052 — no_rag
 
 - Category: bottoms (query: tops)
 - Coverage tags: styling_inference
 - Request: Recommend bottoms that work with this outfit.
-- Query item: american vintage heather grey sweater
-- Recommended item: true religion women's gold dark blue skinny jeans
+- Query item: lucluc dark blue floral printed strappy crop top
+- Recommended item: choies pink high waist button ripped denim shorts
+- Full outfit context: Tops: lucluc dark blue floral printed strappy crop top | Shorts: choies pink high waist button ripped denim shorts | Sandals: monsoon sandals | Shoulder Bags: rental rebecca minkoff handbags blue mini mac cross body bag
 
 ### Explanation
 
-The dark blue denim provides a classic contrast to the heather grey knit, creating a balanced color palette while the skinny silhouette complements the relaxed texture of the sweater.
+The high-waisted silhouette of the denim shorts complements the cropped length of the top, creating a balanced proportions. The contrast between the dark blue floral print and the pink denim provides a bold color play that enhances the overall look.
 
-### Exact trace (five rules)
+### Exact trace (antecedent-matched rules)
 
-- `K010`: For an explicit classic T-shirt, tailored or loose trousers are a directly documented bottom pairing that can remain casual while looking polished.
-- `K009`: For an explicit business-casual button-down, chinos or tailored trousers are supported; dark jeans require an explicitly denim-permitted workplace.
 - `K008`: When a cropped top is explicit, high-waisted trousers or a high-waisted skirt are directly supported bottom directions.
-- `K084`: With an explicit T-shirt and worn leather bomber, a pinstripe mini skirt is a documented bottom direction.
-- `K048`: For an explicit white button-down in a fluid neutral outfit, cuffed wide-leg trousers are a directly documented bottom pairing.
 
-### Relevant full-KB rules
+### Full-KB candidate rules (assess antecedent applicability)
 
 - `K008`: When a cropped top is explicit, high-waisted trousers or a high-waisted skirt are directly supported bottom directions.
 - `K009`: For an explicit business-casual button-down, chinos or tailored trousers are supported; dark jeans require an explicitly denim-permitted workplace.
@@ -179,27 +164,24 @@ The dark blue denim provides a classic contrast to the heather grey knit, creati
 - Completion time (UTC): ____________________
 - Human claims / verification / citation validation: complete in JSONL.
 
-## s5-bottoms-1-106418956 — rule_rag
+## s5-bottoms-1-163214052 — rule_rag
 
 - Category: bottoms (query: tops)
 - Coverage tags: styling_inference
 - Request: Recommend bottoms that work with this outfit.
-- Query item: american vintage heather grey sweater
-- Recommended item: true religion women's gold dark blue skinny jeans
+- Query item: lucluc dark blue floral printed strappy crop top
+- Recommended item: choies pink high waist button ripped denim shorts
+- Full outfit context: Tops: lucluc dark blue floral printed strappy crop top | Shorts: choies pink high waist button ripped denim shorts | Sandals: monsoon sandals | Shoulder Bags: rental rebecca minkoff handbags blue mini mac cross body bag
 
 ### Explanation
 
-The dark blue skinny jeans provide a polished contrast to the heather grey sweater. [K009]
+The high-waisted shorts are a suitable choice because high-waisted bottoms are recommended when wearing a cropped top [K008].
 
-### Exact trace (five rules)
+### Exact trace (antecedent-matched rules)
 
-- `K010`: For an explicit classic T-shirt, tailored or loose trousers are a directly documented bottom pairing that can remain casual while looking polished.
-- `K009`: For an explicit business-casual button-down, chinos or tailored trousers are supported; dark jeans require an explicitly denim-permitted workplace.
 - `K008`: When a cropped top is explicit, high-waisted trousers or a high-waisted skirt are directly supported bottom directions.
-- `K084`: With an explicit T-shirt and worn leather bomber, a pinstripe mini skirt is a documented bottom direction.
-- `K048`: For an explicit white button-down in a fluid neutral outfit, cuffed wide-leg trousers are a directly documented bottom pairing.
 
-### Relevant full-KB rules
+### Full-KB candidate rules (assess antecedent applicability)
 
 - `K008`: When a cropped top is explicit, high-waisted trousers or a high-waisted skirt are directly supported bottom directions.
 - `K009`: For an explicit business-casual button-down, chinos or tailored trousers are supported; dark jeans require an explicitly denim-permitted workplace.
@@ -209,32 +191,29 @@ The dark blue skinny jeans provide a polished contrast to the heather grey sweat
 - `K084`: With an explicit T-shirt and worn leather bomber, a pinstripe mini skirt is a documented bottom direction.
 - `K085`: With an explicit T-shirt and cardigan, a black denim midi or maxi skirt is a documented bottom direction.
 
-- Observed citations: none
+- Observed citations: [K008]
 - Annotator ID: ____________________
 - Completion time (UTC): ____________________
 - Human claims / verification / citation validation: complete in JSONL.
 
-## s5-bottoms-2-164947204 — no_rag
+## s5-bottoms-2-151354388 — no_rag
 
 - Category: bottoms (query: tops)
 - Coverage tags: functional_inference
 - Request: Recommend bottoms that work with this outfit.
-- Query item: katy perry hello kitty
-- Recommended item: dr denim skinny jeans black
+- Query item: lavender crop top pastel crop top sexy wrap top
+- Recommended item: women's mini skater skirt black large
+- Full outfit context: Tops: lavender crop top pastel crop top sexy wrap top | Mini Skirts: women's mini skater skirt black large
 
 ### Explanation
 
-The black skinny jeans provide a streamlined silhouette that balances the bold aesthetic of the Katy Perry Hello Kitty piece, creating a cohesive look.
+A black mini skater skirt provides a classic contrast to the lavender crop top, creating a balanced silhouette that highlights the waistline.
 
-### Exact trace (five rules)
+### Exact trace (antecedent-matched rules)
 
-- `K049`: For an explicit T-shirt being smartened within a preppy request, pleated trousers are a directly supported bottom direction.
 - `K008`: When a cropped top is explicit, high-waisted trousers or a high-waisted skirt are directly supported bottom directions.
-- `K085`: With an explicit T-shirt and cardigan, a black denim midi or maxi skirt is a documented bottom direction.
-- `K010`: For an explicit classic T-shirt, tailored or loose trousers are a directly documented bottom pairing that can remain casual while looking polished.
-- `K009`: For an explicit business-casual button-down, chinos or tailored trousers are supported; dark jeans require an explicitly denim-permitted workplace.
 
-### Relevant full-KB rules
+### Full-KB candidate rules (assess antecedent applicability)
 
 - `K008`: When a cropped top is explicit, high-waisted trousers or a high-waisted skirt are directly supported bottom directions.
 - `K009`: For an explicit business-casual button-down, chinos or tailored trousers are supported; dark jeans require an explicitly denim-permitted workplace.
@@ -249,27 +228,24 @@ The black skinny jeans provide a streamlined silhouette that balances the bold a
 - Completion time (UTC): ____________________
 - Human claims / verification / citation validation: complete in JSONL.
 
-## s5-bottoms-2-164947204 — rule_rag
+## s5-bottoms-2-151354388 — rule_rag
 
 - Category: bottoms (query: tops)
 - Coverage tags: functional_inference
 - Request: Recommend bottoms that work with this outfit.
-- Query item: katy perry hello kitty
-- Recommended item: dr denim skinny jeans black
+- Query item: lavender crop top pastel crop top sexy wrap top
+- Recommended item: women's mini skater skirt black large
+- Full outfit context: Tops: lavender crop top pastel crop top sexy wrap top | Mini Skirts: women's mini skater skirt black large
 
 ### Explanation
 
-To complement the top, you can pair it with tailored or loose trousers to maintain a polished look while keeping the ensemble casual [K010].
+A high-waisted skirt is a suitable choice to pair with a cropped top [K008].
 
-### Exact trace (five rules)
+### Exact trace (antecedent-matched rules)
 
-- `K049`: For an explicit T-shirt being smartened within a preppy request, pleated trousers are a directly supported bottom direction.
 - `K008`: When a cropped top is explicit, high-waisted trousers or a high-waisted skirt are directly supported bottom directions.
-- `K085`: With an explicit T-shirt and cardigan, a black denim midi or maxi skirt is a documented bottom direction.
-- `K010`: For an explicit classic T-shirt, tailored or loose trousers are a directly documented bottom pairing that can remain casual while looking polished.
-- `K009`: For an explicit business-casual button-down, chinos or tailored trousers are supported; dark jeans require an explicitly denim-permitted workplace.
 
-### Relevant full-KB rules
+### Full-KB candidate rules (assess antecedent applicability)
 
 - `K008`: When a cropped top is explicit, high-waisted trousers or a high-waisted skirt are directly supported bottom directions.
 - `K009`: For an explicit business-casual button-down, chinos or tailored trousers are supported; dark jeans require an explicitly denim-permitted workplace.
@@ -279,32 +255,29 @@ To complement the top, you can pair it with tailored or loose trousers to mainta
 - `K084`: With an explicit T-shirt and worn leather bomber, a pinstripe mini skirt is a documented bottom direction.
 - `K085`: With an explicit T-shirt and cardigan, a black denim midi or maxi skirt is a documented bottom direction.
 
-- Observed citations: none
+- Observed citations: [K008]
 - Annotator ID: ____________________
 - Completion time (UTC): ____________________
 - Human claims / verification / citation validation: complete in JSONL.
 
-## s5-shoes-1-201295934 — no_rag
+## s5-shoes-1-216844457 — no_rag
 
 - Category: shoes (query: bottoms)
 - Coverage tags: unsupported_plausible_statement
 - Request: Recommend shoes that complete this outfit.
-- Query item: amanda culottes
-- Recommended item: gianvito rossi women's lola ankle-strap sandals
+- Query item: lanvin wide-leg flannel cropped trousers
+- Recommended item: flora suede pumps tabitha simmons
+- Full outfit context: Blouses: cotton-poplin blouse maison | Capri & Cropped Pants: lanvin wide-leg flannel cropped trousers | Pumps: flora suede pumps tabitha simmons
 
 ### Explanation
 
-The Gianvito Rossi Lola ankle-strap sandals complement the silhouette of the culottes by providing a refined, feminine touch that balances the wide-leg proportions of the trousers.
+The suede texture of the Flora pumps complements the weight of the flannel fabric, while the pointed-toe silhouette balances the volume of the wide-leg trousers.
 
-### Exact trace (five rules)
+### Exact trace (antecedent-matched rules)
 
-- `K015`: For explicit wide-leg or baggy jeans, trainers with some visual heft are a directly supported way to keep the footwear from disappearing beneath the denim.
-- `K086`: With explicit indigo jeans and a bright sweater, simple black flats are a documented shoe direction.
-- `K087`: With explicit indigo jeans and a cropped leather jacket, pointed-toe boots are a documented shoe direction.
 - `K016`: For explicit cropped wide-leg trousers, pumps such as slingbacks or mules are a directly documented shoe direction that keeps the footwear visible.
-- `K056`: For explicit baggy trousers in relaxed tailoring, trainers or loafers are directly documented shoe directions.
 
-### Relevant full-KB rules
+### Full-KB candidate rules (assess antecedent applicability)
 
 - `K015`: For explicit wide-leg or baggy jeans, trainers with some visual heft are a directly supported way to keep the footwear from disappearing beneath the denim.
 - `K016`: For explicit cropped wide-leg trousers, pumps such as slingbacks or mules are a directly documented shoe direction that keeps the footwear visible.
@@ -321,27 +294,24 @@ The Gianvito Rossi Lola ankle-strap sandals complement the silhouette of the cul
 - Completion time (UTC): ____________________
 - Human claims / verification / citation validation: complete in JSONL.
 
-## s5-shoes-1-201295934 — rule_rag
+## s5-shoes-1-216844457 — rule_rag
 
 - Category: shoes (query: bottoms)
 - Coverage tags: unsupported_plausible_statement
 - Request: Recommend shoes that complete this outfit.
-- Query item: amanda culottes
-- Recommended item: gianvito rossi women's lola ankle-strap sandals
+- Query item: lanvin wide-leg flannel cropped trousers
+- Recommended item: flora suede pumps tabitha simmons
+- Full outfit context: Blouses: cotton-poplin blouse maison | Capri & Cropped Pants: lanvin wide-leg flannel cropped trousers | Pumps: flora suede pumps tabitha simmons
 
 ### Explanation
 
-The Gianvito Rossi women's Lola ankle-strap sandals are a suitable choice because pumps, including styles like slingbacks or mules, are a documented way to keep footwear visible when wearing cropped wide-leg trousers [K016].
+The flora suede pumps are an excellent choice because pumps are a documented footwear direction for cropped wide-leg trousers, ensuring the shoes remain visible [K016].
 
-### Exact trace (five rules)
+### Exact trace (antecedent-matched rules)
 
-- `K015`: For explicit wide-leg or baggy jeans, trainers with some visual heft are a directly supported way to keep the footwear from disappearing beneath the denim.
-- `K086`: With explicit indigo jeans and a bright sweater, simple black flats are a documented shoe direction.
-- `K087`: With explicit indigo jeans and a cropped leather jacket, pointed-toe boots are a documented shoe direction.
 - `K016`: For explicit cropped wide-leg trousers, pumps such as slingbacks or mules are a directly documented shoe direction that keeps the footwear visible.
-- `K056`: For explicit baggy trousers in relaxed tailoring, trainers or loafers are directly documented shoe directions.
 
-### Relevant full-KB rules
+### Full-KB candidate rules (assess antecedent applicability)
 
 - `K015`: For explicit wide-leg or baggy jeans, trainers with some visual heft are a directly supported way to keep the footwear from disappearing beneath the denim.
 - `K016`: For explicit cropped wide-leg trousers, pumps such as slingbacks or mules are a directly documented shoe direction that keeps the footwear visible.
@@ -353,32 +323,29 @@ The Gianvito Rossi women's Lola ankle-strap sandals are a suitable choice becaus
 - `K087`: With explicit indigo jeans and a cropped leather jacket, pointed-toe boots are a documented shoe direction.
 - `K090`: With explicit Bermuda shorts and a wrap top, wedge sandals are a documented shoe direction.
 
-- Observed citations: none
+- Observed citations: [K016]
 - Annotator ID: ____________________
 - Completion time (UTC): ____________________
 - Human claims / verification / citation validation: complete in JSONL.
 
-## s5-shoes-2-212529018 — no_rag
+## s5-shoes-2-211868733 — no_rag
 
 - Category: shoes (query: bottoms)
 - Coverage tags: partial_entailment
 - Request: Recommend shoes that complete this outfit.
-- Query item: classic pleat tennis skirt
-- Recommended item: valentino garavani open sneakers
+- Query item: alexander mcqueen wide leg pants
+- Recommended item: adidas originals stan smith suede sneakers
+- Full outfit context: Sweatshirts: christmas graphic embellished sweatshirt | Pants: alexander mcqueen wide leg pants | Sneakers: adidas originals stan smith suede sneakers
 
 ### Explanation
 
-The Valentino Garavani open sneakers provide a sophisticated balance to the athletic aesthetic of the pleated tennis skirt, elevating the look with a refined, high-fashion edge.
+The structured silhouette of the wide-leg pants pairs well with the clean, minimalist profile of the Stan Smith sneakers to balance the proportions of the look.
 
-### Exact trace (five rules)
+### Exact trace (antecedent-matched rules)
 
-- `K056`: For explicit baggy trousers in relaxed tailoring, trainers or loafers are directly documented shoe directions.
-- `K015`: For explicit wide-leg or baggy jeans, trainers with some visual heft are a directly supported way to keep the footwear from disappearing beneath the denim.
-- `K057`: For explicit relaxed khaki wide-leg trousers in a preppy request, loafers are a directly documented shoe pairing.
-- `K017`: For an explicit smart-casual request, loafers, brogues or Derbys are supported shoe categories on the smarter side of the code.
-- `K090`: With explicit Bermuda shorts and a wrap top, wedge sandals are a documented shoe direction.
+- `K016`: For explicit cropped wide-leg trousers, pumps such as slingbacks or mules are a directly documented shoe direction that keeps the footwear visible.
 
-### Relevant full-KB rules
+### Full-KB candidate rules (assess antecedent applicability)
 
 - `K015`: For explicit wide-leg or baggy jeans, trainers with some visual heft are a directly supported way to keep the footwear from disappearing beneath the denim.
 - `K016`: For explicit cropped wide-leg trousers, pumps such as slingbacks or mules are a directly documented shoe direction that keeps the footwear visible.
@@ -395,27 +362,24 @@ The Valentino Garavani open sneakers provide a sophisticated balance to the athl
 - Completion time (UTC): ____________________
 - Human claims / verification / citation validation: complete in JSONL.
 
-## s5-shoes-2-212529018 — rule_rag
+## s5-shoes-2-211868733 — rule_rag
 
 - Category: shoes (query: bottoms)
 - Coverage tags: partial_entailment
 - Request: Recommend shoes that complete this outfit.
-- Query item: classic pleat tennis skirt
-- Recommended item: valentino garavani open sneakers
+- Query item: alexander mcqueen wide leg pants
+- Recommended item: adidas originals stan smith suede sneakers
+- Full outfit context: Sweatshirts: christmas graphic embellished sweatshirt | Pants: alexander mcqueen wide leg pants | Sneakers: adidas originals stan smith suede sneakers
 
 ### Explanation
 
-The valentino garavani open sneakers provide a stylish option for this look, as trainers are a documented shoe direction for relaxed tailoring [K056].
+To complement your wide-leg pants, consider a sleek silhouette like a slingback or mule to ensure the footwear remains visible [K016].
 
-### Exact trace (five rules)
+### Exact trace (antecedent-matched rules)
 
-- `K056`: For explicit baggy trousers in relaxed tailoring, trainers or loafers are directly documented shoe directions.
-- `K015`: For explicit wide-leg or baggy jeans, trainers with some visual heft are a directly supported way to keep the footwear from disappearing beneath the denim.
-- `K057`: For explicit relaxed khaki wide-leg trousers in a preppy request, loafers are a directly documented shoe pairing.
-- `K017`: For an explicit smart-casual request, loafers, brogues or Derbys are supported shoe categories on the smarter side of the code.
-- `K090`: With explicit Bermuda shorts and a wrap top, wedge sandals are a documented shoe direction.
+- `K016`: For explicit cropped wide-leg trousers, pumps such as slingbacks or mules are a directly documented shoe direction that keeps the footwear visible.
 
-### Relevant full-KB rules
+### Full-KB candidate rules (assess antecedent applicability)
 
 - `K015`: For explicit wide-leg or baggy jeans, trainers with some visual heft are a directly supported way to keep the footwear from disappearing beneath the denim.
 - `K016`: For explicit cropped wide-leg trousers, pumps such as slingbacks or mules are a directly documented shoe direction that keeps the footwear visible.
@@ -427,100 +391,29 @@ The valentino garavani open sneakers provide a stylish option for this look, as 
 - `K087`: With explicit indigo jeans and a cropped leather jacket, pointed-toe boots are a documented shoe direction.
 - `K090`: With explicit Bermuda shorts and a wrap top, wedge sandals are a documented shoe direction.
 
-- Observed citations: none
+- Observed citations: [K016]
 - Annotator ID: ____________________
 - Completion time (UTC): ____________________
 - Human claims / verification / citation validation: complete in JSONL.
 
-## s5-outerwear-1-210083041 — no_rag
+## s5-outerwear-1-174265181 — no_rag
 
 - Category: outerwear (query: tops)
 - Coverage tags: contradiction
-- Request: Recommend outerwear that works with this outfit.
-- Query item: brunello cucinelli high neck cropped sweater
-- Recommended item: faux fur
-
-### Explanation
-
-A faux fur coat provides a sophisticated textural contrast to the knit of the high neck cropped sweater, creating a luxurious layered look.
-
-### Exact trace (five rules)
-
-- `K068`: For an explicit T-shirt tucked into pleated trousers in a preppy request, an unstructured tweed or corduroy blazer is a directly supported outerwear direction.
-- `K027`: For explicit black-tie footwear or a tuxedo context, outerwear must preserve formal evening tone; do not recommend clearly casual jackets.
-- `K093`: With an explicit T-shirt and pinstripe mini skirt, a worn leather bomber is a documented outerwear direction.
-- `K025`: For an explicit business-casual button-up, a classic blazer is a directly supported outerwear option for workplace polish.
-- `K069`: For an explicit button-down with extra-wide jeans in a polished request, a leather blazer is a directly documented outerwear direction.
-
-### Relevant full-KB rules
-
-- `K025`: For an explicit business-casual button-up, a classic blazer is a directly supported outerwear option for workplace polish.
-- `K026`: For an explicit casual tee, a relaxed jacket such as a denim jacket or bomber is category-appropriate when the request remains casual.
-- `K027`: For explicit black-tie footwear or a tuxedo context, outerwear must preserve formal evening tone; do not recommend clearly casual jackets.
-- `K068`: For an explicit T-shirt tucked into pleated trousers in a preppy request, an unstructured tweed or corduroy blazer is a directly supported outerwear direction.
-- `K069`: For an explicit button-down with extra-wide jeans in a polished request, a leather blazer is a directly documented outerwear direction.
-- `K093`: With an explicit T-shirt and pinstripe mini skirt, a worn leather bomber is a documented outerwear direction.
-
-- Observed citations: none
-- Annotator ID: ____________________
-- Completion time (UTC): ____________________
-- Human claims / verification / citation validation: complete in JSONL.
-
-## s5-outerwear-1-210083041 — rule_rag
-
-- Category: outerwear (query: tops)
-- Coverage tags: contradiction
-- Request: Recommend outerwear that works with this outfit.
-- Query item: brunello cucinelli high neck cropped sweater
-- Recommended item: faux fur
-
-### Explanation
-
-A faux fur coat provides a sophisticated layer that complements the texture of the high neck cropped sweater. [K027]
-
-### Exact trace (five rules)
-
-- `K068`: For an explicit T-shirt tucked into pleated trousers in a preppy request, an unstructured tweed or corduroy blazer is a directly supported outerwear direction.
-- `K027`: For explicit black-tie footwear or a tuxedo context, outerwear must preserve formal evening tone; do not recommend clearly casual jackets.
-- `K093`: With an explicit T-shirt and pinstripe mini skirt, a worn leather bomber is a documented outerwear direction.
-- `K025`: For an explicit business-casual button-up, a classic blazer is a directly supported outerwear option for workplace polish.
-- `K069`: For an explicit button-down with extra-wide jeans in a polished request, a leather blazer is a directly documented outerwear direction.
-
-### Relevant full-KB rules
-
-- `K025`: For an explicit business-casual button-up, a classic blazer is a directly supported outerwear option for workplace polish.
-- `K026`: For an explicit casual tee, a relaxed jacket such as a denim jacket or bomber is category-appropriate when the request remains casual.
-- `K027`: For explicit black-tie footwear or a tuxedo context, outerwear must preserve formal evening tone; do not recommend clearly casual jackets.
-- `K068`: For an explicit T-shirt tucked into pleated trousers in a preppy request, an unstructured tweed or corduroy blazer is a directly supported outerwear direction.
-- `K069`: For an explicit button-down with extra-wide jeans in a polished request, a leather blazer is a directly documented outerwear direction.
-- `K093`: With an explicit T-shirt and pinstripe mini skirt, a worn leather bomber is a documented outerwear direction.
-
-- Observed citations: none
-- Annotator ID: ____________________
-- Completion time (UTC): ____________________
-- Human claims / verification / citation validation: complete in JSONL.
-
-## s5-outerwear-2-174265181 — no_rag
-
-- Category: outerwear (query: tops)
-- Coverage tags: negation
 - Request: Recommend outerwear that works with this outfit.
 - Query item: contrast collar striped loose t-shirt
 - Recommended item: acne petite jacket
+- Full outfit context: T-Shirts: contrast collar striped loose t-shirt | Jackets: acne petite jacket | Shoes: viva leather
 
 ### Explanation
 
 The structured silhouette of the acne petite jacket provides a tailored contrast to the relaxed fit of the loose t-shirt, creating a balanced proportion between the two pieces.
 
-### Exact trace (five rules)
+### Exact trace (antecedent-matched rules)
 
-- `K027`: For explicit black-tie footwear or a tuxedo context, outerwear must preserve formal evening tone; do not recommend clearly casual jackets.
-- `K025`: For an explicit business-casual button-up, a classic blazer is a directly supported outerwear option for workplace polish.
-- `K093`: With an explicit T-shirt and pinstripe mini skirt, a worn leather bomber is a documented outerwear direction.
 - `K026`: For an explicit casual tee, a relaxed jacket such as a denim jacket or bomber is category-appropriate when the request remains casual.
-- `K068`: For an explicit T-shirt tucked into pleated trousers in a preppy request, an unstructured tweed or corduroy blazer is a directly supported outerwear direction.
 
-### Relevant full-KB rules
+### Full-KB candidate rules (assess antecedent applicability)
 
 - `K025`: For an explicit business-casual button-up, a classic blazer is a directly supported outerwear option for workplace polish.
 - `K026`: For an explicit casual tee, a relaxed jacket such as a denim jacket or bomber is category-appropriate when the request remains casual.
@@ -534,27 +427,24 @@ The structured silhouette of the acne petite jacket provides a tailored contrast
 - Completion time (UTC): ____________________
 - Human claims / verification / citation validation: complete in JSONL.
 
-## s5-outerwear-2-174265181 — rule_rag
+## s5-outerwear-1-174265181 — rule_rag
 
 - Category: outerwear (query: tops)
-- Coverage tags: negation
+- Coverage tags: contradiction
 - Request: Recommend outerwear that works with this outfit.
 - Query item: contrast collar striped loose t-shirt
 - Recommended item: acne petite jacket
+- Full outfit context: T-Shirts: contrast collar striped loose t-shirt | Jackets: acne petite jacket | Shoes: viva leather
 
 ### Explanation
 
-The acne petite jacket is a suitable choice because a relaxed jacket is category-appropriate for a casual t-shirt [R026].
+A relaxed jacket is a category-appropriate choice to pair with a casual t-shirt [K026].
 
-### Exact trace (five rules)
+### Exact trace (antecedent-matched rules)
 
-- `K027`: For explicit black-tie footwear or a tuxedo context, outerwear must preserve formal evening tone; do not recommend clearly casual jackets.
-- `K025`: For an explicit business-casual button-up, a classic blazer is a directly supported outerwear option for workplace polish.
-- `K093`: With an explicit T-shirt and pinstripe mini skirt, a worn leather bomber is a documented outerwear direction.
 - `K026`: For an explicit casual tee, a relaxed jacket such as a denim jacket or bomber is category-appropriate when the request remains casual.
-- `K068`: For an explicit T-shirt tucked into pleated trousers in a preppy request, an unstructured tweed or corduroy blazer is a directly supported outerwear direction.
 
-### Relevant full-KB rules
+### Full-KB candidate rules (assess antecedent applicability)
 
 - `K025`: For an explicit business-casual button-up, a classic blazer is a directly supported outerwear option for workplace polish.
 - `K026`: For an explicit casual tee, a relaxed jacket such as a denim jacket or bomber is category-appropriate when the request remains casual.
@@ -563,7 +453,69 @@ The acne petite jacket is a suitable choice because a relaxed jacket is category
 - `K069`: For an explicit button-down with extra-wide jeans in a polished request, a leather blazer is a directly documented outerwear direction.
 - `K093`: With an explicit T-shirt and pinstripe mini skirt, a worn leather bomber is a documented outerwear direction.
 
-- Observed citations: [R026]
+- Observed citations: [K026]
+- Annotator ID: ____________________
+- Completion time (UTC): ____________________
+- Human claims / verification / citation validation: complete in JSONL.
+
+## s5-outerwear-2-197446409 — no_rag
+
+- Category: outerwear (query: tops)
+- Coverage tags: negation
+- Request: Recommend outerwear that works with this outfit.
+- Query item: luxury t-shirt
+- Recommended item: acne studios cropped denim jacket
+- Full outfit context: T-Shirts: luxury t-shirt | Jackets: acne studios cropped denim jacket | Skinny Jeans: pierre balmain skinny jeans | Sandals: chiara ferragni patent espadrille black/white trim women's shoes | Handbags: nine west patches please satchel
+
+### Explanation
+
+The structured silhouette of the cropped denim jacket provides a tailored contrast to the relaxed fit of a luxury t-shirt, creating a balanced proportion.
+
+### Exact trace (antecedent-matched rules)
+
+- `K026`: For an explicit casual tee, a relaxed jacket such as a denim jacket or bomber is category-appropriate when the request remains casual.
+
+### Full-KB candidate rules (assess antecedent applicability)
+
+- `K025`: For an explicit business-casual button-up, a classic blazer is a directly supported outerwear option for workplace polish.
+- `K026`: For an explicit casual tee, a relaxed jacket such as a denim jacket or bomber is category-appropriate when the request remains casual.
+- `K027`: For explicit black-tie footwear or a tuxedo context, outerwear must preserve formal evening tone; do not recommend clearly casual jackets.
+- `K068`: For an explicit T-shirt tucked into pleated trousers in a preppy request, an unstructured tweed or corduroy blazer is a directly supported outerwear direction.
+- `K069`: For an explicit button-down with extra-wide jeans in a polished request, a leather blazer is a directly documented outerwear direction.
+- `K093`: With an explicit T-shirt and pinstripe mini skirt, a worn leather bomber is a documented outerwear direction.
+
+- Observed citations: none
+- Annotator ID: ____________________
+- Completion time (UTC): ____________________
+- Human claims / verification / citation validation: complete in JSONL.
+
+## s5-outerwear-2-197446409 — rule_rag
+
+- Category: outerwear (query: tops)
+- Coverage tags: negation
+- Request: Recommend outerwear that works with this outfit.
+- Query item: luxury t-shirt
+- Recommended item: acne studios cropped denim jacket
+- Full outfit context: T-Shirts: luxury t-shirt | Jackets: acne studios cropped denim jacket | Skinny Jeans: pierre balmain skinny jeans | Sandals: chiara ferragni patent espadrille black/white trim women's shoes | Handbags: nine west patches please satchel
+
+### Explanation
+
+A denim jacket is a suitable choice for a casual t-shirt as it provides a relaxed style that maintains a casual aesthetic. [K026]
+
+### Exact trace (antecedent-matched rules)
+
+- `K026`: For an explicit casual tee, a relaxed jacket such as a denim jacket or bomber is category-appropriate when the request remains casual.
+
+### Full-KB candidate rules (assess antecedent applicability)
+
+- `K025`: For an explicit business-casual button-up, a classic blazer is a directly supported outerwear option for workplace polish.
+- `K026`: For an explicit casual tee, a relaxed jacket such as a denim jacket or bomber is category-appropriate when the request remains casual.
+- `K027`: For explicit black-tie footwear or a tuxedo context, outerwear must preserve formal evening tone; do not recommend clearly casual jackets.
+- `K068`: For an explicit T-shirt tucked into pleated trousers in a preppy request, an unstructured tweed or corduroy blazer is a directly supported outerwear direction.
+- `K069`: For an explicit button-down with extra-wide jeans in a polished request, a leather blazer is a directly documented outerwear direction.
+- `K093`: With an explicit T-shirt and pinstripe mini skirt, a worn leather bomber is a documented outerwear direction.
+
+- Observed citations: [K026]
 - Annotator ID: ____________________
 - Completion time (UTC): ____________________
 - Human claims / verification / citation validation: complete in JSONL.
@@ -575,20 +527,21 @@ The acne petite jacket is a suitable choice because a relaxed jacket is category
 - Request: Recommend a bag that completes this outfit.
 - Query item: vertical striped embroidered collar button shirt
 - Recommended item: karl lagerfeld cat crossbody mini shoulder bag
+- Full outfit context: Tops: vertical striped embroidered collar button shirt | Jackets: blue flower embroidery button denim jacket | Knee Length Skirts: black button pu skirt pockets | Shoulder Bags: karl lagerfeld cat crossbody mini shoulder bag | Over-The-Knee Boots: loeffler randall over-the-knee boots goop
 
 ### Explanation
 
 The structured silhouette of the crossbody mini bag provides a balanced contrast to the detailed texture of the embroidered collar, creating a cohesive look.
 
-### Exact trace (five rules)
+### Exact trace (antecedent-matched rules)
 
-- `K072`: For an explicit polished outfit of grey suit trousers, a soft knit and pointed boots, a structured City-style bag is a documented finishing direction.
-- `K074`: When flat shoes slippers loafers or oxfords are explicit, a shoulder bag or basket bag is a documented finishing direction.
-- `K033`: When a sweater knit or jumper dress is explicit with boots, a shoulder bag or top-handle bag is a documented pairing.
 - `K037`: When a top shirt tee tank or blouse is explicit with polished footwear or a skirt or trouser context, a shoulder or tote bag is a documented finishing direction.
 - `K098`: With an explicit top plus a skirt, denim or trouser context, a shoulder or tote bag is a documented bag direction.
+- `K075`: When a top tee tank blouse or shirt is explicit, a shoulder or tote bag is a documented finishing direction.
+- `K030`: When jeans or denim are explicit, a leather shoulder bag or woven bag is a documented pairing.
+- `K031`: When a skirt is explicit, a shoulder bag is a documented accompaniment to a skirt-led outfit.
 
-### Relevant full-KB rules
+### Full-KB candidate rules (assess antecedent applicability)
 
 - `K029`: When boots are explicit in the outfit, a shoulder or handbag is a documented finishing direction.
 - `K030`: When jeans or denim are explicit, a leather shoulder bag or woven bag is a documented pairing.
@@ -616,20 +569,21 @@ The structured silhouette of the crossbody mini bag provides a balanced contrast
 - Request: Recommend a bag that completes this outfit.
 - Query item: vertical striped embroidered collar button shirt
 - Recommended item: karl lagerfeld cat crossbody mini shoulder bag
+- Full outfit context: Tops: vertical striped embroidered collar button shirt | Jackets: blue flower embroidery button denim jacket | Knee Length Skirts: black button pu skirt pockets | Shoulder Bags: karl lagerfeld cat crossbody mini shoulder bag | Over-The-Knee Boots: loeffler randall over-the-knee boots goop
 
 ### Explanation
 
-A shoulder bag is a documented finishing direction for a shirt paired with a polished trouser or skirt context [K037] [K098].
+A shoulder bag is a documented finishing direction for an outfit featuring a shirt [K075].
 
-### Exact trace (five rules)
+### Exact trace (antecedent-matched rules)
 
-- `K072`: For an explicit polished outfit of grey suit trousers, a soft knit and pointed boots, a structured City-style bag is a documented finishing direction.
-- `K074`: When flat shoes slippers loafers or oxfords are explicit, a shoulder bag or basket bag is a documented finishing direction.
-- `K033`: When a sweater knit or jumper dress is explicit with boots, a shoulder bag or top-handle bag is a documented pairing.
 - `K037`: When a top shirt tee tank or blouse is explicit with polished footwear or a skirt or trouser context, a shoulder or tote bag is a documented finishing direction.
 - `K098`: With an explicit top plus a skirt, denim or trouser context, a shoulder or tote bag is a documented bag direction.
+- `K075`: When a top tee tank blouse or shirt is explicit, a shoulder or tote bag is a documented finishing direction.
+- `K030`: When jeans or denim are explicit, a leather shoulder bag or woven bag is a documented pairing.
+- `K031`: When a skirt is explicit, a shoulder bag is a documented accompaniment to a skirt-led outfit.
 
-### Relevant full-KB rules
+### Full-KB candidate rules (assess antecedent applicability)
 
 - `K029`: When boots are explicit in the outfit, a shoulder or handbag is a documented finishing direction.
 - `K030`: When jeans or denim are explicit, a leather shoulder bag or woven bag is a documented pairing.
@@ -645,7 +599,7 @@ A shoulder bag is a documented finishing direction for a shirt paired with a pol
 - `K075`: When a top tee tank blouse or shirt is explicit, a shoulder or tote bag is a documented finishing direction.
 - `K098`: With an explicit top plus a skirt, denim or trouser context, a shoulder or tote bag is a documented bag direction.
 
-- Observed citations: none
+- Observed citations: [K075]
 - Annotator ID: ____________________
 - Completion time (UTC): ____________________
 - Human claims / verification / citation validation: complete in JSONL.
@@ -657,20 +611,20 @@ A shoulder bag is a documented finishing direction for a shirt paired with a pol
 - Request: Recommend a bag that completes this outfit.
 - Query item: dorothy perkins tall green sleeveless shirt
 - Recommended item: saint laurent sac du jour small neon leather tote
+- Full outfit context: Tops: dorothy perkins tall green sleeveless shirt | Jeans: palm printed soft cotton jeans | Flats: valentino rockstud patent-leather ballerinas | Tote Bags: saint laurent sac du jour small neon leather tote
 
 ### Explanation
 
 The structured silhouette of the leather tote provides a sophisticated contrast to the soft texture of the sleeveless shirt, creating a balanced and polished aesthetic.
 
-### Exact trace (five rules)
+### Exact trace (antecedent-matched rules)
 
-- `K071`: When ankle booties or booties are explicit, a shoulder bag or tote is a documented finishing direction.
-- `K031`: When a skirt is explicit, a shoulder bag is a documented accompaniment to a skirt-led outfit.
-- `K070`: When trousers pants or shorts are explicit, a shoulder bag tote or clutch is a documented finishing direction.
 - `K098`: With an explicit top plus a skirt, denim or trouser context, a shoulder or tote bag is a documented bag direction.
-- `K072`: For an explicit polished outfit of grey suit trousers, a soft knit and pointed boots, a structured City-style bag is a documented finishing direction.
+- `K075`: When a top tee tank blouse or shirt is explicit, a shoulder or tote bag is a documented finishing direction.
+- `K074`: When flat shoes slippers loafers or oxfords are explicit, a shoulder bag or basket bag is a documented finishing direction.
+- `K030`: When jeans or denim are explicit, a leather shoulder bag or woven bag is a documented pairing.
 
-### Relevant full-KB rules
+### Full-KB candidate rules (assess antecedent applicability)
 
 - `K029`: When boots are explicit in the outfit, a shoulder or handbag is a documented finishing direction.
 - `K030`: When jeans or denim are explicit, a leather shoulder bag or woven bag is a documented pairing.
@@ -698,20 +652,20 @@ The structured silhouette of the leather tote provides a sophisticated contrast 
 - Request: Recommend a bag that completes this outfit.
 - Query item: dorothy perkins tall green sleeveless shirt
 - Recommended item: saint laurent sac du jour small neon leather tote
+- Full outfit context: Tops: dorothy perkins tall green sleeveless shirt | Jeans: palm printed soft cotton jeans | Flats: valentino rockstud patent-leather ballerinas | Tote Bags: saint laurent sac du jour small neon leather tote
 
 ### Explanation
 
-A tote bag is a documented finishing direction for an outfit featuring a top [K098].
+A tote bag is a documented finishing direction for an outfit featuring a shirt [K075].
 
-### Exact trace (five rules)
+### Exact trace (antecedent-matched rules)
 
-- `K071`: When ankle booties or booties are explicit, a shoulder bag or tote is a documented finishing direction.
-- `K031`: When a skirt is explicit, a shoulder bag is a documented accompaniment to a skirt-led outfit.
-- `K070`: When trousers pants or shorts are explicit, a shoulder bag tote or clutch is a documented finishing direction.
 - `K098`: With an explicit top plus a skirt, denim or trouser context, a shoulder or tote bag is a documented bag direction.
-- `K072`: For an explicit polished outfit of grey suit trousers, a soft knit and pointed boots, a structured City-style bag is a documented finishing direction.
+- `K075`: When a top tee tank blouse or shirt is explicit, a shoulder or tote bag is a documented finishing direction.
+- `K074`: When flat shoes slippers loafers or oxfords are explicit, a shoulder bag or basket bag is a documented finishing direction.
+- `K030`: When jeans or denim are explicit, a leather shoulder bag or woven bag is a documented pairing.
 
-### Relevant full-KB rules
+### Full-KB candidate rules (assess antecedent applicability)
 
 - `K029`: When boots are explicit in the outfit, a shoulder or handbag is a documented finishing direction.
 - `K030`: When jeans or denim are explicit, a leather shoulder bag or woven bag is a documented pairing.
@@ -727,7 +681,7 @@ A tote bag is a documented finishing direction for an outfit featuring a top [K0
 - `K075`: When a top tee tank blouse or shirt is explicit, a shoulder or tote bag is a documented finishing direction.
 - `K098`: With an explicit top plus a skirt, denim or trouser context, a shoulder or tote bag is a documented bag direction.
 
-- Observed citations: none
+- Observed citations: [K075]
 - Annotator ID: ____________________
 - Completion time (UTC): ____________________
 - Human claims / verification / citation validation: complete in JSONL.

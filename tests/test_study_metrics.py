@@ -50,7 +50,7 @@ def test_A_attribute_support_cannot_leak_between_query_and_recommended_items() -
 def test_generic_rule_does_not_establish_instance_level_attribute() -> None:
     rules = [
         {
-            "rule_id": "R101",
+            "rule_id": "K101",
             "rule_text": "Recommend bottoms whose colour is compatible with the existing outfit.",
         }
     ]
@@ -70,20 +70,20 @@ def test_dta_and_citation_validity_require_exact_B_attribution_and_observed_id()
     claim = {
         "support_status": "supported",
         "support_sources": ["rule_evidence"],
-        "supporting_rule_ids": ["R101"],
+        "supporting_rule_ids": ["K101"],
         "citation_entails_claim": True,
     }
     assert dta_entailed(claim)
-    assert valid_rule_citation(claim, ["R101"])
-    assert not valid_rule_citation(claim, ["R099"])
+    assert valid_rule_citation(claim, ["K101"])
+    assert not valid_rule_citation(claim, ["K099"])
 
 
 def test_blinded_rendering_removes_rule_ids_and_citation_markers() -> None:
     rendered = strip_condition_revealing_citations(
-        "Based on Rule R101, these work [R101, R099]. Rule R099 also applies."
+        "Based on Rule K101, these work [K101, K099]. Rule K099 also applies."
     )
-    assert "R101" not in rendered
-    assert "R099" not in rendered
+    assert "K101" not in rendered
+    assert "K099" not in rendered
     assert "[" not in rendered
     assert "rule" not in rendered.casefold()
     assert "evidence" not in rendered.casefold()

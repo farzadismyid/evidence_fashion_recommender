@@ -1,15 +1,18 @@
 {
   "bound_artifact_hashes": {
-    ".runtime\\current\\calibration\\stage5-bf191c21e197\\phi_verification_sealed.jsonl": "1d102cae3d09c5045c63a4d6c6196951f6fe42a33f79eea04995bb7b0e0b6134",
-    ".runtime\\current\\calibration\\stage5-bf191c21e197\\qwen_claim_extraction_sealed.jsonl": "27f07347286c7dd8aa5b3d5f896b388076934ca01e727c0fc73e13caf4bc6dde",
+    ".runtime\\current\\calibration\\stage5-bf5d28643331\\phi_verification_sealed.jsonl": "57d6a48a598b25cc7b4982de866ba1389e1e56afa4d647d54ab44c4b0fe5d881",
+    ".runtime\\current\\calibration\\stage5-bf5d28643331\\qwen_claim_extraction_sealed.jsonl": "89b9ae626b2fe1de8c24679d2a91305fbc5ce4b8090eb20993546581db5b0550",
     ".runtime\\data\\data-6c7ecd2fda7f\\prepared_items.parquet": "c7adf4a9e9ff01f1dc8e37f2bed8de107ca2649c6cc3e199661d9b658f30f2a0",
+    "artifacts\\manifests\\stage3_prompt_freeze_manifest.json": "c8f0679e1fcabc48ca84edd099aa0806b56504b5a49e1b3ef87c1a3c79565a7a",
+    "artifacts\\manifests\\stage4_sequential_batch_manifest.json": "cc470216e0c282a0842923fd93127937a78134f27beb5c054b5afd738246dc85",
     "configs\\calibration.yaml": "53149a0601adeb4979c7abdb012b7b260eabf2d6537a16cc43bd63c4fb0a7985",
     "configs\\experiment.yaml": "6e4b498d12db7baa1fa915dcb995d57047635428306c25a99adf9b91df484f72",
     "configs\\models.yaml": "f82191ffd9009812b06ef1a3504ebb1d8dd391d9baca5ae3487fa449ece361e5",
-    "configs\\prompts.yaml": "210cd17c31e22f00ff5b49ac9992d0bea0fbe3e7311fc8c122ce3ea91883a24a",
-    "data\\calibration\\stage5_annotation_view.md": "9e95d2ce0263a916899d2c8906710f122b708f6b43ddf19e06dd01700e95b358",
-    "data\\calibration\\stage5_annotations.jsonl": "df72c4ef6004c916f939a37f62c9e60e240ac7225ce49d4f8720a6631d6b2ee6",
-    "data\\kb\\fashion_rules.csv": "ec4b56c78c674116c558a4aeab98c1fe74b9e7dbba392d8cba0b62799c5398d1"
+    "configs\\prompts.yaml": "dd1f0a4378579b2939f57f8814fac7f4cef5d7ca1ac31a16c681a7b114a663b3",
+    "data\\calibration\\stage5_annotation_view.md": "1b7d055ab55d48a9e137f0506da130004aa1147851234b78cbc5f5b614d73850",
+    "data\\calibration\\stage5_annotations.jsonl": "c9fe18aa9124a17706025aa51f2fa9d70be62c74382b45db9b3f3ff47f08b0e9",
+    "data\\kb\\fashion_rules.csv": "ec4b56c78c674116c558a4aeab98c1fe74b9e7dbba392d8cba0b62799c5398d1",
+    "scripts\\prepare_stage5_human_calibration.py": "57230407e5666c58e2b815beab918708524ab6a23dcbc6d28b2c2618cb1495c8"
   },
   "human_packet": {
     "annotation_view": "data\\calibration\\stage5_annotation_view.md",
@@ -17,11 +20,11 @@
     "contains_model_predictions": false
   },
   "next_gate": "Await human annotations; do not calculate agreement or freeze Stage 5.",
-  "run_id": "bf191c21e197",
+  "run_id": "bf5d28643331",
   "schema_version": 1,
   "sealed_internal_outputs": {
-    "phi_verification": ".runtime\\current\\calibration\\stage5-bf191c21e197\\phi_verification_sealed.jsonl",
-    "qwen_claim_extraction": ".runtime\\current\\calibration\\stage5-bf191c21e197\\qwen_claim_extraction_sealed.jsonl"
+    "phi_verification": ".runtime\\current\\calibration\\stage5-bf5d28643331\\phi_verification_sealed.jsonl",
+    "qwen_claim_extraction": ".runtime\\current\\calibration\\stage5-bf5d28643331\\qwen_claim_extraction_sealed.jsonl"
   },
   "selection": {
     "counts_by_category": {
@@ -43,7 +46,11 @@
       "styling_inference",
       "unsupported_plausible_statement"
     ],
-    "exact_trace_rule_count": 5,
+    "exact_trace_rule_counts": [
+      1,
+      4,
+      5
+    ],
     "final_explanation_split": "test",
     "paired_cases": 10,
     "records": 20,
@@ -51,5 +58,5 @@
   },
   "stage": 5,
   "status": "prepared_pending_human_annotation",
-  "timestamp_utc": "2026-08-20T16:27:00Z"
+  "timestamp_utc": "2026-08-20T20:41:16Z"
 }

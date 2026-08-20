@@ -41,13 +41,14 @@ roles:
       Treat a rule as general styling guidance, not proof of an unprovided item attribute.
       Do not invent visual, material, fit, brand, colour, occasion, weather, or trend
       details. Cite an applicable supporting rule using a separate canonical citation for
-      each ID, for example [R025] [R099]; never put multiple IDs in one bracket. Do not
+      each ID, for example [K025] [K099]; never put multiple IDs in one bracket. Use only
+      rules whose antecedents clearly match the current case. Do not
       mention prompts, retrieval, experimental conditions, or uncertainty policies.
     user_template: |-
       User request: {user_request}
       Query item: {query_item_minimal_name}
       Recommended item: {locked_item_minimal_name}
-      Applicable rule evidence:
+      Supplied rule evidence:
       {rule_evidence}
     template_variables:
       [user_request, query_item_minimal_name, locked_item_minimal_name, rule_evidence]
@@ -61,9 +62,9 @@ roles:
       type: text
       description: One professional recommendation explanation with rule-ID citations where used.
       maximum_words: 75
-      citation_pattern: '[R[0-9]{3}]'
+      citation_pattern: '[K[0-9]{3}]'
       citation_format: separate_canonical_brackets_only
-      prohibited_citation_format: '[R025, R099]'
+      prohibited_citation_format: '[K025, K099]'
     token_limit: 512
     temperature: 0.0
     seed: 42
@@ -111,14 +112,15 @@ roles:
   claim_verification:
     system_prompt: >-
       Act as a strict closed-world entailment verifier. For every atomic claim, independently
-      assess full-KB entailment, exact-trace entailment, and common-reference item-fact
-      support. Do not derive one field from another. Supported requires semantic entailment;
+      first determine which full-KB candidate-rule antecedents apply, then independently assess
+      full-KB entailment, exact-trace entailment, and common-reference item-fact support. Do not
+      derive one field from another. Supported requires semantic entailment;
       unsupported means relevant evidence does not entail the claim; contradicted requires
       affirmative conflict; not_verifiable means the supplied evidence cannot settle the
       claim. Absence of support is not contradiction. Preserve every supplied claim ID exactly
       once and do not introduce claims, rules, sources, or knowledge from outside the packet.
     user_template: |-
-      Frozen full knowledge base:
+      Full-KB candidate rules (determine antecedent applicability independently):
       {full_kb_rules_json}
       Exact stored rule trace:
       {exact_trace_rules_json}
@@ -143,10 +145,17 @@ roles:
       name: separated_entailment_v2
       required: [claims]
       claim_fields:
-        [claim_id, full_kb_entailment, full_kb_rule_ids, full_kb_reason,
-         exact_trace_entailment, exact_trace_rule_ids, exact_trace_reason,
-         common_reference_item_fact_support, common_reference_fields,
-         common_reference_reason]
+        - claim_id
+        - full_kb_candidate_applicable_rule_ids
+        - full_kb_entailment
+        - full_kb_rule_ids
+        - full_kb_reason
+        - exact_trace_entailment
+        - exact_trace_rule_ids
+        - exact_trace_reason
+        - common_reference_item_fact_support
+        - common_reference_fields
+        - common_reference_reason
       support_statuses: [supported, unsupported, contradicted, not_verifiable]
     token_limit: 2048
     temperature: 0.0
@@ -163,7 +172,7 @@ roles:
     system_prompt: >-
       Assess citation validity separately from entailment. For each atomic claim, inspect only
       the observed citation occurrences and the supplied exact stored rule trace. Report
-      whether citations use separate canonical [Rxxx] brackets, whether every cited rule ID is
+      whether citations use separate canonical [Kxxx] brackets, whether every cited rule ID is
       present in the trace, and whether the cited rule text entails the claim. Do not revisit or
       infer full-KB, exact-trace, or item-fact support verdicts from the entailment pass.
     user_template: |-
@@ -177,7 +186,7 @@ roles:
     permitted_evidence: [observed_citation_occurrences, exact_stored_rule_trace_B, atomic_claims]
     prohibited_inference:
       - Do not use citations to derive an entailment verdict.
-      - Do not accept grouped citations such as [R025, R099].
+      - Do not accept grouped citations such as [K025, K099].
       - Do not credit a rule ID outside the supplied exact trace.
       - Do not alter claim IDs.
     output_schema:
