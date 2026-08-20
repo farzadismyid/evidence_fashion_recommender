@@ -1,0 +1,36 @@
+{
+  "calibration_case_id": "validation-case-id",
+  "source_split": "validation",
+  "target_category": "bags",
+  "condition": "no_rag",
+  "coverage_tags": ["bag_example", "explicit_attribute"],
+  "annotator_id": "human-annotator-id",
+  "completed_at_utc": "YYYY-MM-DDTHH:MM:SSZ",
+  "common_reference_item_facts": {
+    "user_request": "...",
+    "query_item_minimal_name": "...",
+    "locked_item_minimal_name": "..."
+  },
+  "full_kb_rule_ids": ["R001"],
+  "exact_trace_rule_ids": ["R001"],
+  "explanation": "...",
+  "human_claims": [
+    {"claim_id": "C1", "claim_text": "...", "claim_type": "other"}
+  ],
+  "human_verification": [
+    {
+      "claim_id": "C1",
+      "full_kb_entailment": "not_verifiable",
+      "exact_trace_entailment": "not_verifiable",
+      "common_reference_item_fact_support": "not_verifiable"
+    }
+  ],
+  "human_citation_validation": [
+    {
+      "claim_id": "C1",
+      "citation_present": false,
+      "canonical_citation_format": true,
+      "citation_entails_claim": null
+    }
+  ]
+}

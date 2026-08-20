@@ -125,6 +125,7 @@ class OllamaClient:
         model: str,
         prompt: str,
         *,
+        system_prompt: str | None = None,
         json_format: Mapping[str, Any] | str | None = None,
         token_limit: int | None = None,
         timeout_seconds: float | None = None,
@@ -144,6 +145,8 @@ class OllamaClient:
                 "num_predict": token_limit or self.defaults["token_limit"],
             },
         }
+        if system_prompt is not None:
+            payload["system"] = system_prompt
         if json_format is not None:
             payload["format"] = json_format
         request = urllib.request.Request(
@@ -196,21 +199,27 @@ class OllamaClient:
         schema: Mapping[str, Any],
         *,
         retries: int,
+        system_prompt: str | None = None,
+        repair_instruction: str | None = None,
     ) -> tuple[dict[str, Any], GenerationResult, int]:
         last_error: Exception | None = None
         for attempt in range(retries + 1):
             suffix = (
                 ""
                 if attempt == 0
-                else "\nReturn only valid JSON matching the schema. Extract each independent "
-                "claim exactly once; never repeat, duplicate, or paraphrase a claim already "
-                "listed."
+                else "\n" + (
+                    repair_instruction
+                    or "Return only valid JSON matching the schema. Extract each independent "
+                    "claim exactly once; never repeat, duplicate, or paraphrase a claim already "
+                    "listed."
+                )
             )
             retry_token_limit = self.defaults["structured_token_limit"] * (2**attempt)
             try:
                 result = self.generate(
                     model,
                     prompt + suffix,
+                    system_prompt=system_prompt,
                     json_format=schema,
                     token_limit=retry_token_limit,
                     timeout_seconds=self.defaults["timeout_seconds"] * (2**attempt),

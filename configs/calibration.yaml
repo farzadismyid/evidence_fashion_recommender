@@ -1,0 +1,42 @@
+schema_version: 1
+
+# Stage 5 is deliberately isolated from the final test set.  A human annotator must
+# complete and approve the records before Qwen/Phi calibration can be frozen.
+calibration:
+  annotation_path: data/calibration/stage5_annotations.jsonl
+  model_output_path: .runtime/current/calibration/model_outputs.jsonl
+  source_split: validation
+  final_explanation_split: test
+  minimum_paired_cases: 10
+  target_categories: [tops, bottoms, shoes, outerwear, bags]
+  conditions: [no_rag, rule_rag]
+  required_coverage_tags:
+    - compound_claim
+    - explicit_attribute
+    - styling_inference
+    - functional_inference
+    - unsupported_plausible_statement
+    - partial_entailment
+    - contradiction
+    - negation
+    - invalid_citation
+    - bag_example
+  required_human_fields:
+    - annotator_id
+    - completed_at_utc
+    - human_claims
+    - human_verification
+    - human_citation_validation
+  pass_criteria:
+    extractor_claim_recall_minimum: 0.90
+    extractor_claim_precision_minimum: 0.90
+    extractor_duplicate_rate_maximum: 0.00
+    extractor_claim_id_preservation_rate_minimum: 1.00
+    verifier_full_kb_accuracy_minimum: 0.85
+    verifier_exact_trace_accuracy_minimum: 0.85
+    verifier_common_reference_accuracy_minimum: 0.85
+    citation_validity_accuracy_minimum: 0.90
+    structured_output_success_rate_minimum: 0.98
+  decision_rule: >-
+    Freeze only when every coverage and pass criterion succeeds. A failed result may inform
+    approved prompt revision, after which all dependent calibration outputs must be rerun.
