@@ -14,6 +14,7 @@ import yaml
 from evidence_fashion.explanation import (
     OllamaClient,
     build_no_rag_prompt,
+    generate_explanation_with_contract_retries,
     text_sha256,
     word_count,
 )
@@ -82,9 +83,7 @@ def main() -> None:
     if final.exists() and not args.resume:
         raise FileExistsError(f"Immutable length-control pilot exists: {final}")
     existing_history = read_jsonl(progress) if progress.exists() else []
-    existing_by_key = {
-        (row["case_id"], row["generator"]): row for row in existing_history
-    }
+    existing_by_key = {(row["case_id"], row["generator"]): row for row in existing_history}
     existing = list(existing_by_key.values())
     completed = {(row["case_id"], row["generator"]) for row in existing}
     client = OllamaClient(models["generation_defaults"])
@@ -99,7 +98,15 @@ def main() -> None:
             "locked_candidate_minimal_name": old["A"]["locked_item_minimal_name"],
         }
         prompt = build_no_rag_prompt(case, limit)
-        result = client.generate(old["generator"], prompt)
+        result, contract_retries, contract_errors = generate_explanation_with_contract_retries(
+            client,
+            model=old["generator"],
+            prompt=prompt,
+            locked_item_name=case["locked_candidate_minimal_name"],
+            target_category=str(old["target_category"]),
+        )
+        if result is None:
+            raise RuntimeError(f"Terminal locked-recommendation failure: {contract_errors}")
         record = {
             "case_id": old["case_id"],
             "generator": old["generator"],
@@ -111,6 +118,7 @@ def main() -> None:
             "word_count": word_count(result.text),
             "word_limit_violation": word_count(result.text) > limit,
             "latency_seconds": result.latency_seconds,
+            "contract_retry_count": contract_retries,
             "comparison_rule_rag_word_count": old["rule_rag"]["metrics"]["word_count"],
             "comparison_rule_rag_output_sha256": text_sha256(old["rule_rag"]["output"]),
         }
@@ -124,9 +132,7 @@ def main() -> None:
     if not final.exists():
         with final.open("x", encoding="utf-8", newline="\n") as handle:
             for record in output:
-                handle.write(
-                    json.dumps(record, sort_keys=True, ensure_ascii=False) + "\n"
-                )
+                handle.write(json.dumps(record, sort_keys=True, ensure_ascii=False) + "\n")
 
     frame = pd.DataFrame(output)
     rows = []

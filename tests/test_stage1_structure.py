@@ -10,7 +10,7 @@ ROOT = Path(__file__).parents[1]
 def test_canonical_five_category_kb_has_expected_hash_and_rows() -> None:
     path = ROOT / "data" / "kb" / "fashion_rules.csv"
     assert hashlib.sha256(path.read_bytes()).hexdigest() == (
-        "ec4b56c78c674116c558a4aeab98c1fe74b9e7dbba392d8cba0b62799c5398d1"
+        "2ecfd20f43649bb0933f8678edf08b14659d9f6bd5d58413179139fc3442cfc5"
     )
     with path.open(encoding="utf-8", newline="") as handle:
         rows = list(csv.DictReader(handle))

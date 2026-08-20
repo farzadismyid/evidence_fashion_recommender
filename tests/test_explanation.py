@@ -30,6 +30,8 @@ def _case() -> dict:
                     "weighted_contribution": 0.8,
                     "rank": 1,
                     "filtering_decision": "retained_after_category_filter_and_top_k",
+                    "antecedent_established": True,
+                    "antecedent_checks": {"query_terms": True, "candidate_terms": True},
                 }
             ],
         },

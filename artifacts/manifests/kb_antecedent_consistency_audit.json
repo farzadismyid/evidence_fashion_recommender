@@ -1,0 +1,643 @@
+{
+  "status": "passed",
+  "scope": "existing_100_rules_only",
+  "rule_count": 100,
+  "changed_rule_ids": [
+    "K003",
+    "K007",
+    "K010",
+    "K011",
+    "K012",
+    "K016",
+    "K020",
+    "K026",
+    "K032",
+    "K033",
+    "K034",
+    "K039",
+    "K043",
+    "K044",
+    "K048",
+    "K050",
+    "K056",
+    "K057",
+    "K058",
+    "K059",
+    "K062",
+    "K063",
+    "K064",
+    "K065",
+    "K067",
+    "K068",
+    "K069",
+    "K072",
+    "K077",
+    "K082",
+    "K084",
+    "K087"
+  ],
+  "changed_rule_count": 32,
+  "records": [
+    {
+      "rule_id": "K001",
+      "review_status": "reviewed_no_gap",
+      "prose_conditions_previously_unenforceable": [],
+      "structured_field_corrected": []
+    },
+    {
+      "rule_id": "K002",
+      "review_status": "reviewed_no_gap",
+      "prose_conditions_previously_unenforceable": [],
+      "structured_field_corrected": []
+    },
+    {
+      "rule_id": "K003",
+      "review_status": "corrected_confirmed_gap",
+      "prose_conditions_previously_unenforceable": "refined",
+      "structured_field_corrected": "query_terms"
+    },
+    {
+      "rule_id": "K004",
+      "review_status": "reviewed_no_gap",
+      "prose_conditions_previously_unenforceable": [],
+      "structured_field_corrected": []
+    },
+    {
+      "rule_id": "K005",
+      "review_status": "reviewed_no_gap",
+      "prose_conditions_previously_unenforceable": [],
+      "structured_field_corrected": []
+    },
+    {
+      "rule_id": "K006",
+      "review_status": "reviewed_no_gap",
+      "prose_conditions_previously_unenforceable": [],
+      "structured_field_corrected": []
+    },
+    {
+      "rule_id": "K007",
+      "review_status": "corrected_confirmed_gap",
+      "prose_conditions_previously_unenforceable": "focal item",
+      "structured_field_corrected": "query_terms"
+    },
+    {
+      "rule_id": "K008",
+      "review_status": "reviewed_no_gap",
+      "prose_conditions_previously_unenforceable": [],
+      "structured_field_corrected": []
+    },
+    {
+      "rule_id": "K009",
+      "review_status": "reviewed_no_gap",
+      "prose_conditions_previously_unenforceable": [],
+      "structured_field_corrected": []
+    },
+    {
+      "rule_id": "K010",
+      "review_status": "corrected_confirmed_gap",
+      "prose_conditions_previously_unenforceable": "classic",
+      "structured_field_corrected": "query_terms"
+    },
+    {
+      "rule_id": "K011",
+      "review_status": "corrected_confirmed_gap",
+      "prose_conditions_previously_unenforceable": "chunky or refined",
+      "structured_field_corrected": "query_terms"
+    },
+    {
+      "rule_id": "K012",
+      "review_status": "corrected_confirmed_gap",
+      "prose_conditions_previously_unenforceable": "refined",
+      "structured_field_corrected": "query_terms"
+    },
+    {
+      "rule_id": "K013",
+      "review_status": "reviewed_no_gap",
+      "prose_conditions_previously_unenforceable": [],
+      "structured_field_corrected": []
+    },
+    {
+      "rule_id": "K014",
+      "review_status": "reviewed_no_gap",
+      "prose_conditions_previously_unenforceable": [],
+      "structured_field_corrected": []
+    },
+    {
+      "rule_id": "K015",
+      "review_status": "reviewed_no_gap",
+      "prose_conditions_previously_unenforceable": [],
+      "structured_field_corrected": []
+    },
+    {
+      "rule_id": "K016",
+      "review_status": "corrected_confirmed_gap",
+      "prose_conditions_previously_unenforceable": "cropped",
+      "structured_field_corrected": "query_terms"
+    },
+    {
+      "rule_id": "K017",
+      "review_status": "reviewed_no_gap",
+      "prose_conditions_previously_unenforceable": [],
+      "structured_field_corrected": []
+    },
+    {
+      "rule_id": "K018",
+      "review_status": "reviewed_no_gap",
+      "prose_conditions_previously_unenforceable": [],
+      "structured_field_corrected": []
+    },
+    {
+      "rule_id": "K019",
+      "review_status": "reviewed_no_gap",
+      "prose_conditions_previously_unenforceable": [],
+      "structured_field_corrected": []
+    },
+    {
+      "rule_id": "K020",
+      "review_status": "corrected_confirmed_gap",
+      "prose_conditions_previously_unenforceable": "polished",
+      "structured_field_corrected": "query_terms"
+    },
+    {
+      "rule_id": "K021",
+      "review_status": "reviewed_no_gap",
+      "prose_conditions_previously_unenforceable": [],
+      "structured_field_corrected": []
+    },
+    {
+      "rule_id": "K022",
+      "review_status": "reviewed_no_gap",
+      "prose_conditions_previously_unenforceable": [],
+      "structured_field_corrected": []
+    },
+    {
+      "rule_id": "K023",
+      "review_status": "reviewed_no_gap",
+      "prose_conditions_previously_unenforceable": [],
+      "structured_field_corrected": []
+    },
+    {
+      "rule_id": "K024",
+      "review_status": "reviewed_no_gap",
+      "prose_conditions_previously_unenforceable": [],
+      "structured_field_corrected": []
+    },
+    {
+      "rule_id": "K025",
+      "review_status": "reviewed_no_gap",
+      "prose_conditions_previously_unenforceable": [],
+      "structured_field_corrected": []
+    },
+    {
+      "rule_id": "K026",
+      "review_status": "corrected_confirmed_gap",
+      "prose_conditions_previously_unenforceable": "request remains casual",
+      "structured_field_corrected": "query_terms"
+    },
+    {
+      "rule_id": "K027",
+      "review_status": "reviewed_no_gap",
+      "prose_conditions_previously_unenforceable": [],
+      "structured_field_corrected": []
+    },
+    {
+      "rule_id": "K028",
+      "review_status": "reviewed_no_gap",
+      "prose_conditions_previously_unenforceable": [],
+      "structured_field_corrected": []
+    },
+    {
+      "rule_id": "K029",
+      "review_status": "reviewed_no_gap",
+      "prose_conditions_previously_unenforceable": [],
+      "structured_field_corrected": []
+    },
+    {
+      "rule_id": "K030",
+      "review_status": "reviewed_no_gap",
+      "prose_conditions_previously_unenforceable": [],
+      "structured_field_corrected": []
+    },
+    {
+      "rule_id": "K031",
+      "review_status": "reviewed_no_gap",
+      "prose_conditions_previously_unenforceable": [],
+      "structured_field_corrected": []
+    },
+    {
+      "rule_id": "K032",
+      "review_status": "corrected_confirmed_gap",
+      "prose_conditions_previously_unenforceable": "boots",
+      "structured_field_corrected": "query_terms"
+    },
+    {
+      "rule_id": "K033",
+      "review_status": "corrected_confirmed_gap",
+      "prose_conditions_previously_unenforceable": "boots",
+      "structured_field_corrected": "query_terms"
+    },
+    {
+      "rule_id": "K034",
+      "review_status": "corrected_confirmed_gap",
+      "prose_conditions_previously_unenforceable": "straight-leg (must not be optional beside generic jeans)",
+      "structured_field_corrected": "query_terms"
+    },
+    {
+      "rule_id": "K035",
+      "review_status": "reviewed_no_gap",
+      "prose_conditions_previously_unenforceable": [],
+      "structured_field_corrected": []
+    },
+    {
+      "rule_id": "K036",
+      "review_status": "reviewed_no_gap",
+      "prose_conditions_previously_unenforceable": [],
+      "structured_field_corrected": []
+    },
+    {
+      "rule_id": "K037",
+      "review_status": "reviewed_no_gap",
+      "prose_conditions_previously_unenforceable": [],
+      "structured_field_corrected": []
+    },
+    {
+      "rule_id": "K038",
+      "review_status": "reviewed_no_gap",
+      "prose_conditions_previously_unenforceable": [],
+      "structured_field_corrected": []
+    },
+    {
+      "rule_id": "K039",
+      "review_status": "corrected_confirmed_gap",
+      "prose_conditions_previously_unenforceable": "understated",
+      "structured_field_corrected": "query_terms"
+    },
+    {
+      "rule_id": "K040",
+      "review_status": "reviewed_no_gap",
+      "prose_conditions_previously_unenforceable": [],
+      "structured_field_corrected": []
+    },
+    {
+      "rule_id": "K041",
+      "review_status": "reviewed_no_gap",
+      "prose_conditions_previously_unenforceable": [],
+      "structured_field_corrected": []
+    },
+    {
+      "rule_id": "K042",
+      "review_status": "reviewed_no_gap",
+      "prose_conditions_previously_unenforceable": [],
+      "structured_field_corrected": []
+    },
+    {
+      "rule_id": "K043",
+      "review_status": "corrected_confirmed_gap",
+      "prose_conditions_previously_unenforceable": "voluminous leather bomber",
+      "structured_field_corrected": "query_terms"
+    },
+    {
+      "rule_id": "K044",
+      "review_status": "corrected_confirmed_gap",
+      "prose_conditions_previously_unenforceable": "pointy cowboy boots",
+      "structured_field_corrected": "query_terms"
+    },
+    {
+      "rule_id": "K045",
+      "review_status": "reviewed_no_gap",
+      "prose_conditions_previously_unenforceable": [],
+      "structured_field_corrected": []
+    },
+    {
+      "rule_id": "K046",
+      "review_status": "reviewed_no_gap",
+      "prose_conditions_previously_unenforceable": [],
+      "structured_field_corrected": []
+    },
+    {
+      "rule_id": "K047",
+      "review_status": "reviewed_no_gap",
+      "prose_conditions_previously_unenforceable": [],
+      "structured_field_corrected": []
+    },
+    {
+      "rule_id": "K048",
+      "review_status": "corrected_confirmed_gap",
+      "prose_conditions_previously_unenforceable": "neutral",
+      "structured_field_corrected": "query_terms"
+    },
+    {
+      "rule_id": "K049",
+      "review_status": "reviewed_no_gap",
+      "prose_conditions_previously_unenforceable": [],
+      "structured_field_corrected": []
+    },
+    {
+      "rule_id": "K050",
+      "review_status": "corrected_confirmed_gap",
+      "prose_conditions_previously_unenforceable": "spring",
+      "structured_field_corrected": "query_terms"
+    },
+    {
+      "rule_id": "K051",
+      "review_status": "reviewed_no_gap",
+      "prose_conditions_previously_unenforceable": [],
+      "structured_field_corrected": []
+    },
+    {
+      "rule_id": "K052",
+      "review_status": "reviewed_no_gap",
+      "prose_conditions_previously_unenforceable": [],
+      "structured_field_corrected": []
+    },
+    {
+      "rule_id": "K053",
+      "review_status": "reviewed_no_gap",
+      "prose_conditions_previously_unenforceable": [],
+      "structured_field_corrected": []
+    },
+    {
+      "rule_id": "K054",
+      "review_status": "reviewed_no_gap",
+      "prose_conditions_previously_unenforceable": [],
+      "structured_field_corrected": []
+    },
+    {
+      "rule_id": "K055",
+      "review_status": "reviewed_no_gap",
+      "prose_conditions_previously_unenforceable": [],
+      "structured_field_corrected": []
+    },
+    {
+      "rule_id": "K056",
+      "review_status": "corrected_confirmed_gap",
+      "prose_conditions_previously_unenforceable": "relaxed tailoring",
+      "structured_field_corrected": "query_terms"
+    },
+    {
+      "rule_id": "K057",
+      "review_status": "corrected_confirmed_gap",
+      "prose_conditions_previously_unenforceable": "relaxed; preppy",
+      "structured_field_corrected": "query_terms"
+    },
+    {
+      "rule_id": "K058",
+      "review_status": "corrected_confirmed_gap",
+      "prose_conditions_previously_unenforceable": "simple; polished",
+      "structured_field_corrected": "query_terms"
+    },
+    {
+      "rule_id": "K059",
+      "review_status": "corrected_confirmed_gap",
+      "prose_conditions_previously_unenforceable": "monochrome",
+      "structured_field_corrected": "query_terms"
+    },
+    {
+      "rule_id": "K060",
+      "review_status": "reviewed_no_gap",
+      "prose_conditions_previously_unenforceable": [],
+      "structured_field_corrected": []
+    },
+    {
+      "rule_id": "K061",
+      "review_status": "reviewed_no_gap",
+      "prose_conditions_previously_unenforceable": [],
+      "structured_field_corrected": []
+    },
+    {
+      "rule_id": "K062",
+      "review_status": "corrected_confirmed_gap",
+      "prose_conditions_previously_unenforceable": "tailored",
+      "structured_field_corrected": "query_terms"
+    },
+    {
+      "rule_id": "K063",
+      "review_status": "corrected_confirmed_gap",
+      "prose_conditions_previously_unenforceable": "polished denim",
+      "structured_field_corrected": "query_terms"
+    },
+    {
+      "rule_id": "K064",
+      "review_status": "corrected_confirmed_gap",
+      "prose_conditions_previously_unenforceable": "straight",
+      "structured_field_corrected": "query_terms"
+    },
+    {
+      "rule_id": "K065",
+      "review_status": "corrected_confirmed_gap",
+      "prose_conditions_previously_unenforceable": "pointy cowboy boots",
+      "structured_field_corrected": "query_terms"
+    },
+    {
+      "rule_id": "K066",
+      "review_status": "reviewed_no_gap",
+      "prose_conditions_previously_unenforceable": [],
+      "structured_field_corrected": []
+    },
+    {
+      "rule_id": "K067",
+      "review_status": "corrected_confirmed_gap",
+      "prose_conditions_previously_unenforceable": "relaxed; preppy; daytime",
+      "structured_field_corrected": "query_terms"
+    },
+    {
+      "rule_id": "K068",
+      "review_status": "corrected_confirmed_gap",
+      "prose_conditions_previously_unenforceable": "tucked",
+      "structured_field_corrected": "query_terms"
+    },
+    {
+      "rule_id": "K069",
+      "review_status": "corrected_confirmed_gap",
+      "prose_conditions_previously_unenforceable": "polished",
+      "structured_field_corrected": "query_terms"
+    },
+    {
+      "rule_id": "K070",
+      "review_status": "reviewed_no_gap",
+      "prose_conditions_previously_unenforceable": [],
+      "structured_field_corrected": []
+    },
+    {
+      "rule_id": "K071",
+      "review_status": "reviewed_no_gap",
+      "prose_conditions_previously_unenforceable": [],
+      "structured_field_corrected": []
+    },
+    {
+      "rule_id": "K072",
+      "review_status": "corrected_confirmed_gap",
+      "prose_conditions_previously_unenforceable": "polished",
+      "structured_field_corrected": "query_terms"
+    },
+    {
+      "rule_id": "K073",
+      "review_status": "reviewed_no_gap",
+      "prose_conditions_previously_unenforceable": [],
+      "structured_field_corrected": []
+    },
+    {
+      "rule_id": "K074",
+      "review_status": "reviewed_no_gap",
+      "prose_conditions_previously_unenforceable": [],
+      "structured_field_corrected": []
+    },
+    {
+      "rule_id": "K075",
+      "review_status": "reviewed_no_gap",
+      "prose_conditions_previously_unenforceable": [],
+      "structured_field_corrected": []
+    },
+    {
+      "rule_id": "K076",
+      "review_status": "reviewed_no_gap",
+      "prose_conditions_previously_unenforceable": [],
+      "structured_field_corrected": []
+    },
+    {
+      "rule_id": "K077",
+      "review_status": "corrected_confirmed_gap",
+      "prose_conditions_previously_unenforceable": "crisp",
+      "structured_field_corrected": "query_terms"
+    },
+    {
+      "rule_id": "K078",
+      "review_status": "reviewed_no_gap",
+      "prose_conditions_previously_unenforceable": [],
+      "structured_field_corrected": []
+    },
+    {
+      "rule_id": "K079",
+      "review_status": "reviewed_no_gap",
+      "prose_conditions_previously_unenforceable": [],
+      "structured_field_corrected": []
+    },
+    {
+      "rule_id": "K080",
+      "review_status": "reviewed_no_gap",
+      "prose_conditions_previously_unenforceable": [],
+      "structured_field_corrected": []
+    },
+    {
+      "rule_id": "K081",
+      "review_status": "reviewed_no_gap",
+      "prose_conditions_previously_unenforceable": [],
+      "structured_field_corrected": []
+    },
+    {
+      "rule_id": "K082",
+      "review_status": "corrected_confirmed_gap",
+      "prose_conditions_previously_unenforceable": "red wedges",
+      "structured_field_corrected": "query_terms"
+    },
+    {
+      "rule_id": "K083",
+      "review_status": "reviewed_no_gap",
+      "prose_conditions_previously_unenforceable": [],
+      "structured_field_corrected": []
+    },
+    {
+      "rule_id": "K084",
+      "review_status": "corrected_confirmed_gap",
+      "prose_conditions_previously_unenforceable": "worn leather bomber",
+      "structured_field_corrected": "query_terms"
+    },
+    {
+      "rule_id": "K085",
+      "review_status": "reviewed_no_gap",
+      "prose_conditions_previously_unenforceable": [],
+      "structured_field_corrected": []
+    },
+    {
+      "rule_id": "K086",
+      "review_status": "reviewed_no_gap",
+      "prose_conditions_previously_unenforceable": [],
+      "structured_field_corrected": []
+    },
+    {
+      "rule_id": "K087",
+      "review_status": "corrected_confirmed_gap",
+      "prose_conditions_previously_unenforceable": "cropped",
+      "structured_field_corrected": "query_terms"
+    },
+    {
+      "rule_id": "K088",
+      "review_status": "reviewed_no_gap",
+      "prose_conditions_previously_unenforceable": [],
+      "structured_field_corrected": []
+    },
+    {
+      "rule_id": "K089",
+      "review_status": "reviewed_no_gap",
+      "prose_conditions_previously_unenforceable": [],
+      "structured_field_corrected": []
+    },
+    {
+      "rule_id": "K090",
+      "review_status": "reviewed_no_gap",
+      "prose_conditions_previously_unenforceable": [],
+      "structured_field_corrected": []
+    },
+    {
+      "rule_id": "K091",
+      "review_status": "reviewed_no_gap",
+      "prose_conditions_previously_unenforceable": [],
+      "structured_field_corrected": []
+    },
+    {
+      "rule_id": "K092",
+      "review_status": "reviewed_no_gap",
+      "prose_conditions_previously_unenforceable": [],
+      "structured_field_corrected": []
+    },
+    {
+      "rule_id": "K093",
+      "review_status": "reviewed_no_gap",
+      "prose_conditions_previously_unenforceable": [],
+      "structured_field_corrected": []
+    },
+    {
+      "rule_id": "K094",
+      "review_status": "reviewed_no_gap",
+      "prose_conditions_previously_unenforceable": [],
+      "structured_field_corrected": []
+    },
+    {
+      "rule_id": "K095",
+      "review_status": "reviewed_no_gap",
+      "prose_conditions_previously_unenforceable": [],
+      "structured_field_corrected": []
+    },
+    {
+      "rule_id": "K096",
+      "review_status": "reviewed_no_gap",
+      "prose_conditions_previously_unenforceable": [],
+      "structured_field_corrected": []
+    },
+    {
+      "rule_id": "K097",
+      "review_status": "reviewed_no_gap",
+      "prose_conditions_previously_unenforceable": [],
+      "structured_field_corrected": []
+    },
+    {
+      "rule_id": "K098",
+      "review_status": "reviewed_no_gap",
+      "prose_conditions_previously_unenforceable": [],
+      "structured_field_corrected": []
+    },
+    {
+      "rule_id": "K099",
+      "review_status": "reviewed_no_gap",
+      "prose_conditions_previously_unenforceable": [],
+      "structured_field_corrected": []
+    },
+    {
+      "rule_id": "K100",
+      "review_status": "reviewed_no_gap",
+      "prose_conditions_previously_unenforceable": [],
+      "structured_field_corrected": []
+    }
+  ],
+  "kb_sha256": "2ecfd20f43649bb0933f8678edf08b14659d9f6bd5d58413179139fc3442cfc5"
+}

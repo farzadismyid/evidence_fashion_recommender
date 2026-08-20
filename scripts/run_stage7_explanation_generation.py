@@ -25,6 +25,10 @@ from evidence_fashion.explanation import (
     text_sha256,
     word_count,
 )
+from evidence_fashion.grounding_contracts import (
+    require_trace_applicability,
+    validate_generated_explanation,
+)
 from evidence_fashion.manifest import (
     configuration_hash,
     environment_summary,
@@ -99,9 +103,7 @@ def _locked_input(manifest: Mapping[str, Any]) -> tuple[Path, str]:
     return path, str(expected)
 
 
-def _manifest_output(
-    manifest: Mapping[str, Any], suffix: str
-) -> tuple[Path, str]:
+def _manifest_output(manifest: Mapping[str, Any], suffix: str) -> tuple[Path, str]:
     matches = [
         (Path(path), str(digest))
         for path, digest in manifest["output_artifact_hashes"].items()
@@ -167,6 +169,7 @@ def build_case_packets(
     packets = []
     for case in selected:
         trace = case["evidence_trace"]
+        require_trace_applicability(trace)
         if len(trace["rules"]) != int(settings["rule_count"]):
             raise ValueError("Every Stage 7 B packet must contain exactly five scoring rules.")
         if trace["candidate_id"] != case["locked_candidate_id"]:
@@ -212,9 +215,7 @@ def validate_generator_digests(models: Mapping[str, Any], endpoint: str) -> None
 def refusal_markers(text: str, config: Mapping[str, Any]) -> list[str]:
     lowered = text.lower()
     return [
-        marker
-        for marker in config["stage7"]["refusal_detection"]["markers"]
-        if marker in lowered
+        marker for marker in config["stage7"]["refusal_detection"]["markers"] if marker in lowered
     ]
 
 
@@ -227,17 +228,25 @@ def generate_with_retries(
     retries: int,
     timeout_seconds: float,
     timeout_multiplier: float,
+    validator: Any | None = None,
 ) -> tuple[Any | None, int, list[dict[str, str]]]:
     errors: list[dict[str, str]] = []
     for attempt in range(retries + 1):
         try:
             result = client.generate(
                 model,
-                prompt,
+                prompt
+                + (
+                    "\n\nYour prior response violated the locked-recommendation contract. "
+                    "Name the exact recommended item verbatim; do not substitute an alternative. "
+                    "Use only separate [K###] citations from the supplied trace."
+                    if attempt
+                    else ""
+                ),
                 token_limit=token_limit,
                 timeout_seconds=timeout_seconds * (timeout_multiplier**attempt),
             )
-            if result.text.strip():
+            if result.text.strip() and (validator is None or validator(result.text) is None):
                 return result, attempt, errors
             raise ValueError("empty_or_whitespace_generation")
         except Exception as error:  # the immutable retry log preserves the exact failure class
@@ -309,9 +318,7 @@ def validate_generation_integrity(
         if packet["B_exact_stored_trace"] != case["evidence_trace"]:
             trace_mismatches += 1
         if row["condition"] == "no_rag":
-            expected_prompt = build_no_rag_prompt(
-                case, int(config["stage7"]["no_rag_word_limit"])
-            )
+            expected_prompt = build_no_rag_prompt(case, int(config["stage7"]["no_rag_word_limit"]))
             expected_ids: list[str] = []
             if "Evidence rules:" in row["prompt"]:
                 prompt_mismatches += 1
@@ -334,9 +341,7 @@ def validate_generation_integrity(
         "observed_generations": len(records),
         "unique_generation_keys": len(set(keys)),
         "case_packets": len(packets),
-        "five_rule_packets": sum(
-            len(row["B_exact_stored_trace"]["rules"]) == 5 for row in packets
-        ),
+        "five_rule_packets": sum(len(row["B_exact_stored_trace"]["rules"]) == 5 for row in packets),
         "trace_mismatches": trace_mismatches,
         "prompt_mismatches": prompt_mismatches,
         "condition_label_leaks": condition_label_leaks,
@@ -465,14 +470,11 @@ def main() -> None:
     if settings.get("reuse_rule_rag_source_manifest"):
         reuse_manifest_path = Path(settings["reuse_rule_rag_source_manifest"])
         reuse_manifest = json.loads(reuse_manifest_path.read_text(encoding="utf-8"))
-        reuse_generations_path, _ = _manifest_output(
-            reuse_manifest, "generations.jsonl"
-        )
+        reuse_generations_path, _ = _manifest_output(reuse_manifest, "generations.jsonl")
     if not progress_path.exists() and reuse_manifest is not None:
         selected_ids = set(selected_by_id)
         generator_digests = {
-            row["model_id"]: row["immutable_digest"]
-            for row in models["generators"]["roster"]
+            row["model_id"]: row["immutable_digest"] for row in models["generators"]["roster"]
         }
         reused = []
         for row in read_jsonl(reuse_generations_path):
@@ -480,9 +482,7 @@ def main() -> None:
                 continue
             if row["case_id"] not in selected_ids:
                 raise ValueError("Reused Rule-RAG row is outside the selected case set.")
-            if generator_digests.get(row["generator"]) != row[
-                "generator_immutable_digest"
-            ]:
+            if generator_digests.get(row["generator"]) != row["generator_immutable_digest"]:
                 raise ValueError("Reused Rule-RAG generator digest changed.")
             expected_prompt, expected_ids = build_rule_rag_prompt(
                 selected_by_id[row["case_id"]], prompt_settings
@@ -500,9 +500,7 @@ def main() -> None:
         write_jsonl_new(progress_path, reused)
         print(f"reused {len(reused)} unchanged Rule-RAG generations", flush=True)
     existing = read_jsonl(progress_path) if progress_path.exists() else []
-    completed = {
-        (row["case_id"], row["generator"], row["condition"]) for row in existing
-    }
+    completed = {(row["case_id"], row["generator"], row["condition"]) for row in existing}
     if len(completed) != len(existing):
         raise ValueError("Stage 7 progress contains duplicate generation keys.")
     client = OllamaClient(models["generation_defaults"], endpoint=args.ollama_endpoint)
@@ -515,9 +513,7 @@ def main() -> None:
         generator = generator_settings["model_id"]
         for case in selected:
             no_rag_word_limit = int(settings["no_rag_word_limit"])
-            prompts = {
-                "no_rag": (build_no_rag_prompt(case, no_rag_word_limit), [])
-            }
+            prompts = {"no_rag": (build_no_rag_prompt(case, no_rag_word_limit), [])}
             rule_prompt, rule_ids = build_rule_rag_prompt(case, prompt_settings)
             prompts["rule_rag"] = (rule_prompt, rule_ids)
             for condition in config["explanations"]["conditions"]:
@@ -525,6 +521,23 @@ def main() -> None:
                 if key in completed:
                     continue
                 prompt, prompt_rule_ids = prompts[condition]
+
+                def contract_validator(
+                    text: str,
+                    *,
+                    locked_name: str = str(case["locked_candidate_minimal_name"]),
+                    target: str = str(case["target_category"]),
+                    trace_ids: Sequence[str] = tuple(rule_ids),
+                    required: bool = condition == "rule_rag",
+                ) -> None:
+                    validate_generated_explanation(
+                        text,
+                        locked_item_name=locked_name,
+                        target_category=target,
+                        trace_rule_ids=trace_ids,
+                        citations_required=required,
+                    )
+
                 result, retry_count, errors = generate_with_retries(
                     client,
                     model=generator,
@@ -533,6 +546,7 @@ def main() -> None:
                     retries=retries,
                     timeout_seconds=float(models["generation_defaults"]["timeout_seconds"]),
                     timeout_multiplier=timeout_multiplier,
+                    validator=contract_validator,
                 )
                 for attempt_index, error in enumerate(errors, start=1):
                     append_jsonl(
@@ -547,6 +561,16 @@ def main() -> None:
                     )
                 if result is None:
                     new_failures += 1
+                    append_jsonl(
+                        retry_log_path,
+                        {
+                            "case_id": case["case_id"],
+                            "generator": generator,
+                            "condition": condition,
+                            "status": "terminal_contract_failure",
+                            "errors": errors,
+                        },
+                    )
                     print(f"exhausted {key}", flush=True)
                     continue
                 markers = refusal_markers(result.text, config)
@@ -683,20 +707,15 @@ def main() -> None:
             "claim_verification": "not_started_stage8",
             "general_judging": "not_started_stage8",
         },
-        "inference_server_version": models["generation_defaults"][
-            "inference_server_version"
-        ],
+        "inference_server_version": models["generation_defaults"]["inference_server_version"],
         "device": models["generation_defaults"]["device"],
         "environment": environment_summary(),
         "command": (
-            "python scripts/run_stage7_explanation_generation.py "
-            "--config configs/experiment.yaml"
+            "python scripts/run_stage7_explanation_generation.py --config configs/experiment.yaml"
         ),
     }
     write_new_json(runtime_manifest_path, manifest)
-    tracked_manifest = Path(
-        "artifacts/manifests/stage7_explanation_generation_manifest.json"
-    )
+    tracked_manifest = Path("artifacts/manifests/stage7_explanation_generation_manifest.json")
     write_json(tracked_manifest, manifest)
     write_json(Path("artifacts/manifests/explanation_generation_manifest.json"), manifest)
     print(

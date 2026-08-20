@@ -1,0 +1,31 @@
+{
+  "audit_type": "shared_pipeline_structural_contracts",
+  "bound_artifact_hashes": {
+    ".runtime\\current\\audits\\shared-invariants-787964dbdc66\\validation_structural_sample.jsonl": "98228409e8513b4ab38c13c53a12cc985795c2c6bc11070c6cd31a1ae9f2ac4d",
+    "configs/experiment.yaml": "6e4b498d12db7baa1fa915dcb995d57047635428306c25a99adf9b91df484f72",
+    "data/kb/fashion_rules.csv": "2ecfd20f43649bb0933f8678edf08b14659d9f6bd5d58413179139fc3442cfc5",
+    "src/evidence_fashion/grounding_contracts.py": "98b9b562f60f0bc5f6bcb4510efa378eb0395dfa3813836047b980dee0480912"
+  },
+  "checks": {
+    "canonical_citation_syntax": 100,
+    "citation_in_trace_validity": 100,
+    "claim_id_integrity": 100,
+    "duplicate_control": 100,
+    "locked_item_preservation": 100,
+    "trace_antecedent_validity": 100
+  },
+  "generation_execution": "structural contract probes only; no production outputs changed",
+  "sample_origin": "validation",
+  "sample_path": ".runtime\\current\\audits\\shared-invariants-787964dbdc66\\validation_structural_sample.jsonl",
+  "sample_size": 100,
+  "sample_size_by_category": {
+    "bags": 26,
+    "bottoms": 30,
+    "outerwear": 9,
+    "shoes": 9,
+    "tops": 26
+  },
+  "schema_version": 1,
+  "status": "passed",
+  "timestamp_utc": "2026-08-20T21:38:21Z"
+}

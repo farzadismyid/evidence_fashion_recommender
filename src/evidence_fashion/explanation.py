@@ -6,9 +6,11 @@ import hashlib
 import json
 import time
 import urllib.request
-from collections.abc import Mapping
+from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
 from typing import Any
+
+from .grounding_contracts import require_trace_applicability, validate_generated_explanation
 
 
 def text_sha256(value: str) -> str:
@@ -24,32 +26,32 @@ def common_context(case: Mapping[str, Any]) -> dict[str, str]:
     }
 
 
-def build_no_rag_prompt(
-    case: Mapping[str, Any], word_limit: int | None = None
-) -> str:
+def build_no_rag_prompt(case: Mapping[str, Any], word_limit: int | None = None) -> str:
     """Render the A-only baseline, optionally under the shared length instruction."""
     context = common_context(case)
-    instruction = "Explain why the recommended item works with the outfit."
+    instruction = (
+        "Explain why the exact recommended item works with the outfit. Repeat the recommended "
+        "item verbatim and do not substitute another recommendation."
+    )
     if word_limit is not None:
         instruction = (
-            f"Write a recommendation explanation in at most {word_limit} words. "
-            f"{instruction}"
+            f"Write a recommendation explanation in at most {word_limit} words. {instruction}"
         )
     return (
         f"{instruction}\n\n"
         f"User request: {context['user_request']}\n"
         f"Query item: {context['query_item_minimal_name']}\n"
-        f"Recommended item: {context['locked_item_minimal_name']}"
+        f"Recommended item: {context['locked_item_minimal_name']}\n"
+        f"Required first-sentence wording: include {context['locked_item_minimal_name']} exactly."
     )
 
 
 def _selected_rules(trace: Mapping[str, Any], settings: Mapping[str, Any]) -> list[dict[str, Any]]:
+    require_trace_applicability(trace)
     rules = [dict(rule) for rule in trace["rules"]]
     expected = int(settings["rule_count"])
     if len(rules) != expected:
-        raise ValueError(
-            "Explanation rule count must equal the complete stored reranking trace."
-        )
+        raise ValueError("Explanation rule count must equal the complete stored reranking trace.")
     if settings["evidence_ordering"] == "weighted_score_descending":
         rules.sort(key=lambda rule: (-float(rule["weighted_contribution"]), rule["rule_id"]))
     return rules
@@ -93,10 +95,12 @@ def build_rule_rag_prompt(
     )
     prompt = (
         f"Write an evidence-grounded recommendation explanation in at most "
-        f"{settings['word_limit']} words. {grounding} {citation_instruction}\n\n"
+        f"{settings['word_limit']} words. {grounding} {citation_instruction} Name the exact "
+        "recommended item verbatim and do not substitute another recommendation.\n\n"
         f"User request: {context['user_request']}\n"
         f"Query item: {context['query_item_minimal_name']}\n"
         f"Recommended item: {context['locked_item_minimal_name']}\n"
+        f"Required first-sentence wording: include {context['locked_item_minimal_name']} exactly.\n"
         f"Evidence rules:\n{evidence}"
     )
     return prompt, [str(rule["rule_id"]) for rule in selected]
@@ -207,7 +211,8 @@ class OllamaClient:
             suffix = (
                 ""
                 if attempt == 0
-                else "\n" + (
+                else "\n"
+                + (
                     repair_instruction
                     or "Return only valid JSON matching the schema. Extract each independent "
                     "claim exactly once; never repeat, duplicate, or paraphrase a claim already "
@@ -232,6 +237,52 @@ class OllamaClient:
             except (json.JSONDecodeError, TypeError) as error:
                 last_error = error
         raise ValueError("Local model did not return valid structured JSON.") from last_error
+
+
+def generate_explanation_with_contract_retries(
+    client: OllamaClient,
+    *,
+    model: str,
+    prompt: str,
+    locked_item_name: str,
+    target_category: str,
+    trace_rule_ids: Sequence[str] = (),
+    citations_required: bool = False,
+    retries: int = 2,
+    system_prompt: str | None = None,
+    token_limit: int | None = None,
+) -> tuple[GenerationResult | None, int, list[str]]:
+    """Generate only a response that preserves the locked item and citation contract."""
+    errors: list[str] = []
+    for attempt in range(retries + 1):
+        repair = (
+            ""
+            if attempt == 0
+            else (
+                "\n\nYour prior response violated the locked-recommendation contract. Name the "
+                "exact recommended item verbatim; do not substitute an alternative. Use only "
+                "separate [K###] citations from supplied rule evidence."
+            )
+        )
+        result = client.generate(
+            model,
+            prompt + repair,
+            system_prompt=system_prompt,
+            token_limit=token_limit,
+        )
+        try:
+            validate_generated_explanation(
+                result.text,
+                locked_item_name=locked_item_name,
+                target_category=target_category,
+                trace_rule_ids=trace_rule_ids,
+                citations_required=citations_required,
+            )
+        except ValueError as error:
+            errors.append(str(error))
+            continue
+        return result, attempt, errors
+    return None, retries, errors
 
 
 ASSESSMENT_SCHEMA: dict[str, Any] = {

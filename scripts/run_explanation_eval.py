@@ -20,6 +20,7 @@ from evidence_fashion.explanation import (
     build_assessment_prompt,
     build_no_rag_prompt,
     build_rule_rag_prompt,
+    generate_explanation_with_contract_retries,
     text_sha256,
     word_count,
 )
@@ -133,9 +134,7 @@ def _condition_metrics(
         "clarity": float(assessment["clarity"]),
         "specificity": float(assessment["specificity"]),
         "word_count": float(word_count(output)),
-        "length_violation_rate": float(
-            word_limit is not None and word_count(output) > word_limit
-        ),
+        "length_violation_rate": float(word_limit is not None and word_count(output) > word_limit),
         "malformed_rate": float(not output.strip()),
         "latency_seconds": latency,
     }
@@ -151,9 +150,7 @@ def _assess_pair(
 ) -> tuple[dict[str, Any], dict[str, Any]]:
     swap = int(hashlib.sha256(str(case["case_id"]).encode()).hexdigest(), 16) % 2 == 1
     first_text, second_text = (rule_rag, no_rag) if swap else (no_rag, rule_rag)
-    first_condition, second_condition = (
-        ("rule_rag", "no_rag") if swap else ("no_rag", "rule_rag")
-    )
+    first_condition, second_condition = ("rule_rag", "no_rag") if swap else ("no_rag", "rule_rag")
     prompt = build_assessment_prompt(
         case, first_text, second_text, first_condition, second_condition
     )
@@ -192,20 +189,38 @@ def _generate_pair(
 ) -> dict[str, Any]:
     no_prompt = build_no_rag_prompt(case)
     if no_rag_cache is None:
-        no_result = client.generate(generator, no_prompt)
+        no_result, _, no_errors = generate_explanation_with_contract_retries(
+            client,
+            model=generator,
+            prompt=no_prompt,
+            locked_item_name=str(case["locked_candidate_minimal_name"]),
+            target_category=str(case["target_category"]),
+            retries=retries,
+        )
+        if no_result is None:
+            raise ValueError(f"Terminal locked-recommendation failure: {no_errors}")
         no_text = no_result.text
         no_metadata = _result_fields(no_result)
     else:
         no_text = str(no_rag_cache["output"])
         no_metadata = dict(no_rag_cache["generation_metadata"])
     rule_prompt, prompt_rule_ids = build_rule_rag_prompt(case, settings)
-    rule_result = client.generate(generator, rule_prompt)
+    rule_result, _, rule_errors = generate_explanation_with_contract_retries(
+        client,
+        model=generator,
+        prompt=rule_prompt,
+        locked_item_name=str(case["locked_candidate_minimal_name"]),
+        target_category=str(case["target_category"]),
+        trace_rule_ids=prompt_rule_ids,
+        citations_required=True,
+        retries=retries,
+    )
+    if rule_result is None:
+        raise ValueError(f"Terminal locked-recommendation failure: {rule_errors}")
     assessment, assessment_metadata = _assess_pair(
         client, judge, case, no_text, rule_result.text, retries
     )
-    valid_rule_ids = {
-        str(rule["rule_id"]) for rule in case["evidence_trace"]["rules"]
-    }
+    valid_rule_ids = {str(rule["rule_id"]) for rule in case["evidence_trace"]["rules"]}
     return {
         "case_id": case["case_id"],
         "target_category": case["target_category"],
@@ -260,9 +275,7 @@ def _append_jsonl(path: Path, record: Mapping[str, Any]) -> None:
         handle.write(json.dumps(dict(record), sort_keys=True) + "\n")
 
 
-def _optimization_summary(
-    records: list[dict[str, Any]], config: Mapping[str, Any]
-) -> pd.DataFrame:
+def _optimization_summary(records: list[dict[str, Any]], config: Mapping[str, Any]) -> pd.DataFrame:
     rows = []
     for record in records:
         metrics = record["rule_rag"]["metrics"]
@@ -275,9 +288,7 @@ def _optimization_summary(
             }
         )
     aggregated = (
-        pd.DataFrame(rows)
-        .groupby(["configuration_id", "rule_count"], as_index=False)
-        .mean()
+        pd.DataFrame(rows).groupby(["configuration_id", "rule_count"], as_index=False).mean()
     )
     aggregated["absolute_word_count_gap"] = (
         aggregated["word_count"] - aggregated["no_rag_word_count"]
@@ -287,9 +298,7 @@ def _optimization_summary(
     aggregated["specificity_normalized"] = aggregated["specificity"] / 5
     aggregated["one_minus_unsupported_rate"] = 1 - aggregated["unsupported_rate"]
     aggregated["one_minus_contradiction_rate"] = 1 - aggregated["contradiction_rate"]
-    aggregated["one_minus_length_violation_rate"] = 1 - aggregated[
-        "length_violation_rate"
-    ]
+    aggregated["one_minus_length_violation_rate"] = 1 - aggregated["length_violation_rate"]
     aggregated["one_minus_malformed_rate"] = 1 - aggregated["malformed_rate"]
     objectives = [
         "support_rate",
@@ -347,17 +356,14 @@ def _manifest_base(
         "input_artifact_hashes": {str(locked_path): locked_hash},
         "models": models,
         "environment": environment_summary(),
-        "inference_server_version": models["generation_defaults"][
-            "inference_server_version"
-        ],
+        "inference_server_version": models["generation_defaults"]["inference_server_version"],
         "device": models["generation_defaults"]["device"],
         "structured_retry_token_limits": [
             models["generation_defaults"]["structured_token_limit"] * (2**attempt)
             for attempt in range(3)
         ],
         "structured_retry_timeout_seconds": [
-            models["generation_defaults"]["timeout_seconds"] * (2**attempt)
-            for attempt in range(3)
+            models["generation_defaults"]["timeout_seconds"] * (2**attempt) for attempt in range(3)
         ],
     }
 
@@ -387,10 +393,7 @@ def run_optimization(
         if args.resume and progress.exists()
         else []
     )
-    completed = {
-        (row["case_id"], row["generator"], row["settings"]["id"])
-        for row in existing
-    }
+    completed = {(row["case_id"], row["generator"], row["settings"]["id"]) for row in existing}
     client = OllamaClient(models["generation_defaults"])
     judge = models["judges"]["roster"][0]["model_id"]
     retries = config["structured_outputs"]["retry_attempts"]
@@ -420,11 +423,7 @@ def run_optimization(
                 baseline_cache[(case["case_id"], generator)] = record["no_rag"]
                 _append_jsonl(progress, record)
                 records.append(record)
-                total = (
-                    len(cases)
-                    * len(models["generators"]["roster"])
-                    * len(active_ids)
-                )
+                total = len(cases) * len(models["generators"]["roster"]) * len(active_ids)
                 print(f"optimisation {len(records)}/{total}", flush=True)
     if not final_records.exists():
         write_jsonl(final_records, records)
@@ -480,9 +479,7 @@ def run_optimization(
                 "candidate_configurations": len(active_ids),
                 "paired_assessments": len(records),
             },
-            "failure_counts": {
-                "malformed_outputs": int(summary["malformed_rate"].sum())
-            },
+            "failure_counts": {"malformed_outputs": int(summary["malformed_rate"].sum())},
             "selection": frozen,
             "condition_A_fixed": True,
             "optimised_variables": "rule_rag_only",
@@ -595,9 +592,7 @@ def _length_matched_sensitivity(
         }
     )
     for _, group in frame.groupby("generator", sort=True):
-        chosen = group.sort_values(
-            ["absolute_word_gap", "case_id"], kind="stable"
-        ).head(count)
+        chosen = group.sort_values(["absolute_word_gap", "case_id"], kind="stable").head(count)
         selected.extend(records[int(index)] for index in chosen["index"])
     rows = []
     grouped_records = [
@@ -642,9 +637,7 @@ def _write_stage5_manifests(
     for role, filename in names.items():
         manifest = dict(base)
         manifest["stage_name"] = role
-        manifest["output_artifact_hashes"] = {
-            str(outputs[role]): sha256_file(outputs[role])
-        }
+        manifest["output_artifact_hashes"] = {str(outputs[role]): sha256_file(outputs[role])}
         manifest["row_counts"] = {role: counts[role]}
         manifest["failure_counts"] = {"malformed_outputs": 0}
         write_json(Path("artifacts/manifests") / filename, manifest)
@@ -653,9 +646,7 @@ def _write_stage5_manifests(
 def _register_stage5_tables(config_digest: str) -> None:
     path = Path("artifacts/manifests/figure_table_registry.csv")
     optimisation_config_digest = json.loads(
-        Path("artifacts/manifests/stage5_optimization_manifest.json").read_text(
-            encoding="utf-8"
-        )
+        Path("artifacts/manifests/stage5_optimization_manifest.json").read_text(encoding="utf-8")
     )["configuration_hash"]
     with path.open(encoding="utf-8", newline="") as handle:
         rows = list(csv.DictReader(handle))
@@ -674,15 +665,11 @@ def _register_stage5_tables(config_digest: str) -> None:
             ),
             "configuration_hash": optimisation_config_digest,
             "output_path": "artifacts/tables/table_stage5_primary_validation.csv",
-            "caption": (
-                "Fresh validation-only assessment of researcher-selected rag_c3."
-            ),
+            "caption": ("Fresh validation-only assessment of researcher-selected rag_c3."),
             "intended_thesis_chapter": "Methods and results",
             "intended_paper_section": "Explanation evaluation",
             "status": "final",
-            "notes": (
-                "The completed six-prompt search remains preserved as supporting evidence."
-            ),
+            "notes": ("The completed six-prompt search remains preserved as supporting evidence."),
         },
         {
             "artifact_id": "table_stage5_pilot_summary",
@@ -699,9 +686,7 @@ def _register_stage5_tables(config_digest: str) -> None:
             "intended_thesis_chapter": "Methods and results",
             "intended_paper_section": "Explanation evaluation",
             "status": "final",
-            "notes": (
-                "Fresh exact-trace pilot; descriptive only and approved before Stage 6."
-            ),
+            "notes": ("Fresh exact-trace pilot; descriptive only and approved before Stage 6."),
         },
         {
             "artifact_id": "table_stage5_length_matched_sensitivity",
@@ -721,8 +706,7 @@ def _register_stage5_tables(config_digest: str) -> None:
             "intended_paper_section": "Explanation evaluation",
             "status": "final",
             "notes": (
-                "Separate sensitivity analysis; primary pilot remains the complete "
-                "50-case sample."
+                "Separate sensitivity analysis; primary pilot remains the complete 50-case sample."
             ),
         },
     ]
@@ -759,9 +743,7 @@ def run_pilot(
     if config["explanation_search"].get("require_rule_count_matches_scoring_trace", False):
         trace_counts = {len(case["evidence_trace"]["rules"]) for case in cases}
         if trace_counts != {int(settings["rule_count"])}:
-            raise ValueError(
-                "Pilot B must contain exactly the rules that contributed to scoring."
-            )
+            raise ValueError("Pilot B must contain exactly the rules that contributed to scoring.")
     run_id = f"stage5-pilot-v2-{config_digest[:12]}"
     runtime_root = args.runtime_root or Path(config["paths"]["runtime_root"])
     run_dir = runtime_root / "stage5" / run_id
@@ -782,9 +764,7 @@ def run_pilot(
             generator = generator_settings["model_id"]
             if (case["case_id"], generator) in completed:
                 continue
-            record = _generate_pair(
-                client, generator, judge, case, settings, retries
-            )
+            record = _generate_pair(client, generator, judge, case, settings, retries)
             _append_jsonl(progress, record)
             records.append(record)
             print(f"pilot {len(records)}/{total}", flush=True)
@@ -810,9 +790,7 @@ def run_pilot(
     runtime_table = run_dir / "pilot_summary.csv"
     runtime_length_table = run_dir / "length_matched_sensitivity.csv"
     tracked_table = Path("artifacts/tables/table_stage5_pilot_summary.csv")
-    tracked_length_table = Path(
-        "artifacts/tables/table_stage5_length_matched_sensitivity.csv"
-    )
+    tracked_length_table = Path("artifacts/tables/table_stage5_length_matched_sensitivity.csv")
     summary.to_csv(runtime_table, index=False)
     summary.to_csv(tracked_table, index=False)
     length_sensitivity.to_csv(runtime_length_table, index=False)
@@ -853,11 +831,7 @@ def run_pilot(
                 ],
                 "observed_absolute_mean_gap": abs(
                     float(summary.loc[summary["condition"].eq("no_rag"), "word_count"].iloc[0])
-                    - float(
-                        summary.loc[
-                            summary["condition"].eq("rule_rag"), "word_count"
-                        ].iloc[0]
-                    )
+                    - float(summary.loc[summary["condition"].eq("rule_rag"), "word_count"].iloc[0])
                 ),
                 "separate_length_matched_sensitivity": True,
             },
@@ -869,10 +843,7 @@ def run_pilot(
     write_new_json(runtime_manifest, base)
     write_json(Path("artifacts/manifests/stage5_pilot_manifest.json"), base)
     role_rows = (generations, claims, verifications, judges)
-    role_counts = {
-        key: len(rows)
-        for key, rows in zip(output_records, role_rows, strict=True)
-    }
+    role_counts = {key: len(rows) for key, rows in zip(output_records, role_rows, strict=True)}
     _write_stage5_manifests(
         base,
         output_records,

@@ -5,7 +5,6 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
-import re
 from collections.abc import Mapping, Sequence
 from pathlib import Path
 from typing import Any
@@ -19,13 +18,18 @@ from evidence_fashion.assessment import (
     separated_entailment_schema,
 )
 from evidence_fashion.explanation import OllamaClient, text_sha256
-from evidence_fashion.kb_audit import declared_values, matches_declared_terms
+from evidence_fashion.grounding_contracts import (
+    require_trace_applicability,
+    rule_applicability_gate,
+    validate_generated_explanation,
+)
 from evidence_fashion.manifest import sha256_file, utc_timestamp, write_new_json
 from evidence_fashion.prompt_registry import (
     load_prompt_registry,
     prompt_manifest_fields,
     render_prompt,
 )
+from evidence_fashion.rule_retrieval import full_kb_candidate_retrieval
 
 ROOT = Path(__file__).parents[1]
 STAGE3_MANIFEST = ROOT / "artifacts/manifests/stage3_prompt_freeze_manifest.json"
@@ -50,6 +54,15 @@ COVERAGE_TAGS = (
     "invalid_citation",
     "bag_example",
 )
+SYNTHETIC_CALIBRATION_PERTURBATIONS = {
+    "compound_claim": "The exact item works with this outfit and keeps the overall look balanced.",
+    "styling_inference": "It creates a balanced silhouette with the outfit.",
+    "functional_inference": "It also provides practical everyday storage.",
+    "unsupported_plausible_statement": "Its colours coordinate perfectly with the outfit.",
+    "partial_entailment": "The exact item is a suitable option and is waterproof.",
+    "contradiction": "The exact recommended item is not suitable for this outfit.",
+    "negation": "It is not a casual choice.",
+}
 
 
 def parse_args() -> argparse.Namespace:
@@ -76,12 +89,7 @@ def _write_jsonl_new(path: Path, rows: Sequence[Mapping[str, Any]]) -> None:
 
 
 def _candidate_rules(rules: pd.DataFrame, target: str, query: str) -> list[dict[str, Any]]:
-    filtered = rules[
-        rules["recommended_category"].eq(target)
-        & rules["audit_status"].eq("retain")
-        & rules["applicable_query_categories"].str.split("|").apply(lambda values: query in values)
-    ].copy()
-    return filtered.sort_values("rule_id").to_dict(orient="records")
+    return full_kb_candidate_retrieval(rules, target_category=target, query_group=query)
 
 
 def _antecedent_matched_rules(
@@ -92,19 +100,22 @@ def _antecedent_matched_rules(
     outfit_context_text: str,
     candidate_text: str,
 ) -> list[dict[str, Any]]:
-    observed_context: set[str] = set()
     matched = []
-    permitted_query_text = f"{query} | {query_text} | {outfit_context_text}"
+    case = {
+        "target_category": "",
+        "query_group": query,
+        "query_category": query,
+        "query_text": query_text,
+        "outfit_context_text": outfit_context_text,
+        "user_request": "",
+        "applicability_contexts": [],
+    }
+    candidate = {"category": "", "text": candidate_text}
     for rule in candidates:
-        if query not in declared_values(rule["applicable_query_categories"]):
-            continue
-        if not matches_declared_terms(rule["required_context"], " | ".join(observed_context)):
-            continue
-        if not matches_declared_terms(rule["query_terms"], permitted_query_text):
-            continue
-        if not matches_declared_terms(rule["candidate_terms"], candidate_text):
-            continue
-        matched.append(dict(rule))
+        decision_case = {**case, "target_category": rule["recommended_category"]}
+        decision = rule_applicability_gate(rule, case=decision_case, candidate=candidate)
+        if decision.established:
+            matched.append({**dict(rule), **decision.trace_metadata()})
     return matched
 
 
@@ -158,9 +169,6 @@ def _select_cases(
                     f"{seed}:{calibration_case_id}:{rule['rule_id']}".encode()
                 ).hexdigest(),
             )[:5]
-            tags = [COVERAGE_TAGS[len(selected)]]
-            if target == "bags" and "bag_example" not in tags:
-                tags.append("bag_example")
             selected.append(
                 {
                     "calibration_case_id": calibration_case_id,
@@ -168,7 +176,7 @@ def _select_cases(
                     "source_outfit_id": outfit_id,
                     "target_category": target,
                     "query_category": query,
-                    "coverage_tags": tags,
+                    "coverage_tags": [],
                     "common_reference_item_facts": {
                         "user_request": request_templates[target],
                         "query_item_id": str(query_item["item_id"]),
@@ -184,18 +192,44 @@ def _select_cases(
                         for rule in candidates_for_pair
                     ],
                     "exact_trace_rules": [
-                        {"rule_id": rule["rule_id"], "rule_text": rule["rule_text"]}
+                        {
+                            "rule_id": rule["rule_id"],
+                            "rule_text": rule["rule_text"],
+                            "antecedent_established": rule["antecedent_established"],
+                            "antecedent_checks": rule["antecedent_checks"],
+                        }
                         for rule in trace
                     ],
                 }
             )
-    if len(selected) != 10 or set(tag for row in selected for tag in row["coverage_tags"]) != set(
-        COVERAGE_TAGS
-    ):
+    if len(selected) != 10:
         raise ValueError(
             "Calibration selection does not meet the required 10-case coverage design."
         )
+    for index, row in enumerate(selected):
+        tag = COVERAGE_TAGS[index]
+        row["coverage_tags"] = [tag]
+        if tag in SYNTHETIC_CALIBRATION_PERTURBATIONS or tag == "invalid_citation":
+            row["calibration_example_origin"] = "synthetic_calibration"
+            row["synthetic_calibration"] = {
+                "coverage_tag": tag,
+                "purpose": "Calibration-only annotation coverage; not production generation.",
+            }
+        else:
+            row["calibration_example_origin"] = "validation_observed"
+            row["synthetic_calibration"] = None
     return selected
+
+
+def _apply_synthetic_calibration_perturbation(explanation: str, case: Mapping[str, Any]) -> str:
+    """Create declared calibration-only phenomena after production-contract generation."""
+    if case["calibration_example_origin"] != "synthetic_calibration":
+        return explanation
+    tag = case["coverage_tags"][0]
+    if tag == "invalid_citation":
+        rule_id = case["exact_trace_rules"][0]["rule_id"]
+        return f"{explanation} [{rule_id}, {rule_id}]"
+    return f"{explanation} {SYNTHETIC_CALIBRATION_PERTURBATIONS[tag]}"
 
 
 def _render_explanation(
@@ -204,8 +238,10 @@ def _render_explanation(
     generator: Mapping[str, Any],
     case: Mapping[str, Any],
     condition: str,
+    terminal_failure_path: Path,
 ) -> dict[str, Any]:
     context = case["common_reference_item_facts"]
+    require_trace_applicability({"rules": case["exact_trace_rules"]})
     role = "no_rag_explanation" if condition == "no_rag" else "rule_rag_explanation"
     variables: dict[str, Any] = {
         "user_request": context["user_request"],
@@ -217,28 +253,64 @@ def _render_explanation(
             f"[{rule['rule_id']}] {rule['rule_text']}" for rule in case["exact_trace_rules"]
         )
     rendered = render_prompt(registry, role, variables)
-    result = client.generate(
-        generator["model_id"],
-        rendered["user_prompt"],
-        system_prompt=rendered["system_prompt"],
-        token_limit=int(registry["roles"][role]["token_limit"]),
-    )
-    noncanonical_rule_citations = re.findall(r"\[[A-Za-z]\d{3}[^\]]*\]", result.text)
-    if any(not citation.startswith("[K") for citation in noncanonical_rule_citations):
-        raise ValueError(
-            "Generated explanation contains a non-K canonical rule citation; "
-            "discard this calibration run and regenerate it."
+    errors: list[str] = []
+    result = None
+    for attempt in range(3):
+        repair = (
+            ""
+            if attempt == 0
+            else (
+                "\n\nYour prior response failed the locked-recommendation contract. "
+                "Name the exact recommended item verbatim; do not substitute another item. "
+                "Use only separate [K###] citations from supplied evidence."
+            )
         )
+        candidate = client.generate(
+            generator["model_id"],
+            rendered["user_prompt"] + repair,
+            system_prompt=rendered["system_prompt"],
+            token_limit=int(registry["roles"][role]["token_limit"]),
+        )
+        try:
+            validate_generated_explanation(
+                candidate.text,
+                locked_item_name=context["locked_item_minimal_name"],
+                target_category=case["target_category"],
+                trace_rule_ids=[rule["rule_id"] for rule in case["exact_trace_rules"]],
+                citations_required=condition == "rule_rag",
+            )
+        except ValueError as error:
+            errors.append(str(error))
+            continue
+        result = candidate
+        break
+    if result is None:
+        with terminal_failure_path.open("a", encoding="utf-8", newline="\n") as handle:
+            handle.write(
+                json.dumps(
+                    {
+                        "calibration_case_id": case["calibration_case_id"],
+                        "condition": condition,
+                        "status": "terminal_contract_failure",
+                        "failure_reasons": errors,
+                    },
+                    sort_keys=True,
+                )
+                + "\n"
+            )
+        raise ValueError(f"Terminal locked-recommendation contract failure: {errors}")
+    explanation = _apply_synthetic_calibration_perturbation(result.text, case)
     return {
         "condition": condition,
-        "explanation": result.text,
-        "explanation_sha256": text_sha256(result.text),
+        "explanation": explanation,
+        "explanation_sha256": text_sha256(explanation),
         "generator_model_id": generator["model_id"],
         "generator_immutable_digest": generator["immutable_digest"],
         "generation": {
             "latency_seconds": result.latency_seconds,
             "prompt_eval_count": result.prompt_eval_count,
             "eval_count": result.eval_count,
+            "contract_retry_count": len(errors),
         },
         "prompt_provenance": prompt_manifest_fields(rendered),
     }
@@ -377,6 +449,7 @@ def _write_annotation_view(path: Path, records: Sequence[Mapping[str, Any]]) -> 
                 "",
                 f"- Category: {record['target_category']} (query: {record['query_category']})",
                 f"- Coverage tags: {', '.join(record['coverage_tags'])}",
+                f"- Example origin: {record['calibration_example_origin']}",
                 f"- Request: {record['common_reference_item_facts']['user_request']}",
                 f"- Query item: {record['common_reference_item_facts']['query_item_minimal_name']}",
                 "- Recommended item: "
@@ -442,7 +515,13 @@ def main() -> None:
         experiment["preprocessing"]["category_taxonomy"]["broad_request_templates"],
         seed=42,
     )
-    run_id = hashlib.sha256(_canonical_json(cases).encode()).hexdigest()[:12]
+    run_identity = {
+        "cases": cases,
+        "stage3_prompt_freeze_sha256": sha256_file(STAGE3_MANIFEST),
+        "stage4_batch_policy_sha256": sha256_file(STAGE4_MANIFEST),
+        "preparation_implementation_sha256": sha256_file(Path(__file__)),
+    }
+    run_id = hashlib.sha256(_canonical_json(run_identity).encode()).hexdigest()[:12]
     run_dir = ROOT / ".runtime/current/calibration" / f"stage5-{run_id}"
     if run_dir.exists():
         raise FileExistsError(f"Sealed Stage 5 calibration run already exists: {run_dir}")
@@ -450,9 +529,12 @@ def main() -> None:
     client = OllamaClient(models["generation_defaults"], endpoint=args.ollama_endpoint)
     generator = models["generators"]["roster"][0]
     records = []
+    terminal_failure_path = run_dir / "terminal_contract_failures.jsonl"
     for case in cases:
         for condition in calibration["calibration"]["conditions"]:
-            generation = _render_explanation(client, registry, generator, case, condition)
+            generation = _render_explanation(
+                client, registry, generator, case, condition, terminal_failure_path
+            )
             records.append(
                 {
                     **case,

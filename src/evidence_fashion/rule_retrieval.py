@@ -9,8 +9,27 @@ from typing import Any
 import numpy as np
 import pandas as pd
 
-from .kb_audit import declared_values, matches_declared_terms
+from .grounding_contracts import rule_applicability_gate
+from .kb_audit import declared_values
 from .retrieval import l2_normalize
+
+
+def full_kb_candidate_retrieval(
+    rules: pd.DataFrame, *, target_category: str, query_group: str
+) -> list[dict[str, Any]]:
+    """Return verification candidates only; this deliberately does not assess antecedents."""
+    candidates = rules[
+        rules["recommended_category"].astype(str).eq(target_category)
+        & rules["audit_status"].astype(str).eq("retain")
+        & rules["applicable_query_categories"]
+        .astype(str)
+        .map(
+            lambda value: (
+                query_group.lower() in declared_values(value) or "all" in declared_values(value)
+            )
+        )
+    ]
+    return candidates.sort_values("rule_id").to_dict(orient="records")
 
 
 @dataclass(frozen=True)
@@ -24,6 +43,8 @@ class RuleContribution:
     weighted_contribution: float
     retrieval_rank: int
     filtering_decision: str
+    antecedent_established: bool
+    antecedent_checks: dict[str, bool]
 
 
 @dataclass(frozen=True)
@@ -109,44 +130,31 @@ class RuleRetriever:
         query_terms_excluded = 0
         candidate_terms_excluded = 0
         audit_field = self.settings["audit_status_field"]
-        applicability_field = self.settings["applicability_filter_field"]
-        context_field = self.settings["required_context_field"]
-        query_terms_field = self.settings["query_terms_field"]
-        candidate_terms_field = self.settings["candidate_terms_field"]
-        approved = self.rules[audit_field].astype(str).eq(
-            self.settings["approved_audit_status"]
-        )
+        approved = self.rules[audit_field].astype(str).eq(self.settings["approved_audit_status"])
         audit_excluded = category_eligible_count - int((eligible_mask & approved).sum())
+        decisions = [
+            rule_applicability_gate(rule, case=case, candidate=candidate)
+            for rule in self.rules.to_dict(orient="records")
+        ]
+        decision_by_index = dict(enumerate(decisions))
         query_group = str(case["query_group"])
-        applicable = self.rules[applicability_field].astype(str).map(
-            lambda value: query_group.lower() in declared_values(value)
-            or "all" in declared_values(value)
+        applicable = pd.Series(
+            [decision.checks["query_group"] for decision in decisions], index=self.rules.index
         )
         applicability_excluded = int((eligible_mask & approved & ~applicable).sum())
-        observed_context = case.get("applicability_contexts", [])
-        if isinstance(observed_context, str):
-            observed_context = [part.strip() for part in observed_context.split("|")]
-        observed_context = {str(value).lower() for value in observed_context}
-        context_applicable = self.rules[context_field].astype(str).map(
-            lambda value: "none" in declared_values(value)
-            or declared_values(value).issubset(observed_context)
+        context_applicable = pd.Series(
+            [decision.checks["required_context"] for decision in decisions],
+            index=self.rules.index,
         )
         context_excluded = int((eligible_mask & approved & applicable & ~context_applicable).sum())
-        query_text = " | ".join(
-            str(case.get(field, ""))
-            for field in ("query_category", "query_text", "outfit_context_text", "user_request")
-        )
-        query_matches = self.rules[query_terms_field].map(
-            lambda value: matches_declared_terms(value, query_text)
+        query_matches = pd.Series(
+            [decision.checks["query_terms"] for decision in decisions], index=self.rules.index
         )
         query_terms_excluded = int(
             (eligible_mask & approved & applicable & context_applicable & ~query_matches).sum()
         )
-        candidate_text = " | ".join(
-            str(candidate.get(field, "")) for field in ("category", "text")
-        )
-        candidate_matches = self.rules[candidate_terms_field].map(
-            lambda value: matches_declared_terms(value, candidate_text)
+        candidate_matches = pd.Series(
+            [decision.checks["candidate_terms"] for decision in decisions], index=self.rules.index
         )
         candidate_terms_excluded = int(
             (
@@ -206,6 +214,8 @@ class RuleRetriever:
                 weighted_contribution=weighted,
                 retrieval_rank=rank,
                 filtering_decision="retained_after_category_filter_and_top_k",
+                antecedent_established=decision_by_index[row_index].established,
+                antecedent_checks=decision_by_index[row_index].checks,
             )
             for rank, (
                 _,
@@ -261,15 +271,14 @@ def truncate_trace(
         raise ValueError("An evidence trace must retain at least one rule.")
     scores = np.asarray([rule.weighted_contribution for rule in rules], dtype=np.float64)
     evidence_score = float(
-        settings["score_max_weight"] * scores.max()
-        + settings["score_mean_weight"] * scores.mean()
+        settings["score_max_weight"] * scores.max() + settings["score_mean_weight"] * scores.mean()
     )
     filtering = dict(trace.filtering)
     filtering["top_k_requested"] = top_k
     filtering["rules_retained"] = len(rules)
-    filtering["rules_not_selected_after_scoring"] = (
-        int(filtering["rules_after_category_filter"]) - len(rules)
-    )
+    filtering["rules_not_selected_after_scoring"] = int(
+        filtering["rules_after_category_filter"]
+    ) - len(rules)
     return CandidateEvidenceTrace(
         candidate_id=trace.candidate_id,
         evidence_score=evidence_score,
