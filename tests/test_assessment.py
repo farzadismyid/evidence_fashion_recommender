@@ -1,8 +1,14 @@
 import pytest
 
 from evidence_fashion.assessment import (
+    build_citation_validation_prompt,
+    build_separated_entailment_prompt,
+    build_true_blind_judge_prompt,
     cited_rule_ids,
     normalize_verification_payload,
+    prepare_true_blind_pair,
+    strip_condition_revealing_phrases,
+    validate_canonical_citation_format,
     validate_extraction,
     validate_judgment,
     validate_verification,
@@ -134,3 +140,49 @@ def test_citations_and_paired_judge_scores_are_validated() -> None:
         5,
     )
     assert result["second"]["clarity"] == 5
+
+
+def test_separated_entailment_is_citation_blind_and_citation_format_is_separate() -> None:
+    explanation = "This works well [R025] [R099]."
+    prompt = build_separated_entailment_prompt(
+        explanation=explanation,
+        claims=[{"claim_id": "C1", "claim_text": "This works well."}],
+        full_kb_rules=[{"rule_id": "R025", "rule_text": "Works well."}],
+        exact_trace_rules=[{"rule_id": "R025", "rule_text": "Works well."}],
+        common_reference_item_facts={"locked_item": "bag"},
+    )
+    assert "[R025]" not in prompt
+    assert "[R099]" not in prompt
+    citation_prompt = build_citation_validation_prompt(
+        claims=[{"claim_id": "C1", "claim_text": "This works well."}],
+        explanation=explanation,
+        exact_trace_rules=[{"rule_id": "R025", "rule_text": "Works well."}],
+    )
+    assert "[R025]" in citation_prompt
+    assert validate_canonical_citation_format(explanation) == ["[R025]", "[R099]"]
+    with pytest.raises(ValueError, match="Grouped"):
+        validate_canonical_citation_format("This works [R025, R099].")
+
+
+def test_true_blind_judging_removes_citations_and_condition_language() -> None:
+    pair = prepare_true_blind_pair(
+        {
+            "no_rag": "No-RAG option: a clear choice.",
+            "rule_rag": "Based on provided rules, this works [R025].",
+        },
+        case_id="case-1",
+        generator="gemma",
+        seed=42,
+    )
+    displayed = f"{pair['first_explanation']} {pair['second_explanation']}".lower()
+    assert "[r025]" not in displayed
+    assert "no-rag" not in displayed
+    assert "provided rules" not in displayed
+    prompt = build_true_blind_judge_prompt(
+        common_reference_context={"request": "recommend a bag"},
+        first_explanation=pair["first_explanation"],
+        second_explanation=pair["second_explanation"],
+    )
+    assert "hallucination" not in prompt.lower()
+    assert "non-redundancy" in prompt.lower()
+    assert strip_condition_revealing_phrases("Rule-RAG [R025]") == ""

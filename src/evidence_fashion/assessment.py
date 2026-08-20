@@ -4,8 +4,8 @@ from __future__ import annotations
 
 import json
 import re
-from hashlib import sha256
 from collections.abc import Mapping, Sequence
+from hashlib import sha256
 from typing import Any
 
 CLAIM_STATUSES = {"supported", "unsupported", "contradicted", "not_verifiable"}
@@ -52,7 +52,11 @@ def separated_entailment_schema() -> dict[str, Any]:
             "common_reference_reason",
         ],
     }
-    return {"type": "object", "properties": {"claims": {"type": "array", "items": item}}, "required": ["claims"]}
+    return {
+        "type": "object",
+        "properties": {"claims": {"type": "array", "items": item}},
+        "required": ["claims"],
+    }
 
 
 def citation_validation_schema() -> dict[str, Any]:
@@ -77,7 +81,11 @@ def citation_validation_schema() -> dict[str, Any]:
             "brief_reason",
         ],
     }
-    return {"type": "object", "properties": {"claims": {"type": "array", "items": item}}, "required": ["claims"]}
+    return {
+        "type": "object",
+        "properties": {"claims": {"type": "array", "items": item}},
+        "required": ["claims"],
+    }
 
 
 def citation_occurrences(explanation: str) -> list[dict[str, Any]]:
@@ -131,15 +139,21 @@ def build_separated_entailment_prompt(
 
 
 def build_citation_validation_prompt(
-    *, claims: Sequence[Mapping[str, Any]], explanation: str, exact_trace_rules: Sequence[Mapping[str, Any]]
+    *,
+    claims: Sequence[Mapping[str, Any]],
+    explanation: str,
+    exact_trace_rules: Sequence[Mapping[str, Any]],
 ) -> str:
     """Build the separate citation-validity pass after blind entailment is complete."""
+    serialized_trace = json.dumps(list(exact_trace_rules), sort_keys=True, ensure_ascii=False)
+    serialized_occurrences = json.dumps(citation_occurrences(explanation), sort_keys=True)
+    serialized_claims = json.dumps(list(claims), sort_keys=True, ensure_ascii=False)
     return (
         "Assess citation format, trace membership, and citation-to-claim entailment only. Do "
         "not produce or modify any general support verdict. Grouped citations are invalid.\n\n"
-        f"Exact stored rule trace: {json.dumps(list(exact_trace_rules), sort_keys=True, ensure_ascii=False)}\n\n"
-        f"Citation occurrences: {json.dumps(citation_occurrences(explanation), sort_keys=True)}\n\n"
-        f"Atomic claims: {json.dumps(list(claims), sort_keys=True, ensure_ascii=False)}"
+        f"Exact stored rule trace: {serialized_trace}\n\n"
+        f"Citation occurrences: {serialized_occurrences}\n\n"
+        f"Atomic claims: {serialized_claims}"
     )
 
 
@@ -168,15 +182,19 @@ def prepare_true_blind_pair(
 
 
 def build_true_blind_judge_prompt(
-    *, common_reference_context: Mapping[str, Any], first_explanation: str, second_explanation: str
+    *,
+    common_reference_context: Mapping[str, Any],
+    first_explanation: str,
+    second_explanation: str,
 ) -> str:
     dimensions = (
         "relevance, clarity, usefulness, coherence, appropriate specificity, and non-redundancy"
     )
+    serialized_context = json.dumps(dict(common_reference_context), sort_keys=True)
     return (
         "Score each anonymized explanation independently from 1 to 5 only for "
         f"{dimensions}. Do not infer evidence access or experimental conditions.\n\n"
-        f"Common reference context: {json.dumps(dict(common_reference_context), sort_keys=True)}\n\n"
+        f"Common reference context: {serialized_context}\n\n"
         f"First explanation:\n{first_explanation}\n\nSecond explanation:\n{second_explanation}"
     )
 
@@ -304,6 +322,7 @@ def validate_extraction(
 
 
 def cited_rule_ids(explanation: str, pattern: str) -> list[str]:
+    validate_canonical_citation_format(explanation)
     return list(dict.fromkeys(re.findall(pattern, explanation)))
 
 

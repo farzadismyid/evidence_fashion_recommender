@@ -41,7 +41,7 @@ def test_stage3_freeze_binds_exact_contracts_and_stage4_freeze_is_ordered() -> N
     assert stage3["status"] == stage4["status"] == "frozen"
     assert set(stage3["role_contract_sha256"]) == {
         "no_rag_explanation", "rule_rag_explanation", "claim_extraction",
-        "claim_verification", "blind_judge",
+        "claim_verification", "citation_validation", "blind_judge",
     }
     assert [row["model_id"] for row in stage4["batches"]] == [
         "gemma4:12b", "llama3.1:8b-instruct-q8_0",
