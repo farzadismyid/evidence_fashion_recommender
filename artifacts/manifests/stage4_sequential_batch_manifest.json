@@ -32,15 +32,15 @@
     }
   ],
   "bound_artifact_hashes": {
-    "artifacts\\manifests\\stage3_prompt_freeze_manifest.json": "ca735b1ca439bdf74598052628583bad9ba435c9cb0f2f4e5070d2f33d725819",
+    "artifacts\\manifests\\stage3_prompt_freeze_manifest.json": "c8fc4600f91d51c555c22fafba3b406be66b59227921049c07d4ee0585f1b654",
     "configs\\model_batches.yaml": "99fd29cabecb2cbb22c1d201e5d65198c6895a007a7727b5c76e8b8faa386b74",
     "configs\\models.yaml": "f82191ffd9009812b06ef1a3504ebb1d8dd391d9baca5ae3487fa449ece361e5",
-    "configs\\prompts.yaml": "522414f406e86aa7aa88dd042f7d5521373441e90e234662d512a2fa9cf804c5",
+    "configs\\prompts.yaml": "210cd17c31e22f00ff5b49ac9992d0bea0fbe3e7311fc8c122ce3ea91883a24a",
     "scripts\\freeze_stage4_batch_policy.py": "456f78b1db1eac9d62073c83a99ab58087cb15c1acf0c315de9e8f249766858f",
     "src\\evidence_fashion\\model_batches.py": "f1a1b06a6afa42b086bfd216891fb6682d3de43a85a81dd47a6345311dde1d0e"
   },
   "execution_mode": "complete_batch_then_unload",
-  "git_commit": "dd438945517b1205f2fdf9679534c6dafd2ac604",
+  "git_commit": "6e66b9030538b305b8d212b77c012ef7d6bb9a25",
   "max_loaded_models": 1,
   "next_gate": "Stage 5 calibration must approve extraction and verification before any full run.",
   "optional_blind_judge": {
@@ -58,5 +58,5 @@
   "schema_version": 1,
   "stage": 4,
   "status": "frozen",
-  "timestamp_utc": "2026-08-20T15:08:23Z"
+  "timestamp_utc": "2026-08-20T15:43:24Z"
 }
