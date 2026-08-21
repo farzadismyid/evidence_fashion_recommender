@@ -6,6 +6,7 @@ import argparse
 import hashlib
 import json
 from collections.abc import Mapping, Sequence
+from functools import partial
 from pathlib import Path
 from typing import Any
 
@@ -16,6 +17,8 @@ from evidence_fashion.assessment import (
     citation_occurrences,
     citation_validation_schema,
     separated_entailment_schema,
+    validate_citation_validation,
+    validate_separated_entailment,
 )
 from evidence_fashion.explanation import OllamaClient, text_sha256
 from evidence_fashion.grounding_contracts import (
@@ -361,15 +364,59 @@ def _run_qwen_batch(
     return output
 
 
+def _generate_complete_phi_payload(
+    client: OllamaClient,
+    *,
+    model_id: str,
+    prompt: str,
+    system_prompt: str,
+    schema: Mapping[str, Any],
+    max_attempts: int,
+    repair_instruction: str,
+    validator: Any,
+) -> tuple[dict[str, Any], Any, int, list[dict[str, Any]]]:
+    """Generate one Phi payload, retaining every raw attempt and failing closed."""
+    attempts: list[dict[str, Any]] = []
+    last_error: Exception | None = None
+    for attempt in range(max_attempts + 1):
+        rendered_prompt = prompt if attempt == 0 else f"{prompt}\n{repair_instruction}"
+        try:
+            result = client.generate(
+                model_id,
+                rendered_prompt,
+                system_prompt=system_prompt,
+                json_format=schema,
+                token_limit=client.defaults["structured_token_limit"] * (2**attempt),
+                timeout_seconds=client.defaults["timeout_seconds"] * (2**attempt),
+            )
+            attempts.append(
+                {
+                    "attempt": attempt,
+                    "raw_response": result.text,
+                    "raw_response_sha256": text_sha256(result.text),
+                }
+            )
+            payload = json.loads(result.text)
+            return validator(payload), result, attempt, attempts
+        except (TimeoutError, ValueError, TypeError, json.JSONDecodeError) as error:
+            last_error = error
+            if attempts and "validation_error" not in attempts[-1]:
+                attempts[-1]["validation_error"] = str(error)
+    raise ValueError(
+        "Terminal Phi calibration failure after bounded completeness retries."
+    ) from last_error
+
+
 def _run_phi_batch(
     client: OllamaClient,
     registry: Mapping[str, Any],
     models: Mapping[str, Any],
     records: Sequence[Mapping[str, Any]],
     extractions: Mapping[tuple[str, str], Mapping[str, Any]],
-) -> list[dict[str, Any]]:
+) -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
     verifier = models["verifier"]
     output = []
+    raw_output = []
     for record in records:
         key = (record["calibration_case_id"], record["condition"])
         claims = extractions[key]["claims"]
@@ -386,17 +433,29 @@ def _run_phi_batch(
                 "claims_json": _canonical_json(claims),
             },
         )
-        entailment, result, retries = client.generate_json(
-            verifier["model_id"],
-            rendered["user_prompt"],
-            separated_entailment_schema(),
-            retries=int(registry["roles"]["claim_verification"]["retry"]["max_attempts"]),
+        full_kb_rule_ids = {rule["rule_id"] for rule in record["full_kb_candidate_rules"]}
+        exact_trace_rule_ids = {rule["rule_id"] for rule in record["exact_trace_rules"]}
+        entailment, result, retries, entailment_attempts = _generate_complete_phi_payload(
+            client,
+            model_id=verifier["model_id"],
+            prompt=rendered["user_prompt"],
             system_prompt=rendered["system_prompt"],
+            schema=separated_entailment_schema(),
+            max_attempts=int(registry["roles"]["claim_verification"]["retry"]["max_attempts"]),
             repair_instruction=registry["roles"]["claim_verification"]["retry"][
                 "retry_instruction"
             ],
+            validator=partial(
+                validate_separated_entailment,
+                claims=claims,
+                full_kb_rule_ids=full_kb_rule_ids,
+                exact_trace_rule_ids=exact_trace_rule_ids,
+                common_reference_item_facts=record["common_reference_item_facts"],
+            ),
         )
-        citations = citation_occurrences(record["explanation"])
+        citations = citation_occurrences(
+            record["explanation"], trace_rule_ids=sorted(exact_trace_rule_ids)
+        )
         citation_rendered = render_prompt(
             registry,
             "citation_validation",
@@ -406,15 +465,23 @@ def _run_phi_batch(
                 "claims_json": _canonical_json(claims),
             },
         )
-        citation_payload, citation_result, citation_retries = client.generate_json(
-            verifier["model_id"],
-            citation_rendered["user_prompt"],
-            citation_validation_schema(),
-            retries=int(registry["roles"]["citation_validation"]["retry"]["max_attempts"]),
-            system_prompt=citation_rendered["system_prompt"],
-            repair_instruction=registry["roles"]["citation_validation"]["retry"][
-                "retry_instruction"
-            ],
+        citation_payload, citation_result, citation_retries, citation_attempts = (
+            _generate_complete_phi_payload(
+                client,
+                model_id=verifier["model_id"],
+                prompt=citation_rendered["user_prompt"],
+                system_prompt=citation_rendered["system_prompt"],
+                schema=citation_validation_schema(),
+                max_attempts=int(registry["roles"]["citation_validation"]["retry"]["max_attempts"]),
+                repair_instruction=registry["roles"]["citation_validation"]["retry"][
+                    "retry_instruction"
+                ],
+                validator=partial(
+                    validate_citation_validation,
+                    claims=claims,
+                    occurrence_diagnostics=citations,
+                ),
+            )
         )
         output.append(
             {
@@ -423,6 +490,7 @@ def _run_phi_batch(
                 "status": "complete",
                 "entailment": entailment,
                 "citation_validation": citation_payload,
+                "citation_occurrence_diagnostics": citations,
                 "model_id": verifier["model_id"],
                 "immutable_digest": verifier["immutable_digest"],
                 "raw_response_sha256": {
@@ -436,8 +504,16 @@ def _run_phi_batch(
                 },
             }
         )
+        raw_output.append(
+            {
+                "calibration_case_id": record["calibration_case_id"],
+                "condition": record["condition"],
+                "entailment_attempts": entailment_attempts,
+                "citation_validation_attempts": citation_attempts,
+            }
+        )
     client.unload(verifier["model_id"])
-    return output
+    return output, raw_output
 
 
 def _write_annotation_view(path: Path, records: Sequence[Mapping[str, Any]]) -> None:
@@ -557,7 +633,7 @@ def main() -> None:
         records,
         experiment["stage8"]["extraction_claim_types"],
     )
-    phi = _run_phi_batch(
+    phi, phi_raw = _run_phi_batch(
         client,
         registry,
         models,
@@ -566,8 +642,10 @@ def main() -> None:
     )
     qwen_path = run_dir / "qwen_claim_extraction_sealed.jsonl"
     phi_path = run_dir / "phi_verification_sealed.jsonl"
+    phi_raw_path = run_dir / "phi_raw_responses_sealed.jsonl"
     _write_jsonl_new(qwen_path, qwen)
     _write_jsonl_new(phi_path, phi)
+    _write_jsonl_new(phi_raw_path, phi_raw)
     _write_jsonl_new(packet_path, records)
     _write_annotation_view(view_path, records)
     manifest = {
@@ -591,6 +669,7 @@ def main() -> None:
         "sealed_internal_outputs": {
             "qwen_claim_extraction": str(qwen_path.relative_to(ROOT)),
             "phi_verification": str(phi_path.relative_to(ROOT)),
+            "phi_raw_responses": str(phi_raw_path.relative_to(ROOT)),
         },
         "human_packet": {
             "canonical_jsonl": str(packet_path.relative_to(ROOT)),
@@ -611,6 +690,7 @@ def main() -> None:
                 Path(__file__),
                 qwen_path,
                 phi_path,
+                phi_raw_path,
                 packet_path,
                 view_path,
             )

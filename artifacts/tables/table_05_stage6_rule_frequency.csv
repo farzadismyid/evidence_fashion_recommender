@@ -1,0 +1,28 @@
+rule_id,rule_text,packet_count,packet_prevalence,slot_count,slot_share
+K001,"When wide-leg trousers are explicit in the query, a fitted top or cardigan is a documented proportion option.",301,0.00300921760342311,301,0.000601843520684622
+K005,"For an explicitly casual jacket, a tee, polo or casual shirt is an appropriate base-layer direction.",300,0.002999220202747286,300,0.0005998440405494571
+K008,"When a cropped top is explicit, high-waisted trousers or a high-waisted skirt are directly supported bottom directions.",1300,0.012996620878571572,1300,0.0025993241757143143
+K010,"For an explicit classic T-shirt, tailored or loose trousers are a directly documented bottom pairing that can remain casual while looking polished.",101,0.0010097374682582528,101,0.00020194749365165057
+K013,"For an explicitly tailored blazer or coat in workwear, tailored trousers are a supported bottom direction.",501,0.005008697738587967,501,0.0010017395477175935
+K018,"For an explicit black-tie menswear request, prefer black patent or highly polished formal shoes.",200,0.0019994801351648573,200,0.0003998960270329714
+K026,"For an explicit casual tee, a relaxed jacket such as a denim jacket or bomber is category-appropriate when the request remains casual.",100,0.0009997400675824286,100,0.0001999480135164857
+K027,"For explicit black-tie footwear or a tuxedo context, outerwear must preserve formal evening tone; do not recommend clearly casual jackets.",200,0.0019994801351648573,200,0.0003998960270329714
+K029,"When boots are explicit in the outfit, a shoulder or handbag is a documented finishing direction.",4114,0.04112930638034111,4114,0.008225861276068223
+K030,"When jeans or denim are explicit, a leather shoulder bag or woven bag is a documented pairing.",4861,0.04859736468518185,4861,0.00971947293703637
+K031,"When a skirt is explicit, a shoulder bag is a documented accompaniment to a skirt-led outfit.",3321,0.03320136764441245,3321,0.00664027352888249
+K032,"When a jacket or coat is explicit with boots, a shoulder bag or tote is a documented finishing direction.",701,0.007008177873752824,701,0.0014016355747505649
+K033,"When a sweater knit or jumper dress is explicit with boots, a shoulder bag or top-handle bag is a documented pairing.",1501,0.015006098414412253,1501,0.0030012196828824505
+K035,"When sneakers or trainers are explicit, a shoulder bag, tote or basket bag is a documented finishing direction.",601,0.006008437806170395,601,0.001201687561234079
+K036,"When polished footwear is explicit with a trouser, skirt, short, tank or shirt context, a shoulder bag, clutch or tote is a documented finishing direction.",4878,0.04876732049667087,4878,0.009753464099334173
+K037,"When a top shirt tee tank or blouse is explicit with polished footwear or a skirt or trouser context, a shoulder or tote bag is a documented finishing direction.",6448,0.06446323955771499,6448,0.012892647911543
+K049,"For an explicit T-shirt being smartened within a preppy request, pleated trousers are a directly supported bottom direction.",100,0.0009997400675824286,100,0.0001999480135164857
+K054,"For an explicit formal clutch or elegant top-handle bag, polished stilettos, kitten heels or polished flats are supported shoe categories.",100,0.0009997400675824286,100,0.0001999480135164857
+K070,"When trousers pants or shorts are explicit, a shoulder bag tote or clutch is a documented finishing direction.",5600,0.055985443784616,5600,0.0111970887569232
+K071,"When ankle booties or booties are explicit, a shoulder bag or tote is a documented finishing direction.",3482,0.03481094915322016,3482,0.006962189830644032
+K073,"When pumps heels stilettos or wedges are explicit, a shoulder bag or clutch is a documented finishing direction.",2800,0.027992721892308,2800,0.0055985443784616
+K074,"When flat shoes slippers loafers or oxfords are explicit, a shoulder bag or basket bag is a documented finishing direction.",1824,0.018235258832703497,1824,0.0036470517665406995
+K075,"When a top tee tank blouse or shirt is explicit, a shoulder or tote bag is a documented finishing direction.",5511,0.05509567512446764,5511,0.011019135024893528
+K096,"With explicit pumps or heels and a skirt or dress, a shoulder bag is a documented bag direction.",265,0.0026493111790934355,265,0.0005298622358186871
+K097,"With explicit flat shoes and a dress, skirt or denim context, a raffia or basket bag is a documented bag direction.",199,0.001989482734489033,199,0.00039789654689780657
+K098,"With an explicit top plus a skirt, denim or trouser context, a shoulder or tote bag is a documented bag direction.",3260,0.03259152620318717,3260,0.006518305240637434
+K100,"With explicit wedges and a tank, trouser, short or skirt context, a shoulder or tote bag is a documented bag direction.",49,0.00048987263311539,49,9.7974526623078e-05

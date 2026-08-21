@@ -170,10 +170,34 @@ class RuleRetriever:
             approved & applicable & context_applicable & query_matches & candidate_matches
         )
         eligible_rows = np.flatnonzero(eligible_mask.to_numpy())
+        representation = candidate_rule_representation(case, candidate)
         if not len(eligible_rows):
-            raise ValueError(
-                f"No audited applicable rules are eligible for target category {target!r} "
-                f"and query group {case['query_group']!r}."
+            # A sparse KB must not cause an otherwise valid recommendation case to
+            # disappear.  An empty trace is explicit evidence that no rule passed
+            # the antecedent gate; it is never backfilled with a merely similar
+            # rule.  Downstream Rule-RAG selection excludes empty traces.
+            return CandidateEvidenceTrace(
+                candidate_id=str(candidate["item_id"]),
+                evidence_score=0.0,
+                query_group=query_group,
+                target_category=target,
+                representation_sha256=hashlib.sha256(representation.encode()).hexdigest(),
+                filtering={
+                    "rules_before_filter": len(self.rules),
+                    "category_filter": target,
+                    "rules_after_category_filter": 0,
+                    "rules_excluded_by_category": len(self.rules) - category_eligible_count,
+                    "rules_excluded_by_audit": audit_excluded,
+                    "rules_excluded_by_applicability": applicability_excluded,
+                    "rules_excluded_by_context": context_excluded,
+                    "rules_excluded_by_query_terms": query_terms_excluded,
+                    "rules_excluded_by_candidate_terms": candidate_terms_excluded,
+                    "top_k_requested": selected_top_k,
+                    "rules_retained": 0,
+                    "rules_not_selected_after_scoring": 0,
+                    "empty_trace_reason": "no_rule_with_established_antecedent",
+                },
+                rules=(),
             )
         vector = l2_normalize(np.asarray(representation_embedding).reshape(1, -1))[0]
         similarities = self.rule_embeddings[eligible_rows] @ vector
@@ -235,7 +259,6 @@ class RuleRetriever:
             self.settings["score_max_weight"] * weighted_scores.max()
             + self.settings["score_mean_weight"] * weighted_scores.mean()
         )
-        representation = candidate_rule_representation(case, candidate)
         return CandidateEvidenceTrace(
             candidate_id=str(candidate["item_id"]),
             evidence_score=evidence_score,

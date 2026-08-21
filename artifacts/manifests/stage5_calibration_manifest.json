@@ -1,0 +1,410 @@
+{
+  "bound_artifact_hashes": {
+    ".runtime\\current\\calibration\\stage5-final-337e7fe9b5ce\\human_qwen_alignment_final.json": "f0c0d8072de3c74f370195284c6e468e95e3b2ae91416a2b022e16648b74feae",
+    ".runtime\\current\\calibration\\stage5-final-337e7fe9b5ce\\phi_raw_responses_sealed.jsonl": "9f24f475e35cb8ea06abe362497337bedf14da509efd1f7e64a823020fa820a5",
+    ".runtime\\current\\calibration\\stage5-final-337e7fe9b5ce\\phi_verification_human_gold_sealed.jsonl": "37a976e83e3cea6699e7276cc9ef0054448c95a33d2d598308ab8f05152d1c80",
+    ".runtime\\current\\calibration\\stage5-final-337e7fe9b5ce\\qwen_claim_extraction_sealed.jsonl": "173ec6d71db5efc875cf7877a94186f1981563dea61897177d65a4d615a8e60d",
+    "artifacts\\manifests\\stage3_prompt_freeze_manifest.json": "7a2ea3c874b055bfc49432e365f8c32963a359315251aeef28b002ea3e8005f4",
+    "artifacts\\manifests\\stage4_sequential_batch_manifest.json": "3d4bb4ef661638f971f17f62502796a3bf5578f727f4fe45ecff3a6579472431",
+    "configs\\calibration.yaml": "53149a0601adeb4979c7abdb012b7b260eabf2d6537a16cc43bd63c4fb0a7985",
+    "configs\\experiment.yaml": "91225e2646bf5ec4dffd17d4d276c117eb18216f038aaaf4d70cc479025ba9c4",
+    "configs\\models.yaml": "f82191ffd9009812b06ef1a3504ebb1d8dd391d9baca5ae3487fa449ece361e5",
+    "configs\\prompts.yaml": "6bdbb2aecd57ac1a29c1461030221c53b29c6786622eb6d3c9430e910c927c62",
+    "data\\calibration\\stage5_annotations_done_v2.jsonl": "8af7016851eb1cd70ee932787affd5e29a7130f0ec7cbca902c06c6e81b3040b",
+    "scripts\\finalize_stage5_calibration.py": "392bcbc30c96b3240fe14ebf9b823fec18b592d36427669cc4ec10eecf1f85b4",
+    "src\\evidence_fashion\\explanation.py": "1c1e689a8274406e5a5bd62b5344a3c0a7253521b7e18385e329b8aa781cabb1"
+  },
+  "freeze_basis": "user_authorized_final_attempt_regardless_of_predefined_gate_outcome",
+  "human_annotation_validation": {
+    "counts_by_category": {
+      "bags": 4,
+      "bottoms": 4,
+      "outerwear": 4,
+      "shoes": 4,
+      "tops": 4
+    },
+    "coverage_tags": [
+      "bag_example",
+      "compound_claim",
+      "contradiction",
+      "explicit_attribute",
+      "functional_inference",
+      "invalid_citation",
+      "negation",
+      "partial_entailment",
+      "styling_inference",
+      "unsupported_plausible_statement"
+    ],
+    "disjointness": {
+      "calibration_source_split": "validation",
+      "disjoint": true,
+      "final_explanation_split": "test"
+    },
+    "paired_case_count": 10,
+    "record_count": 20
+  },
+  "human_gold": "data\\calibration\\stage5_annotations_done_v2.jsonl",
+  "limitations": [
+    "Calibration remains disjoint from the final 500-case test set.",
+    "Any unmet predefined calibration gates are retained as limitations of the locally available models."
+  ],
+  "next_stage": "Stage 6 canonical runtime destinations",
+  "phi_human_gold_calibration": {
+    "citation_entailment_accuracy": 1.0,
+    "citation_entailment_scored_claim_count": 11,
+    "citation_syntax_accuracy": 1.0,
+    "citation_syntax_scored_claim_count": 14,
+    "retry_attempt_count": 0,
+    "retry_record_count": 0,
+    "structured_output_success_rate": 1.0,
+    "terminal_failure_count": 0,
+    "verifier_agreement_by_verdict": {
+      "common_reference_item_fact_support": {
+        "contradicted": {
+          "agreement": null,
+          "matched": 0,
+          "total": 0
+        },
+        "not_verifiable": {
+          "agreement": null,
+          "matched": 0,
+          "total": 0
+        },
+        "supported": {
+          "agreement": 1.0,
+          "matched": 1,
+          "total": 1
+        },
+        "unsupported": {
+          "agreement": null,
+          "matched": 0,
+          "total": 0
+        }
+      },
+      "exact_trace_entailment": {
+        "contradicted": {
+          "agreement": null,
+          "matched": 0,
+          "total": 0
+        },
+        "not_verifiable": {
+          "agreement": 0.46153846153846156,
+          "matched": 6,
+          "total": 13
+        },
+        "supported": {
+          "agreement": 0.8333333333333334,
+          "matched": 10,
+          "total": 12
+        },
+        "unsupported": {
+          "agreement": 0.7407407407407407,
+          "matched": 20,
+          "total": 27
+        }
+      },
+      "full_kb_entailment": {
+        "contradicted": {
+          "agreement": null,
+          "matched": 0,
+          "total": 0
+        },
+        "not_verifiable": {
+          "agreement": 0.46153846153846156,
+          "matched": 6,
+          "total": 13
+        },
+        "supported": {
+          "agreement": 0.8333333333333334,
+          "matched": 10,
+          "total": 12
+        },
+        "unsupported": {
+          "agreement": 0.8518518518518519,
+          "matched": 23,
+          "total": 27
+        }
+      }
+    },
+    "verifier_binary_supported_agreement": {
+      "exact_trace_entailment": {
+        "agreement": 0.9423076923076923,
+        "not_supported_not_supported": 39,
+        "not_supported_supported": 1,
+        "supported_not_supported": 2,
+        "supported_supported": 10
+      },
+      "full_kb_entailment": {
+        "agreement": 0.9230769230769231,
+        "not_supported_not_supported": 38,
+        "not_supported_supported": 2,
+        "supported_not_supported": 2,
+        "supported_supported": 10
+      }
+    },
+    "verifier_common_reference_accuracy": 1.0,
+    "verifier_common_reference_eligible_claim_count": 1,
+    "verifier_exact_trace_accuracy": 0.6923076923076923,
+    "verifier_full_kb_accuracy": 0.75
+  },
+  "predefined_gates": {
+    "citation_validity_accuracy": true,
+    "extractor_claim_id_preservation_rate": true,
+    "extractor_claim_precision": false,
+    "extractor_claim_recall": false,
+    "extractor_duplicate_rate": true,
+    "stage5_pass": false,
+    "structured_output_success_rate": true,
+    "verifier_common_reference_accuracy": true,
+    "verifier_exact_trace_accuracy": false,
+    "verifier_full_kb_accuracy": false
+  },
+  "predefined_gates_passed": false,
+  "prompt_versions": {
+    "claim_extraction": {
+      "output_schema": {
+        "claim_fields": [
+          "claim_id",
+          "claim_text",
+          "claim_type"
+        ],
+        "claim_id_policy": "consecutive_C_identifiers_in_textual_order",
+        "name": "atomic_claims_v1",
+        "required": [
+          "claims"
+        ],
+        "type": "json_schema"
+      },
+      "permitted_evidence": [
+        "explanation_text_only"
+      ],
+      "prohibited_inference": [
+        "Do not use the recommendation context or rule evidence to decide what claims exist.",
+        "Do not merge independently checkable propositions.",
+        "Do not judge support or add claims absent from the explanation."
+      ],
+      "retry": {
+        "max_attempts": 2,
+        "repair_attempts": 1,
+        "retry_instruction": "Return only JSON matching the declared schema. Extract every explicit independently verifiable proposition, preserve entities and negation, do not infer extras, and do not duplicate claims.",
+        "terminal_failure": "record_not_applicable_failure"
+      },
+      "seed": 42,
+      "system_prompt": "Extract every explicit independently verifiable fashion or styling proposition from the supplied explanation, without omissions or inferred additions. Preserve the stated entity, negation, coreference, and textual order. Split coordinated predicates only when each predicate is independently checkable; keep a genuinely inseparable conditional or rationale proposition together. Do not assess support, plausibility, quality, or truth. Assign claim IDs C1, C2, and so on, and return each proposition once.",
+      "temperature": 0.0,
+      "template_variables": [
+        "claim_types_json",
+        "explanation"
+      ],
+      "token_limit": 2048,
+      "user_template": "Allowed claim types: {claim_types_json}\nComplete explanation:\n{explanation}"
+    },
+    "claim_verification": {
+      "output_schema": {
+        "claim_fields": [
+          "claim_id",
+          "full_kb_candidate_applicable_rule_ids",
+          "full_kb_entailment",
+          "full_kb_rule_ids",
+          "full_kb_reason",
+          "exact_trace_entailment",
+          "exact_trace_rule_ids",
+          "exact_trace_reason",
+          "common_reference_item_fact_support",
+          "common_reference_eligible",
+          "common_reference_fields",
+          "common_reference_reason"
+        ],
+        "name": "separated_entailment_v2",
+        "required": [
+          "claims"
+        ],
+        "support_statuses": [
+          "supported",
+          "unsupported",
+          "contradicted",
+          "not_verifiable"
+        ],
+        "type": "json_schema"
+      },
+      "permitted_evidence": [
+        "frozen_full_knowledge_base",
+        "exact_stored_rule_trace_B",
+        "common_reference_item_facts"
+      ],
+      "prohibited_inference": [
+        "Do not use external fashion knowledge or unprovided item details.",
+        "Do not treat missing evidence as contradiction.",
+        "Do not inspect, infer, or assess observed rule citations in this entailment pass.",
+        "Do not change, omit, duplicate, or reorder claim IDs."
+      ],
+      "retry": {
+        "max_attempts": 2,
+        "repair_attempts": 1,
+        "retry_instruction": "Return only JSON matching the declared schema. Preserve all supplied claim IDs in order and keep each of the three independent assessments internally consistent.",
+        "terminal_failure": "record_not_applicable_failure"
+      },
+      "seed": 42,
+      "system_prompt": "Act as a strict closed-world entailment verifier. For every atomic claim, independently first determine which full-KB candidate-rule antecedents apply, then independently assess full-KB entailment, exact-trace entailment, and common-reference item-fact support. Do not derive one field from another. Supported requires semantic entailment; unsupported means relevant evidence does not entail the claim; contradicted requires affirmative conflict; not_verifiable means the supplied evidence cannot settle the claim. Absence of support is not contradiction. Preserve every supplied claim ID exactly once and do not introduce claims, rules, sources, or knowledge from outside the packet. SUPPORTED requires the supplied source directly to entail the complete claim; CONTRADICTED requires direct incompatible or negated evidence; UNSUPPORTED applies only when relevant supplied material is within scope but does not entail; NOT_VERIFIABLE is outside the supplied source's evaluable scope. A rule is usable only when its antecedent is established and its consequent directly entails the claim: do not use category analogy, or treat an example list's omissions as negative evidence. Common-reference support is only for concrete supplied item/query/context facts, never styling principles, suitability, or subjective rationale. Mark common_reference_eligible accordingly. Return exactly one complete judgment for every supplied claim; an empty claims array is invalid whenever atomic claims are supplied.",
+      "temperature": 0.0,
+      "template_variables": [
+        "full_kb_rules_json",
+        "exact_trace_rules_json",
+        "common_reference_facts_json",
+        "explanation",
+        "claims_json"
+      ],
+      "token_limit": 2048,
+      "user_template": "Full-KB candidate rules (determine antecedent applicability independently):\n{full_kb_rules_json}\nExact stored rule trace:\n{exact_trace_rules_json}\nCommon-reference item facts:\n{common_reference_facts_json}\nComplete explanation:\n{explanation}\nAtomic claims:\n{claims_json}"
+    },
+    "registry_sha256": "6bdbb2aecd57ac1a29c1461030221c53b29c6786622eb6d3c9430e910c927c62"
+  },
+  "qwen_calibration": {
+    "aligned_claim_pair_count": 20.0,
+    "atomization_disagreement_count": 26.0,
+    "citation_entailment_accuracy": 0.0,
+    "citation_entailment_scored_claim_count": 6.0,
+    "citation_scored_claim_count": 8.0,
+    "citation_syntax_accuracy": 0.0,
+    "citation_validity_accuracy": 0.0,
+    "common_reference_eligible_claim_count": 0.0,
+    "extractor_claim_id_preservation_rate": 1.0,
+    "extractor_claim_precision": 0.6938775510204082,
+    "extractor_claim_recall": 0.6923076923076923,
+    "extractor_duplicate_rate": 0.0,
+    "genuine_human_missed_claim_count": 16.0,
+    "genuine_qwen_extra_claim_count": 15.0,
+    "semantic_covered_human_claim_count": 36.0,
+    "semantic_covered_qwen_claim_count": 34.0,
+    "structured_output_success_rate": 1.0,
+    "verifier_agreement_by_verdict": {
+      "common_reference_item_fact_support": {
+        "contradicted": {
+          "agreement": null,
+          "matched": 0,
+          "total": 0
+        },
+        "not_verifiable": {
+          "agreement": null,
+          "matched": 0,
+          "total": 0
+        },
+        "supported": {
+          "agreement": null,
+          "matched": 0,
+          "total": 0
+        },
+        "unsupported": {
+          "agreement": null,
+          "matched": 0,
+          "total": 0
+        }
+      },
+      "exact_trace_entailment": {
+        "contradicted": {
+          "agreement": null,
+          "matched": 0,
+          "total": 0
+        },
+        "not_verifiable": {
+          "agreement": 0.0,
+          "matched": 0,
+          "total": 4
+        },
+        "supported": {
+          "agreement": 0.0,
+          "matched": 0,
+          "total": 7
+        },
+        "unsupported": {
+          "agreement": 0.0,
+          "matched": 0,
+          "total": 9
+        }
+      },
+      "full_kb_entailment": {
+        "contradicted": {
+          "agreement": null,
+          "matched": 0,
+          "total": 0
+        },
+        "not_verifiable": {
+          "agreement": 0.0,
+          "matched": 0,
+          "total": 4
+        },
+        "supported": {
+          "agreement": 0.0,
+          "matched": 0,
+          "total": 7
+        },
+        "unsupported": {
+          "agreement": 0.0,
+          "matched": 0,
+          "total": 9
+        }
+      }
+    },
+    "verifier_binary_supported_agreement": {
+      "exact_trace_entailment": {
+        "agreement": 0.65,
+        "not_supported_not_supported": 13,
+        "not_supported_supported": 0,
+        "supported_not_supported": 7,
+        "supported_supported": 0
+      },
+      "full_kb_entailment": {
+        "agreement": 0.65,
+        "not_supported_not_supported": 13,
+        "not_supported_supported": 0,
+        "supported_not_supported": 7,
+        "supported_supported": 0
+      }
+    },
+    "verifier_common_reference_accuracy": null,
+    "verifier_confusion_matrix": {
+      "common_reference_item_fact_support": {
+        "contradicted": {},
+        "not_verifiable": {},
+        "supported": {},
+        "unsupported": {}
+      },
+      "exact_trace_entailment": {
+        "contradicted": {},
+        "not_verifiable": {
+          "None": 4
+        },
+        "supported": {
+          "None": 7
+        },
+        "unsupported": {
+          "None": 9
+        }
+      },
+      "full_kb_entailment": {
+        "contradicted": {},
+        "not_verifiable": {
+          "None": 4
+        },
+        "supported": {
+          "None": 7
+        },
+        "unsupported": {
+          "None": 9
+        }
+      }
+    },
+    "verifier_exact_trace_accuracy": 0.0,
+    "verifier_full_kb_accuracy": 0.0
+  },
+  "schema_version": 2,
+  "sealed_outputs": {
+    "human_qwen_alignment": ".runtime\\current\\calibration\\stage5-final-337e7fe9b5ce\\human_qwen_alignment_final.json",
+    "phi_raw_responses": ".runtime\\current\\calibration\\stage5-final-337e7fe9b5ce\\phi_raw_responses_sealed.jsonl",
+    "phi_verification_human_gold": ".runtime\\current\\calibration\\stage5-final-337e7fe9b5ce\\phi_verification_human_gold_sealed.jsonl",
+    "qwen_claim_extraction": ".runtime\\current\\calibration\\stage5-final-337e7fe9b5ce\\qwen_claim_extraction_sealed.jsonl"
+  },
+  "stage": 5,
+  "status": "frozen",
+  "timestamp_utc": "2026-08-21T01:02:05Z"
+}

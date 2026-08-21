@@ -10,6 +10,7 @@ from typing import Any
 import yaml
 
 from evidence_fashion.calibration import (
+    calibration_alignment_records,
     calibration_gates,
     calibration_metrics,
     validate_human_calibration,
@@ -28,9 +29,20 @@ def _read_jsonl(path: Path) -> list[dict[str, Any]]:
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser()
     parser.add_argument("--config", type=Path, default=Path("configs/calibration.yaml"))
+    parser.add_argument(
+        "--annotation-path",
+        type=Path,
+        help="Completed human annotations; defaults to the configured canonical packet path.",
+    )
     parser.add_argument("--model-outputs", type=Path)
     parser.add_argument("--qwen-outputs", type=Path)
     parser.add_argument("--phi-outputs", type=Path)
+    parser.add_argument(
+        "--alignment-output",
+        type=Path,
+        default=Path("artifacts/manifests/stage5_calibration_alignment.json"),
+        help="New audit artifact containing deterministic human-to-Qwen claim mappings.",
+    )
     parser.add_argument("--validate-only", action="store_true")
     return parser.parse_args()
 
@@ -45,7 +57,9 @@ def main() -> None:
     ]
     if any(manifest.get("status") != "frozen" for manifest in frozen_stages):
         raise ValueError("Stages 3 and 4 must be frozen before Stage 5 calibration.")
-    annotation_path = ROOT / settings["calibration"]["annotation_path"]
+    annotation_path = ROOT / (
+        args.annotation_path or Path(settings["calibration"]["annotation_path"])
+    )
     if not annotation_path.exists():
         raise FileNotFoundError(
             f"Human annotation file is required before Stage 5: {annotation_path.relative_to(ROOT)}"
@@ -89,10 +103,33 @@ def main() -> None:
             )
         model_rows = _read_jsonl(output_path)
         output_paths = (output_path,)
-    metrics = calibration_metrics(human_records, model_rows)
+    alignments = calibration_alignment_records(human_records, model_rows)
+    alignment_path = ROOT / args.alignment_output
+    write_new_json(
+        alignment_path,
+        {
+            "schema_version": 1,
+            "alignment_method": "exact_text_then_entity_polarity_semantic_one_to_one",
+            "records": alignments,
+        },
+    )
+    metrics = calibration_metrics(human_records, model_rows, alignments=alignments)
     gates = calibration_gates(metrics, settings)
     if not gates["stage5_pass"]:
-        raise ValueError(f"Stage 5 calibration did not pass: {gates}")
+        print(
+            json.dumps(
+                {
+                    "status": "failed_not_frozen",
+                    "human_annotation_validation": validation,
+                    "metrics": metrics,
+                    "gates": gates,
+                    "alignment_mapping": str(alignment_path.relative_to(ROOT)),
+                },
+                indent=2,
+                sort_keys=True,
+            )
+        )
+        return
     manifest = {
         "schema_version": 1,
         "stage": 5,
@@ -107,6 +144,7 @@ def main() -> None:
                 config_path,
                 annotation_path,
                 *output_paths,
+                alignment_path,
                 STAGE3_MANIFEST,
                 STAGE4_MANIFEST,
             )

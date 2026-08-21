@@ -20,7 +20,8 @@ from evidence_fashion.assessment import (
     build_extraction_prompt,
     build_judge_prompt,
     build_verification_prompt,
-    cited_rule_ids,
+    citation_occurrences,
+    common_reference_eligibility,
     extraction_schema,
     judge_schema,
     normalize_verification_payload,
@@ -30,6 +31,7 @@ from evidence_fashion.assessment import (
     verification_schema,
 )
 from evidence_fashion.explanation import OllamaClient, text_sha256
+from evidence_fashion.grounding_contracts import require_trace_applicability
 from evidence_fashion.manifest import (
     configuration_hash,
     environment_summary,
@@ -127,9 +129,10 @@ def reusable_rule_rag_extractions(
             raise ValueError(f"Missing reusable Rule-RAG extraction: {key}")
         if row.get("explanation_sha256") != generation["output_sha256"]:
             raise ValueError(f"Changed Rule-RAG explanation cannot reuse extraction: {key}")
-        if row.get("extractor_model_id") != extractor["model_id"] or row.get(
-            "extractor_immutable_digest"
-        ) != extractor["immutable_digest"]:
+        if (
+            row.get("extractor_model_id") != extractor["model_id"]
+            or row.get("extractor_immutable_digest") != extractor["immutable_digest"]
+        ):
             raise ValueError(f"Extractor identity mismatch for reusable row: {key}")
         reusable.append(row)
     if len(reusable) != 1500:
@@ -267,9 +270,7 @@ def retry_records(
         append_jsonl(path, {"phase": phase, **key, "attempt": attempt, **error})
 
 
-def stage8_refusal_markers(
-    generation: Mapping[str, Any], settings: Mapping[str, Any]
-) -> list[str]:
+def stage8_refusal_markers(generation: Mapping[str, Any], settings: Mapping[str, Any]) -> list[str]:
     lowered = str(generation["output_text"]).lower()
     return [marker for marker in settings["refusal_detection_markers"] if marker in lowered]
 
@@ -293,12 +294,8 @@ def extraction_summary(records: Sequence[Mapping[str, Any]]) -> pd.DataFrame:
                 "mean_claims": group["claim_count"].mean(),
                 "median_claims": group["claim_count"].median(),
                 "max_claims": group["claim_count"].max(),
-                "not_applicable_refusals": group["status"].eq(
-                    "not_applicable_refusal"
-                ).sum(),
-                "not_applicable_failures": group["status"].eq(
-                    "not_applicable_failure"
-                ).sum(),
+                "not_applicable_refusals": group["status"].eq("not_applicable_refusal").sum(),
+                "not_applicable_failures": group["status"].eq("not_applicable_failure").sum(),
                 "total_retries": group["retry_count"].sum(),
             }
         )
@@ -328,8 +325,7 @@ def verification_summary(records: Sequence[Mapping[str, Any]]) -> pd.DataFrame:
         for condition in sorted(records_frame["condition"].unique())
     ]
     keys.extend(
-        ("all_generators", condition)
-        for condition in sorted(records_frame["condition"].unique())
+        ("all_generators", condition) for condition in sorted(records_frame["condition"].unique())
     )
     for generator, condition in keys:
         selected_records = records_frame[records_frame["condition"].eq(condition)]
@@ -355,9 +351,7 @@ def verification_summary(records: Sequence[Mapping[str, Any]]) -> pd.DataFrame:
                     selected_claims["support_status"].eq("contradicted").mean() if total else None
                 ),
                 "not_verifiable_rate": (
-                    selected_claims["support_status"].eq("not_verifiable").mean()
-                    if total
-                    else None
+                    selected_claims["support_status"].eq("not_verifiable").mean() if total else None
                 ),
                 "multiple_source_claims": (
                     int(selected_claims["multiple_sources"].sum()) if total else 0
@@ -541,17 +535,12 @@ def main() -> None:
                 flush=True,
             )
 
-    extraction_history = (
-        read_jsonl(extraction_progress) if extraction_progress.exists() else []
-    )
+    extraction_history = read_jsonl(extraction_progress) if extraction_progress.exists() else []
     extraction_latest = {
-        (row["case_id"], row["generator"], row["condition"]): row
-        for row in extraction_history
+        (row["case_id"], row["generator"], row["condition"]): row for row in extraction_history
     }
     extraction_keys = {
-        key
-        for key, row in extraction_latest.items()
-        if row["status"] != "not_applicable_failure"
+        key for key, row in extraction_latest.items() if row["status"] != "not_applicable_failure"
     }
     for generation in generations:
         key = (generation["case_id"], generation["generator"], generation["condition"])
@@ -566,9 +555,7 @@ def main() -> None:
             "extractor_immutable_digest": extractor["immutable_digest"],
         }
         detected_refusal_markers = stage8_refusal_markers(generation, settings)
-        if detected_refusal_markers and settings[
-            "skip_refusal_claim_assessment_as_not_applicable"
-        ]:
+        if detected_refusal_markers and settings["skip_refusal_claim_assessment_as_not_applicable"]:
             record = {
                 **base,
                 "status": "not_applicable_refusal",
@@ -615,8 +602,7 @@ def main() -> None:
                 "retry_errors": errors,
                 "refusal_markers": detected_refusal_markers,
                 "structural_normalization_applied": (
-                    canonical_hash(json.loads(result.text)["claims"])
-                    != canonical_hash(validated)
+                    canonical_hash(json.loads(result.text)["claims"]) != canonical_hash(validated)
                     if result and validated is not None
                     else False
                 ),
@@ -625,9 +611,7 @@ def main() -> None:
         extraction_latest[key] = record
         extraction_keys.add(key)
         if len(extraction_keys) % interval == 0:
-            print(
-                f"stage8 extraction {len(extraction_keys)}/{len(generations)}", flush=True
-            )
+            print(f"stage8 extraction {len(extraction_keys)}/{len(generations)}", flush=True)
     if len(extraction_latest) != len(generations):
         raise RuntimeError("Stage 8 extraction matrix is incomplete.")
     extractions = [
@@ -643,8 +627,7 @@ def main() -> None:
         read_jsonl(verification_progress) if verification_progress.exists() else []
     )
     verification_latest = {
-        (row["case_id"], row["generator"], row["condition"]): row
-        for row in verification_history
+        (row["case_id"], row["generator"], row["condition"]): row for row in verification_history
     }
     verifier = models["verifier"]
     for key, record in list(verification_latest.items()):
@@ -656,9 +639,8 @@ def main() -> None:
         ):
             continue
         packet = packet_by_id[key[0]]
-        allowed_rules = {
-            rule["rule_id"] for rule in packet["B_exact_stored_trace"]["rules"]
-        }
+        require_trace_applicability(packet["B_exact_stored_trace"])
+        allowed_rules = {rule["rule_id"] for rule in packet["B_exact_stored_trace"]["rules"]}
         citation_ids = record["citation_ids"]
         try:
             raw_payload = json.loads(record["raw_response_text"])
@@ -666,7 +648,16 @@ def main() -> None:
                 raw_payload, allowed_rules, citation_ids
             )
             repaired_claims = validate_verification(
-                normalized_payload, extraction["claims"], allowed_rules, citation_ids
+                normalized_payload,
+                extraction["claims"],
+                allowed_rules,
+                citation_ids,
+                {
+                    str(claim["claim_id"]): common_reference_eligibility(
+                        claim, packet["A_common_context"]
+                    )
+                    for claim in extraction["claims"]
+                },
             )
         except (json.JSONDecodeError, TypeError, ValueError):
             continue
@@ -681,9 +672,7 @@ def main() -> None:
         append_jsonl(verification_progress, repaired)
         verification_latest[key] = repaired
     verification_keys = {
-        key
-        for key, row in verification_latest.items()
-        if row["status"] != "not_applicable_failure"
+        key for key, row in verification_latest.items() if row["status"] != "not_applicable_failure"
     }
     for generation in generations:
         key = (generation["case_id"], generation["generator"], generation["condition"])
@@ -691,10 +680,17 @@ def main() -> None:
             continue
         extraction = extraction_by_key[key]
         packet = packet_by_id[generation["case_id"]]
-        citation_ids = cited_rule_ids(generation["output_text"], settings["citation_pattern"])
-        allowed_rules = {
-            rule["rule_id"] for rule in packet["B_exact_stored_trace"]["rules"]
-        }
+        require_trace_applicability(packet["B_exact_stored_trace"])
+        allowed_rules = {rule["rule_id"] for rule in packet["B_exact_stored_trace"]["rules"]}
+        citation_diagnostics = citation_occurrences(
+            generation["output_text"], trace_rule_ids=sorted(allowed_rules)
+        )
+        citation_ids = [
+            rule_id
+            for occurrence in citation_diagnostics
+            if occurrence["valid_canonical_occurrence"]
+            for rule_id in occurrence["rule_ids"]
+        ]
         base = {
             "case_id": generation["case_id"],
             "generator": generation["generator"],
@@ -706,7 +702,15 @@ def main() -> None:
             "evaluation_packet": settings["verification_evidence_packet"],
             "generation_evidence_shown": generation["evidence_shown"],
             "citation_ids": citation_ids,
-            "invalid_citation_ids": sorted(set(citation_ids) - allowed_rules),
+            "citation_occurrence_diagnostics": citation_diagnostics,
+            "invalid_citation_ids": sorted(
+                {
+                    rule_id
+                    for occurrence in citation_diagnostics
+                    for field in ("unknown_rule_ids", "out_of_trace_rule_ids")
+                    for rule_id in occurrence[field]
+                }
+            ),
             "verifier_model_id": verifier["model_id"],
             "verifier_immutable_digest": verifier["immutable_digest"],
         }
@@ -741,13 +745,22 @@ def main() -> None:
                 rules: set[str] = allowed_rules,
                 citations: Sequence[str] = citation_ids,
                 claims: Sequence[Mapping[str, Any]] = extraction["claims"],
+                packet_a: Mapping[str, Any] = packet["A_common_context"],
                 action_sink: list[str] = normalization_actions,
             ) -> list[dict[str, Any]]:
-                normalized, actions = normalize_verification_payload(
-                    payload, rules, citations
-                )
+                normalized, actions = normalize_verification_payload(payload, rules, citations)
                 action_sink[:] = actions
-                return validate_verification(normalized, claims, rules, citations)
+                eligibility = {
+                    str(claim["claim_id"]): common_reference_eligibility(claim, packet_a)
+                    for claim in claims
+                }
+                return validate_verification(
+                    normalized,
+                    claims,
+                    rules,
+                    citations,
+                    common_reference_eligibility_by_claim=eligibility,
+                )
 
             validated, result, retry_count, errors = structured_call(
                 client,
@@ -776,8 +789,7 @@ def main() -> None:
                 "retry_count": retry_count,
                 "retry_errors": errors,
                 "structural_normalization_applied": (
-                    canonical_hash(json.loads(result.text)["claims"])
-                    != canonical_hash(validated)
+                    canonical_hash(json.loads(result.text)["claims"]) != canonical_hash(validated)
                     if result and validated is not None
                     else False
                 ),
@@ -801,9 +813,7 @@ def main() -> None:
     client.unload(verifier["model_id"])
 
     judgment_history = read_jsonl(judge_progress) if judge_progress.exists() else []
-    judgment_latest = {
-        (row["case_id"], row["generator"]): row for row in judgment_history
-    }
+    judgment_latest = {(row["case_id"], row["generator"]): row for row in judgment_history}
     judge_keys = set(judgment_latest)
     judge = models["judges"]["roster"][0]
     dimensions = list(settings["judge_dimensions"])
@@ -820,11 +830,7 @@ def main() -> None:
         order_hash = hashlib.sha256(
             f"{settings['paired_position_seed']}:{case_id}:{generator}".encode()
         ).hexdigest()
-        ordered = (
-            ["no_rag", "rule_rag"]
-            if int(order_hash, 16) % 2 == 0
-            else ["rule_rag", "no_rag"]
-        )
+        ordered = ["no_rag", "rule_rag"] if int(order_hash, 16) % 2 == 0 else ["rule_rag", "no_rag"]
         first, second = (condition_rows[name] for name in ordered)
         packet = packet_by_id[case_id]
         prompt = build_judge_prompt(
@@ -849,9 +855,7 @@ def main() -> None:
             model=judge["model_id"],
             prompt=prompt,
             schema=judge_schema(dimensions, minimum, maximum),
-            validator=lambda payload: validate_judgment(
-                payload, dimensions, minimum, maximum
-            ),
+            validator=lambda payload: validate_judgment(payload, dimensions, minimum, maximum),
             retries=retries,
             defaults=defaults,
         )
@@ -910,15 +914,11 @@ def main() -> None:
         "judging": run_dir / "judge_summary.csv",
     }
     tracked_tables = {
-        "table_stage8_claim_extraction": Path(
-            "artifacts/tables/table_stage8_claim_extraction.csv"
-        ),
+        "table_stage8_claim_extraction": Path("artifacts/tables/table_stage8_claim_extraction.csv"),
         "table_stage8_claim_verification": Path(
             "artifacts/tables/table_stage8_claim_verification.csv"
         ),
-        "table_stage8_judge_summary": Path(
-            "artifacts/tables/table_stage8_judge_summary.csv"
-        ),
+        "table_stage8_judge_summary": Path("artifacts/tables/table_stage8_judge_summary.csv"),
     }
     for frame, runtime_path, tracked_path in zip(
         (extraction_table, verification_table, judge_table),
@@ -933,15 +933,11 @@ def main() -> None:
 
     retry_rows = read_jsonl(retry_log) if retry_log.exists() else []
     extraction_failures = sum(row["status"] == "not_applicable_failure" for row in extractions)
-    verification_failures = sum(
-        row["status"] == "not_applicable_failure" for row in verifications
-    )
+    verification_failures = sum(row["status"] == "not_applicable_failure" for row in verifications)
     judging_failures = sum(row["status"] == "not_applicable_failure" for row in judgments)
     verification_claims = sum(len(row["claims"]) for row in verifications)
     multiple_sources = sum(
-        len(claim["support_sources"]) > 1
-        for row in verifications
-        for claim in row["claims"]
+        len(claim["support_sources"]) > 1 for row in verifications for claim in row["claims"]
     )
     invalid_citations = sum(len(row["invalid_citation_ids"]) for row in verifications)
     integrity = {
@@ -954,8 +950,7 @@ def main() -> None:
             or [claim["claim_id"] for claim in verification["claims"]]
             == [claim["claim_id"] for claim in extraction_by_key[key]["claims"]]
             for key, verification in {
-                (row["case_id"], row["generator"], row["condition"]): row
-                for row in verifications
+                (row["case_id"], row["generator"], row["condition"]): row for row in verifications
             }.items()
         ),
         "failed_verifications_empty": all(
@@ -975,12 +970,8 @@ def main() -> None:
             "no_rag" in row["prompt"].lower() or "rule_rag" in row["prompt"].lower()
             for row in judgments
         ),
-        "cross_model_judgments": all(
-            "qwen" not in row["generator"].lower() for row in judgments
-        ),
-        "cross_model_verification": (
-            verifier["immutable_digest"] != extractor["immutable_digest"]
-        ),
+        "cross_model_judgments": all("qwen" not in row["generator"].lower() for row in judgments),
+        "cross_model_verification": (verifier["immutable_digest"] != extractor["immutable_digest"]),
     }
     if not all(
         (
@@ -1071,8 +1062,7 @@ def main() -> None:
         "inference_server_version": defaults["inference_server_version"],
         "device": defaults["device"],
         "command": (
-            "python scripts/run_stage8_explanation_assessment.py "
-            "--config configs/experiment.yaml"
+            "python scripts/run_stage8_explanation_assessment.py --config configs/experiment.yaml"
         ),
     }
     write_new_json(runtime_manifest_path, base_manifest)

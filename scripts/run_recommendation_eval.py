@@ -40,7 +40,7 @@ from evidence_fashion.reranking import (
 )
 from evidence_fashion.retrieval import (
     CLIPEmbedder,
-    MiniLMEmbedder,
+    OllamaEmbedder,
     cosine_scores,
     fuse_clip_embeddings,
 )
@@ -114,8 +114,7 @@ def _trace_score(trace: CandidateEvidenceTrace, top_k: int, settings: dict[str, 
         [rule.weighted_contribution for rule in trace.rules[:top_k]], dtype=np.float64
     )
     return float(
-        settings["score_max_weight"] * scores.max()
-        + settings["score_mean_weight"] * scores.mean()
+        settings["score_max_weight"] * scores.max() + settings["score_mean_weight"] * scores.mean()
     )
 
 
@@ -200,9 +199,7 @@ def _fusion_search(
                     "is_positive": case["candidate_relevance"],
                     "score": cosine_scores(
                         query_fused[case_index],
-                        np.stack(
-                            [candidate_vector[item] for item in case["candidate_item_ids"]]
-                        ),
+                        np.stack([candidate_vector[item] for item in case["candidate_item_ids"]]),
                     ),
                 }
             ).sort_values(["score", "item_id"], ascending=[False, True], kind="stable")
@@ -214,9 +211,7 @@ def _fusion_search(
                 "hr_at_10": float(np.mean([row["hr_at_10"] for row in metrics])),
                 "ndcg_at_10": float(np.mean([row["ndcg_at_10"] for row in metrics])),
                 "mrr": float(np.mean([row["mrr"] for row in metrics])),
-                "distance_from_reference": abs(
-                    float(image_weight) - float(fusion["image_weight"])
-                ),
+                "distance_from_reference": abs(float(image_weight) - float(fusion["image_weight"])),
             }
         )
     table = pd.DataFrame(rows)
@@ -238,11 +233,11 @@ def _fusion_search(
 def _candidate_pool_sensitivity(
     cases: pd.DataFrame,
     candidate_ids: list[str],
-    candidate_minilm: np.ndarray,
+    candidate_qwen3_embedding: np.ndarray,
     candidate_clip_image: np.ndarray,
     candidate_clip_text: np.ndarray,
     candidate_clip_fused: np.ndarray,
-    query_minilm: np.ndarray,
+    query_qwen3_embedding: np.ndarray,
     query_clip_image: np.ndarray,
     query_clip_text: np.ndarray,
     query_clip_fused: np.ndarray,
@@ -251,7 +246,7 @@ def _candidate_pool_sensitivity(
 ) -> pd.DataFrame:
     candidate_index = {item_id: index for index, item_id in enumerate(candidate_ids)}
     methods = (
-        "minilm_text",
+        "qwen3_embedding_text",
         "clip_image",
         "clip_text",
         "fused_clip",
@@ -288,7 +283,9 @@ def _candidate_pool_sensitivity(
             indices = [candidate_index[item] for item in retained]
             relevance = pd.Series([item in set(positives) for item in retained], index=retained)
             score_sets = {
-                "minilm_text": cosine_scores(query_minilm[case_index], candidate_minilm[indices]),
+                "qwen3_embedding_text": cosine_scores(
+                    query_qwen3_embedding[case_index], candidate_qwen3_embedding[indices]
+                ),
                 "clip_image": cosine_scores(
                     query_clip_image[case_index], candidate_clip_image[indices]
                 ),
@@ -424,8 +421,7 @@ def _diversity(
             right = packets_by_category[right_category][:50]
             between_values.extend(len(a & b) / len(a | b) for a in left for b in right)
     locked_packets = [
-        tuple(rule["rule_id"] for rule in row["evidence_trace"]["rules"])
-        for row in locked_cases
+        tuple(rule["rule_id"] for rule in row["evidence_trace"]["rules"]) for row in locked_cases
     ]
     return frequency, {
         "candidate_packets": packet_count,
@@ -434,10 +430,9 @@ def _diversity(
         "shannon_entropy": float(-(probabilities * np.log2(probabilities)).sum()),
         "within_category_mean_jaccard": within,
         "between_category_mean_jaccard": float(np.mean(between_values)),
-        "distinct_candidate_packets": len({
-            tuple(rule["rule_id"] for rule in record["trace"]["rules"])
-            for record in all_traces
-        }),
+        "distinct_candidate_packets": len(
+            {tuple(rule["rule_id"] for rule in record["trace"]["rules"]) for record in all_traces}
+        ),
         "identical_locked_packet_rate": 1 - len(set(locked_packets)) / len(locked_packets),
         "mean_candidate_packet_variants_per_case": float(
             np.mean([len(value) for value in packets_by_case.values()])
@@ -457,26 +452,30 @@ def _write_pareto_svg(points: pd.DataFrame, selected: pd.Series, path: Path) -> 
         cx = margin + (row["mean_top1_evidence"] - x.min()) / x_span * (width - 2 * margin)
         cy = height - margin - (row["ndcg_at_10"] - y.min()) / y_span * (height - 2 * margin)
         colour = "#0072B2" if row["pareto_status"] == "frontier" else "#999999"
-        radius = 7 if (
-            row["rule_top_k"] == selected["rule_top_k"]
-            and row["evidence_weight"] == selected["evidence_weight"]
-        ) else 4
+        radius = (
+            7
+            if (
+                row["rule_top_k"] == selected["rule_top_k"]
+                and row["evidence_weight"] == selected["evidence_weight"]
+            )
+            else 4
+        )
         circles.append(f'<circle cx="{cx:.2f}" cy="{cy:.2f}" r="{radius}" fill="{colour}"/>')
     svg = (
         f'<svg xmlns="http://www.w3.org/2000/svg" width="{width}" height="{height}" '
         f'viewBox="0 0 {width} {height}">\n'
         '<rect width="100%" height="100%" fill="white"/>'
-        f'<line x1="{margin}" y1="{height-margin}" x2="{width-margin}" '
-        f'y2="{height-margin}" stroke="black"/>'
+        f'<line x1="{margin}" y1="{height - margin}" x2="{width - margin}" '
+        f'y2="{height - margin}" stroke="black"/>'
         f'<line x1="{margin}" y1="{margin}" x2="{margin}" '
-        f'y2="{height-margin}" stroke="black"/>\n'
-        f'{"".join(circles)}'
-        f'<text x="{width/2}" y="{height-12}" text-anchor="middle">'
-        'Mean top-1 evidence score</text>'
-        f'<text x="18" y="{height/2}" transform="rotate(-90 18 '
-        f'{height/2})" text-anchor="middle">Validation NDCG@10</text>'
-        f'<text x="{width/2}" y="28" text-anchor="middle" font-size="16">'
-        'Recommendation quality versus evidence participation</text></svg>'
+        f'y2="{height - margin}" stroke="black"/>\n'
+        f"{''.join(circles)}"
+        f'<text x="{width / 2}" y="{height - 12}" text-anchor="middle">'
+        "Mean top-1 evidence score</text>"
+        f'<text x="18" y="{height / 2}" transform="rotate(-90 18 '
+        f'{height / 2})" text-anchor="middle">Validation NDCG@10</text>'
+        f'<text x="{width / 2}" y="28" text-anchor="middle" font-size="16">'
+        "Recommendation quality versus evidence participation</text></svg>"
     )
     path.write_text(svg, encoding="utf-8", newline="\n")
 
@@ -511,7 +510,7 @@ def main() -> None:
     query_rows = item_lookup.loc[cases["query_item_id"].tolist()].reset_index(drop=True)
     raw_split, dataset_fingerprint = load_pinned_split(config)
     clip = CLIPEmbedder(models["embedders"]["clip"])
-    mini = MiniLMEmbedder(models["embedders"]["minilm"])
+    text_embedder = OllamaEmbedder(models["embedders"]["qwen3_embedding"])
     batch_size = config["stage4_validation"]["embedding_batch_size"]
 
     candidate_texts = (
@@ -519,7 +518,7 @@ def main() -> None:
     ).tolist()
     candidate_clip_text = clip.encode_text(candidate_texts, batch_size=batch_size)
     candidate_clip_image = _item_images(candidate_rows, raw_split, clip, batch_size)
-    candidate_minilm = mini.encode(candidate_texts, batch_size=batch_size)
+    candidate_qwen3_embedding = text_embedder.encode(candidate_texts, batch_size=batch_size)
     fusion = config["retrieval"]["fusion"]
     candidate_clip = fuse_clip_embeddings(
         candidate_clip_image,
@@ -540,7 +539,7 @@ def main() -> None:
     ]
     query_clip_text = clip.encode_text(query_texts, batch_size=batch_size)
     query_clip_image = _item_images(query_rows, raw_split, clip, batch_size)
-    query_minilm = mini.encode(query_texts, batch_size=batch_size)
+    query_qwen3_embedding = text_embedder.encode(query_texts, batch_size=batch_size)
     tracked_fusion = Path("artifacts/tables/table_stage4_fusion_search.csv")
     fusion_table = pd.read_csv(tracked_fusion)
     fusion_selected = fusion_table.sort_values(
@@ -572,7 +571,9 @@ def main() -> None:
     }
 
     kb = load_audited_rules(config)
-    rule_embeddings = mini.encode(kb["rule_text"].astype(str).tolist(), batch_size=batch_size)
+    rule_embeddings = text_embedder.encode(
+        kb["rule_text"].astype(str).tolist(), batch_size=batch_size
+    )
     retriever = RuleRetriever(kb, rule_embeddings, config["rule_retrieval"])
     representation_records = []
     case_candidate_pairs = []
@@ -583,7 +584,7 @@ def main() -> None:
             candidate = item_lookup.loc[item_id].to_dict()
             representation_records.append(candidate_rule_representation(case, candidate))
             case_candidate_pairs.append((case, candidate, bool(relevance)))
-    representation_embeddings = mini.encode(representation_records, batch_size=batch_size)
+    representation_embeddings = text_embedder.encode(representation_records, batch_size=batch_size)
 
     traces: list[CandidateEvidenceTrace] = []
     trace_records = []
@@ -632,13 +633,13 @@ def main() -> None:
         )
         indices = [candidate_index[item] for item in case["candidate_item_ids"]]
         baseline_scores = {
-            "minilm_text": cosine_scores(query_minilm[case_index], candidate_minilm[indices]),
+            "qwen3_embedding_text": cosine_scores(
+                query_qwen3_embedding[case_index], candidate_qwen3_embedding[indices]
+            ),
             "clip_image": cosine_scores(
                 query_clip_image[case_index], candidate_clip_image[indices]
             ),
-            "clip_text": cosine_scores(
-                query_clip_text[case_index], candidate_clip_text[indices]
-            ),
+            "clip_text": cosine_scores(query_clip_text[case_index], candidate_clip_text[indices]),
             "fused_clip_main_040_060": base["clip_score"].to_numpy(float),
         }
         for method, scores in baseline_scores.items():
@@ -820,7 +821,7 @@ def main() -> None:
             name: {
                 "model_id": value["model_id"],
                 "immutable_digest": value["immutable_digest"],
-                "device": mini.device if name == "minilm" else clip.device,
+                "device": text_embedder.device if name == "qwen3_embedding" else clip.device,
             }
             for name, value in models["embedders"].items()
         },
@@ -901,9 +902,7 @@ def main() -> None:
             "notes",
         ]
         writer.writerow(header)
-        writer.writerows(
-            row for row in existing_rows[1:] if row[0] != "table_stage4_main_results"
-        )
+        writer.writerows(row for row in existing_rows[1:] if row[0] != "table_stage4_main_results")
         writer.writerow(
             [
                 "table_stage4_main_results",
