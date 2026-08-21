@@ -172,7 +172,7 @@ def explanation_word_count(explanation: str) -> int:
 
 
 def require_explanation_length(
-    explanation: str, *, minimum_words: int = 55, maximum_words: int = 75
+    explanation: str, *, minimum_words: int = 45, maximum_words: int = 75
 ) -> None:
     if minimum_words <= 0 or maximum_words < minimum_words:
         raise ValueError("Explanation length contract is invalid.")
@@ -190,7 +190,7 @@ def validate_generated_explanation(
     target_category: str,
     trace_rule_ids: Sequence[str] = (),
     citations_required: bool = False,
-    minimum_words: int = 55,
+    minimum_words: int = 45,
     maximum_words: int = 75,
 ) -> list[str]:
     """Apply the shared post-generation contract before a response is persisted."""
