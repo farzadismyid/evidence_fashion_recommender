@@ -166,6 +166,23 @@ def require_locked_recommendation(
         raise ValueError("Locked recommendation has no target category.")
 
 
+def explanation_word_count(explanation: str) -> int:
+    """Count whitespace-delimited words consistently across generation conditions."""
+    return len(re.findall(r"\S+", explanation))
+
+
+def require_explanation_length(
+    explanation: str, *, minimum_words: int = 55, maximum_words: int = 75
+) -> None:
+    if minimum_words <= 0 or maximum_words < minimum_words:
+        raise ValueError("Explanation length contract is invalid.")
+    count = explanation_word_count(explanation)
+    if count < minimum_words or count > maximum_words:
+        raise ValueError(
+            f"Explanation must contain {minimum_words}–{maximum_words} words; found {count}."
+        )
+
+
 def validate_generated_explanation(
     explanation: str,
     *,
@@ -173,9 +190,14 @@ def validate_generated_explanation(
     target_category: str,
     trace_rule_ids: Sequence[str] = (),
     citations_required: bool = False,
+    minimum_words: int = 55,
+    maximum_words: int = 75,
 ) -> list[str]:
     """Apply the shared post-generation contract before a response is persisted."""
     require_locked_recommendation(
         explanation, locked_item_name=locked_item_name, target_category=target_category
+    )
+    require_explanation_length(
+        explanation, minimum_words=minimum_words, maximum_words=maximum_words
     )
     return require_citations_in_trace(explanation, trace_rule_ids, required=citations_required)

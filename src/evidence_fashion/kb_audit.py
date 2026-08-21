@@ -50,6 +50,7 @@ REQUIRED_KB_COLUMNS = frozenset(
 LEGACY_DECISIONS = frozenset(
     {"outside_taxonomy", "legacy_accessory_ontology", "citation_overreach", "retained_or_rewritten"}
 )
+CANONICAL_AUDIT_STATUSES = frozenset({"retain", "rebuilt_v3_substantive_expert_rule"})
 
 
 def _pipe_values(value: object) -> set[str]:
@@ -107,8 +108,12 @@ def validate_canonical_rules(rules: pd.DataFrame) -> None:
         invalid = sorted(set(rules[field].astype(str)) - ALLOWED_CATEGORIES)
         if invalid:
             raise ValueError(f"{field} contains categories outside the frozen taxonomy: {invalid}")
-    if not rules["audit_status"].eq("retain").all():
-        raise ValueError("The canonical KB may contain only citation-audited retained rules.")
+    audit_statuses = set(rules["audit_status"].astype(str))
+    if len(audit_statuses) != 1 or not audit_statuses.issubset(CANONICAL_AUDIT_STATUSES):
+        raise ValueError(
+            "The canonical KB must use one approved citation-audited status; "
+            f"found {sorted(audit_statuses)}."
+        )
     invalid_reliability = sorted(
         set(rules["source_reliability"].astype(str).str.lower()) - ALLOWED_RELIABILITY
     )
@@ -119,12 +124,13 @@ def validate_canonical_rules(rules: pd.DataFrame) -> None:
     if not rules["source_access_date"].str.fullmatch(r"\d{4}-\d{2}-\d{2}").all():
         raise ValueError("Every retained rule must use an ISO source access date.")
     validation_dates = rules["source_validation_status"].str.extract(
-        r"^verified_reachable_and_direct_(\d{4}-\d{2}-\d{2})$", expand=False
+        r"^verified_reachable(?:_and_direct)?_(\d{4}-\d{2}-\d{2})(?:_plus_bounded_model_enrichment)?$",
+        expand=False,
     )
     if validation_dates.isna().any() or not validation_dates.eq(rules["source_access_date"]).all():
         raise ValueError(
-            "Every retained rule must have a reachable-and-direct source audit matching "
-            "its access date."
+            "Every retained rule must have an auditable reachable source status matching its "
+            "access date."
         )
     source_metadata = [
         "source_title",
@@ -225,9 +231,7 @@ def audit_static_case_applicability(
 ) -> dict[str, Any]:
     """Audit pre-experiment case-to-rule applicability without rankings or model outputs."""
     validate_canonical_rules(rules)
-    target_rules = rules[
-        rules["recommended_category"].eq(target_category) & rules["audit_status"].eq("retain")
-    ]
+    target_rules = rules[rules["recommended_category"].eq(target_category)]
     target_cases = [case for case in cases if case.get("target_category") == target_category]
     unsupported = []
     query_counts: dict[str, dict[str, int]] = {}

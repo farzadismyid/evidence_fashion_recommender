@@ -6,7 +6,7 @@ project:
   deterministic: true
 
 paths:
-  knowledge_base: data/kb/fashion_rules.csv
+  knowledge_base: data/kb/fashion_rules_v3.csv
   kb_expansion_source: data/kb/fashion_rules_expansion.csv
   legacy_kb_audit: data/kb/legacy_kb_audit.yaml
   legacy_rule_audit: data/kb/legacy_rule_audit.csv
@@ -277,7 +277,7 @@ rule_retrieval:
   query_terms_field: query_terms
   candidate_terms_field: candidate_terms
   audit_status_field: audit_status
-  approved_audit_status: retain
+  approved_audit_status: rebuilt_v3_substantive_expert_rule
   candidate_representation_fields: [query_category, query_text, user_request, candidate_category, candidate_text, target_category]
   candidate_representation_template: labelled_pipe_v1
   deterministic_tie_breaker: rule_id_ascending

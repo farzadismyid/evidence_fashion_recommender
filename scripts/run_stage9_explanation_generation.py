@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 from collections.abc import Mapping, Sequence
 from pathlib import Path
@@ -35,6 +36,17 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--models-config", type=Path, default=Path("configs/models.yaml"))
     parser.add_argument("--prompts", type=Path, default=Path("configs/prompts.yaml"))
     parser.add_argument("--runtime-root", type=Path, default=Path(".runtime/current/explanations"))
+    parser.add_argument(
+        "--selection-manifest",
+        type=Path,
+        default=Path("artifacts/manifests/stage8_explanation_case_selection_manifest.json"),
+    )
+    parser.add_argument("--run-prefix", default="stage9-generation")
+    parser.add_argument(
+        "--output-manifest",
+        type=Path,
+        default=Path("artifacts/manifests/stage9_explanation_generation_manifest.json"),
+    )
     return parser.parse_args()
 
 
@@ -54,6 +66,11 @@ def _bound_output(manifest: Mapping[str, Any], suffix: str) -> tuple[Path, str]:
 
 def _read_jsonl(path: Path) -> list[dict[str, Any]]:
     return [json.loads(line) for line in path.read_text(encoding="utf-8").splitlines() if line]
+
+
+def _canonical_hash(value: Mapping[str, Any]) -> str:
+    encoded = json.dumps(dict(value), sort_keys=True, ensure_ascii=False, separators=(",", ":"))
+    return hashlib.sha256(encoded.encode()).hexdigest()
 
 
 def _rule_evidence(trace: Mapping[str, Any]) -> str:
@@ -169,10 +186,7 @@ def main() -> None:
     registry = load_prompt_registry(args.prompts)
     resolved = load_resolved_configuration(args.config, args.models_config)
     digest = configuration_hash({"resolved": resolved, "prompts_sha256": sha256_file(args.prompts)})
-    selection_manifest_path = Path(
-        "artifacts/manifests/stage8_explanation_case_selection_manifest.json"
-    )
-    selection_manifest = json.loads(selection_manifest_path.read_text(encoding="utf-8"))
+    selection_manifest = json.loads(args.selection_manifest.read_text(encoding="utf-8"))
     inputs_path, inputs_hash = _bound_output(selection_manifest, "condition_inputs.jsonl")
     rows = _read_jsonl(inputs_path)
     expected_inputs = int(config["explanations"]["case_count"]) * len(
@@ -183,7 +197,17 @@ def main() -> None:
         or len({(r["calibration_case_id"], r["condition"]) for r in rows}) != expected_inputs
     ):
         raise ValueError("Frozen Stage 8 condition matrix is incomplete or duplicated.")
-    run_id = f"stage9-generation-{digest[:12]}"
+    by_case: dict[str, list[dict[str, Any]]] = {}
+    for row in rows:
+        by_case.setdefault(str(row["calibration_case_id"]), []).append(row)
+    for case_id, pair in by_case.items():
+        if len(pair) != 2 or {row["condition"] for row in pair} != {"no_rag", "rule_rag"}:
+            raise ValueError(f"Stage 9 conditions are incomplete for {case_id}.")
+        if pair[0]["A_common_context"] != pair[1]["A_common_context"]:
+            raise ValueError(f"Stage 9 conditions differ in common context for {case_id}.")
+        if pair[0]["B_exact_stored_trace"] != pair[1]["B_exact_stored_trace"]:
+            raise ValueError(f"Stage 9 conditions differ in exact trace for {case_id}.")
+    run_id = f"{args.run_prefix}-{digest[:12]}"
     run_dir = args.runtime_root / run_id
     if run_dir.exists():
         raise FileExistsError(f"Immutable Stage 9 generation already exists: {run_dir}")
@@ -229,8 +253,8 @@ def main() -> None:
                         **key,
                         "target_category": row["target_category"],
                         "locked_candidate_id": row["locked_candidate_id"],
-                        "A_sha256": row["A_sha256"],
-                        "B_sha256": row["B_sha256"],
+                        "A_sha256": _canonical_hash(row["A_common_context"]),
+                        "B_sha256": _canonical_hash(row["B_exact_stored_trace"]),
                         "trace_rule_ids": list(trace_ids),
                         **prompt_manifest_fields(rendered),
                         **result,
@@ -278,7 +302,7 @@ def main() -> None:
         ),
     }
     write_new_json(run_dir / "manifest.json", manifest)
-    write_json(Path("artifacts/manifests/stage9_explanation_generation_manifest.json"), manifest)
+    write_json(args.output_manifest, manifest)
     print(
         json.dumps(
             {"run_id": run_id, "generations": total, "terminal_failures": failures}, indent=2

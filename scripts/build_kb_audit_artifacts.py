@@ -6,12 +6,13 @@ from difflib import SequenceMatcher
 from pathlib import Path
 
 import pandas as pd
+import yaml
 
 from evidence_fashion.kb_audit import coverage_matrix, load_canonical_rules, load_legacy_audit
 
 ROOT = Path(__file__).parents[1]
 LEGACY_AUDIT = ROOT / "data/kb/legacy_kb_audit.yaml"
-CANONICAL_KB = ROOT / "data/kb/fashion_rules.csv"
+EXPERIMENT_CONFIG = ROOT / "configs/experiment.yaml"
 LEGACY_RULE_AUDIT = ROOT / "data/kb/legacy_rule_audit.csv"
 COVERAGE_MATRIX = ROOT / "data/kb/coverage_matrix.csv"
 SOURCE_REGISTRY = ROOT / "data/kb/kb_source_registry.csv"
@@ -19,10 +20,12 @@ SIMILARITY_AUDIT = ROOT / "data/kb/kb_rule_similarity_audit.csv"
 
 
 def main() -> None:
+    experiment = yaml.safe_load(EXPERIMENT_CONFIG.read_text(encoding="utf-8"))
+    canonical_kb = ROOT / experiment["paths"]["knowledge_base"]
     audit = load_legacy_audit(LEGACY_AUDIT)
     legacy_path = ROOT / audit["audited_asset"]["path"]
     legacy = pd.read_csv(legacy_path, dtype=str, keep_default_na=False)
-    canonical = load_canonical_rules(CANONICAL_KB)
+    canonical = load_canonical_rules(canonical_kb)
 
     decisions = {
         rule_id: decision

@@ -1,52 +1,26 @@
 {
-  "command": "python scripts/run_stage9_explanation_generation.py --config configs/experiment.yaml --models-config configs/models.yaml --prompts configs/prompts.yaml --runtime-root .runtime/current/explanations",
-  "configuration_hash": "b691865366b3c2a9197e689f5a910cc7b56cd7e4e3819ab094b89a89a4a12422",
+  "configuration_hash": "8e0dedea27a17c8fd50db37d742fdf83d098345dc2930e30dd2f1141506b2604",
   "environment": {
     "machine": "AMD64",
     "os": "Windows-11-10.0.26200-SP0",
     "python": "3.12.13"
   },
-  "failure_counts": {
-    "terminal_failures": 358
-  },
   "git_commit": "06177ff6dfd05a16402026bd66e80564f5effe16",
   "input_artifact_hashes": {
-    ".runtime\\current\\explanations\\stage9-v3-selection-8e0dedea27a1\\condition_inputs.jsonl": "5c25b6e550c3f93f51a25e1de1ba68c259db9d6d6254426928b19a6e2b024bc3"
-  },
-  "models": {
-    "approval_status": "calibrated_fresh_start_20260816",
-    "roster": [
-      {
-        "architecture": "gemma4",
-        "context_length": 262144,
-        "immutable_digest": "4eb23ef187e2c5462566d6a1d3bbbc2f1346d0b4327cbb66d58fffbcc9b2b05c",
-        "model_id": "gemma4:12b",
-        "parameters": "11.9B",
-        "quantization": "Q4_K_M"
-      },
-      {
-        "architecture": "llama",
-        "context_length": 131072,
-        "immutable_digest": "b158ded76fa05be6bce8a682099ce5df8c5571340a04cf63a2923464679db576",
-        "model_id": "llama3.1:8b-instruct-q8_0",
-        "parameters": "8.0B",
-        "quantization": "Q8_0"
-      },
-      {
-        "architecture": "mistral3",
-        "context_length": 262144,
-        "immutable_digest": "4760c35aeb9d9e9c6174c2492562c0b999e80a222804fd96b1915ab72bbcdcf7",
-        "model_id": "ministral-3:14b-instruct-2512-q4_K_M",
-        "parameters": "13.9B",
-        "quantization": "Q4_K_M"
-      }
-    ]
+    ".runtime\\current\\recommendations\\stage6\\stage6-confirmatory-414ac73b4696\\locked_cases.jsonl": "37f55e282e8044990f5110198c570e79fce1f8caf90e9e0f8acf6a1a7ae28cc6",
+    "data/kb/fashion_rules_v3.csv": "5f2d3b7ecaf165aaff02e9447d005d4017ea6df0d3b52a425701cb77b86d3aef"
   },
   "output_artifact_hashes": {
-    ".runtime\\current\\explanations\\stage9-v3-generation-b691865366b3\\explanations.jsonl": "3bfc3115473938317358763dead863f7a1a1944ab3e10166165852f2b1fad247",
-    ".runtime\\current\\explanations\\stage9-v3-generation-b691865366b3\\raw_generation_attempts.jsonl": "63d549cb4da043bbce358c17c16ed433f52d7bc192c4fb2269ff004ff5102037"
+    ".runtime\\current\\explanations\\stage9-v3-selection-8e0dedea27a1\\condition_inputs.jsonl": "5c25b6e550c3f93f51a25e1de1ba68c259db9d6d6254426928b19a6e2b024bc3",
+    ".runtime\\current\\explanations\\stage9-v3-selection-8e0dedea27a1\\selected_locked_cases.jsonl": "6218c6dcae5a1c2fef8d1f5ce46b629fc5b5dcac9c07b20acee8608144c2255b"
   },
-  "prompt_registry_sha256": "8ae6f7d792b1514d24742b02321f8d844cbce7faaf83b1320d589e48ba61ef0b",
+  "per_target_category": {
+    "bags": 100,
+    "bottoms": 100,
+    "outerwear": 100,
+    "shoes": 100,
+    "tops": 100
+  },
   "resolved_configuration": {
     "experiment": {
       "candidate_pool": {
@@ -854,16 +828,24 @@
   },
   "row_counts": {
     "condition_inputs": 1000,
-    "generations": 3000,
-    "raw_attempts": 4184
+    "selected_cases": 500
   },
-  "run_id": "stage9-v3-generation-b691865366b3",
+  "run_id": "stage9-v3-selection-8e0dedea27a1",
   "schema_version": 1,
+  "selection_policy": "prefer_trace_size_at_least_2_then_sha256_seeded_case_order",
+  "selection_seed": 42,
   "stage": 9,
-  "timestamp_utc": "2026-08-21T16:40:24Z",
+  "status": "frozen_selection",
+  "timestamp_utc": "2026-08-21T15:21:46Z",
+  "trace_size_distribution": {
+    "1": 328,
+    "2": 158,
+    "3": 12,
+    "4": 2
+  },
   "validation": {
-    "complete_matrix": true,
-    "duplicate_keys": 0,
-    "locked_contract_validated_before_persist": true
+    "all_traces_nonempty_and_antecedent_applicable": true,
+    "conditions_share_locked_case_and_recommendation": true,
+    "multi_rule_packets_prioritized": true
   }
 }

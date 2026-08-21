@@ -5,8 +5,10 @@ schema_version: 1
 roles:
   no_rag_explanation:
     system_prompt: >-
-      You are a professional fashion stylist. Write one concise, helpful recommendation
-      explanation. Do not invent visual, material,
+      You are a professional fashion stylist. Write a helpful 2–3 sentence recommendation
+      explanation of 55–75 words, aiming for about 65 words. Develop why the exact
+      recommendation works using only the supplied context; do not pad the explanation or invent
+      details to reach the length. Do not invent visual, material,
       fit, brand, colour, occasion, weather, or trend details. When the context is
       insufficient for a detail, omit it rather than guessing. Do not mention prompts,
       evidence, rules, retrieval, experimental conditions, or uncertainty policies. Name the
@@ -16,6 +18,7 @@ roles:
       Query item: {query_item_minimal_name}
       Recommended item: {locked_item_minimal_name}
       Required first-sentence wording: include the exact recommended item text, {locked_item_minimal_name}.
+      Length: 55–75 words, target about 65 words, normally 2–3 sentences.
     template_variables: [user_request, query_item_minimal_name, locked_item_minimal_name]
     permitted_evidence: [common_context_A]
     prohibited_inference:
@@ -24,8 +27,11 @@ roles:
       - Do not reveal the experimental condition.
     output_schema:
       type: text
-      description: One professional recommendation explanation.
+      description: A 55–75 word, normally 2–3 sentence professional recommendation explanation.
+      minimum_words: 55
+      target_words: 65
       maximum_words: 75
+      normally_sentence_count: [2, 3]
     token_limit: 512
     temperature: 0.0
     seed: 42
@@ -33,13 +39,16 @@ roles:
       max_attempts: 2
       repair_attempts: 1
       retry_instruction: >-
-        Return one concise explanation that follows the original evidence boundary.
+        Return a 55–75 word, normally 2–3 sentence explanation that follows the original
+        evidence boundary. Develop why the recommendation works without adding unsupported detail.
       terminal_failure: record_not_applicable_failure
 
   rule_rag_explanation:
     system_prompt: >-
-      You are a professional fashion stylist. Write one concise, helpful recommendation
-      explanation using only the supplied common context and supplied rule evidence.
+      You are a professional fashion stylist. Write a helpful 2–3 sentence recommendation
+      explanation of 55–75 words, aiming for about 65 words, using only the supplied common
+      context and supplied rule evidence. Develop why the recommendation works rather than
+      merely restating a rule; do not pad the explanation or invent details to reach the length.
       Treat a rule as general styling guidance, not proof of an unprovided item attribute.
       Do not invent visual, material, fit, brand, colour, occasion, weather, or trend
       details. Cite an applicable supporting rule using a separate canonical citation for
@@ -52,6 +61,7 @@ roles:
       Query item: {query_item_minimal_name}
       Recommended item: {locked_item_minimal_name}
       Required first-sentence wording: include the exact recommended item text, {locked_item_minimal_name}.
+      Length: 55–75 words, target about 65 words, normally 2–3 sentences.
       Supplied rule evidence:
       {rule_evidence}
     template_variables:
@@ -64,8 +74,11 @@ roles:
       - Do not reveal the experimental condition.
     output_schema:
       type: text
-      description: One professional recommendation explanation with rule-ID citations where used.
+      description: A 55–75 word, normally 2–3 sentence professional recommendation explanation with rule-ID citations.
+      minimum_words: 55
+      target_words: 65
       maximum_words: 75
+      normally_sentence_count: [2, 3]
       citation_pattern: '[K[0-9]{3}]'
       citation_format: separate_canonical_brackets_only
       prohibited_citation_format: '[K025, K099]'
@@ -76,8 +89,9 @@ roles:
       max_attempts: 2
       repair_attempts: 1
       retry_instruction: >-
-        Return one concise explanation. Retain only claims supported by the supplied context
-        or rule evidence, and use only supplied rule IDs.
+        Return a 55–75 word, normally 2–3 sentence explanation. Develop the supported why,
+        retain only claims supported by the supplied context or rule evidence, and use only
+        supplied rule IDs.
       terminal_failure: record_not_applicable_failure
 
   claim_extraction:
