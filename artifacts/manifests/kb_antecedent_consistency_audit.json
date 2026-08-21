@@ -1,7 +1,8 @@
 {
   "status": "passed",
-  "scope": "existing_100_rules_only",
+  "scope": "baseline_K001_to_K100_with_expanded_KB_allowed",
   "rule_count": 100,
+  "total_kb_rule_count": 120,
   "changed_rule_ids": [
     "K003",
     "K007",
@@ -639,5 +640,5 @@
       "structured_field_corrected": []
     }
   ],
-  "kb_sha256": "2ecfd20f43649bb0933f8678edf08b14659d9f6bd5d58413179139fc3442cfc5"
+  "kb_sha256": "a823e732fe5ad6687d1186b8dc3f484ae580cd4533d52335971785e7d1bceea3"
 }

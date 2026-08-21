@@ -86,8 +86,10 @@ def validate_canonical_rules(rules: pd.DataFrame) -> None:
         raise ValueError("Knowledge base must contain at least one rule.")
     if rules["rule_id"].duplicated().any() or rules["rule_id"].eq("").any():
         raise ValueError("Knowledge-base rule IDs must be non-empty and unique.")
-    normalized_text = rules["rule_text"].astype(str).map(
-        lambda value: re.sub(r"[^a-z0-9]+", " ", value.lower()).strip()
+    normalized_text = (
+        rules["rule_text"]
+        .astype(str)
+        .map(lambda value: re.sub(r"[^a-z0-9]+", " ", value.lower()).strip())
     )
     if normalized_text.duplicated().any():
         raise ValueError("Knowledge base contains duplicate normalized rule text.")
@@ -116,11 +118,13 @@ def validate_canonical_rules(rules: pd.DataFrame) -> None:
         raise ValueError("Every retained rule must use an HTTPS source reference.")
     if not rules["source_access_date"].str.fullmatch(r"\d{4}-\d{2}-\d{2}").all():
         raise ValueError("Every retained rule must use an ISO source access date.")
-    if not rules["source_validation_status"].eq(
-        "verified_reachable_and_direct_2026-08-16"
-    ).all():
+    validation_dates = rules["source_validation_status"].str.extract(
+        r"^verified_reachable_and_direct_(\d{4}-\d{2}-\d{2})$", expand=False
+    )
+    if validation_dates.isna().any() or not validation_dates.eq(rules["source_access_date"]).all():
         raise ValueError(
-            "Every retained rule must have a current reachable-and-direct source audit."
+            "Every retained rule must have a reachable-and-direct source audit matching "
+            "its access date."
         )
     source_metadata = [
         "source_title",
@@ -129,13 +133,7 @@ def validate_canonical_rules(rules: pd.DataFrame) -> None:
         "source_access_date",
         "source_validation_status",
     ]
-    if (
-        rules.groupby("source_url_or_reference")[source_metadata]
-        .nunique()
-        .gt(1)
-        .any()
-        .any()
-    ):
+    if rules.groupby("source_url_or_reference")[source_metadata].nunique().gt(1).any().any():
         raise ValueError("A source URL has inconsistent provenance metadata across rules.")
 
     for _index, rule in rules.iterrows():
@@ -228,8 +226,7 @@ def audit_static_case_applicability(
     """Audit pre-experiment case-to-rule applicability without rankings or model outputs."""
     validate_canonical_rules(rules)
     target_rules = rules[
-        rules["recommended_category"].eq(target_category)
-        & rules["audit_status"].eq("retain")
+        rules["recommended_category"].eq(target_category) & rules["audit_status"].eq("retain")
     ]
     target_cases = [case for case in cases if case.get("target_category") == target_category]
     unsupported = []
@@ -279,9 +276,7 @@ def audit_static_case_applicability(
     unique_nonempty_packets = len([packet for packet in packet_counts if packet])
     coverage_pass = bool(target_cases) and not unsupported
     prevalence_pass = maximum_rule_prevalence <= maximum_rule_prevalence_threshold
-    duplicate_packet_pass = (
-        duplicate_packet_case_fraction <= maximum_duplicate_packet_case_fraction
-    )
+    duplicate_packet_pass = duplicate_packet_case_fraction <= maximum_duplicate_packet_case_fraction
     packet_diversity_pass = unique_nonempty_packets >= minimum_unique_nonempty_packets
     return {
         "target_category": target_category,
@@ -306,10 +301,7 @@ def audit_static_case_applicability(
         "duplicate_packet_pass": duplicate_packet_pass,
         "packet_diversity_pass": packet_diversity_pass,
         "stage2_pass": (
-            coverage_pass
-            and prevalence_pass
-            and duplicate_packet_pass
-            and packet_diversity_pass
+            coverage_pass and prevalence_pass and duplicate_packet_pass and packet_diversity_pass
         ),
         "experimental_condition_results_inspected": False,
     }

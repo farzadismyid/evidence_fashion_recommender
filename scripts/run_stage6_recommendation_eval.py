@@ -59,6 +59,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--models-config", type=Path, default=Path("configs/models.yaml"))
     parser.add_argument("--runtime-root", type=Path)
     parser.add_argument("--dry-run", action="store_true")
+    parser.add_argument("--overwrite", action="store_true")
     return parser.parse_args()
 
 
@@ -66,6 +67,13 @@ def _rank(item_ids: list[str], relevance: list[bool], scores: np.ndarray) -> pd.
     return pd.DataFrame(
         {"item_id": item_ids, "is_positive": relevance, "score": scores}
     ).sort_values(["score", "item_id"], ascending=[False, True], kind="stable")
+
+
+def _write_jsonl_replace(path: Path, records: list[dict[str, Any]]) -> None:
+    """Replace a canonical JSONL only after the full in-memory computation succeeds."""
+    with path.open("w", encoding="utf-8", newline="\n") as handle:
+        for record in records:
+            handle.write(json.dumps(record, sort_keys=True, ensure_ascii=False) + "\n")
 
 
 def _contrasts(case_metrics: pd.DataFrame, config: dict[str, Any]) -> pd.DataFrame:
@@ -470,8 +478,14 @@ def _registry_rows(config_digest: str, artifacts: dict[str, Path]) -> list[dict[
 
 def _update_registry(config_digest: str, artifacts: dict[str, Path]) -> None:
     path = Path("artifacts/manifests/figure_table_registry.csv")
-    with path.open(encoding="utf-8", newline="") as handle:
-        existing = list(csv.DictReader(handle))
+    # The registry is a convenience index, not an input to recommendation
+    # computation.  A fresh workspace must therefore be able to create it after
+    # all computed outputs have been safely written.
+    if path.exists():
+        with path.open(encoding="utf-8", newline="") as handle:
+            existing = list(csv.DictReader(handle))
+    else:
+        existing = []
     additions = _registry_rows(config_digest, artifacts)
     ids = {row["artifact_id"] for row in additions}
     rows = [row for row in existing if row["artifact_id"] not in ids] + additions
@@ -498,7 +512,7 @@ def main() -> None:
             )
         )
         return
-    if run_dir.exists():
+    if run_dir.exists() and not args.overwrite:
         raise FileExistsError(f"Immutable Stage 6 run already exists: {run_dir}")
 
     from evidence_fashion.retrieval import CLIPEmbedder, OllamaEmbedder
@@ -777,7 +791,7 @@ def main() -> None:
         columns=["requirement", "status", "evidence_or_next_step"],
     )
 
-    run_dir.mkdir(parents=True)
+    run_dir.mkdir(parents=True, exist_ok=args.overwrite)
     runtime_outputs = {
         "case_metrics": run_dir / "case_metrics.csv",
         "evidence_diagnostics": run_dir / "evidence_diagnostics.csv",
@@ -786,8 +800,9 @@ def main() -> None:
     }
     case_metrics.to_csv(runtime_outputs["case_metrics"], index=False)
     evidence_diagnostics.to_csv(runtime_outputs["evidence_diagnostics"], index=False)
-    write_jsonl(runtime_outputs["locked_cases"], locked_cases)
-    write_jsonl(runtime_outputs["rankings"], ranking_records)
+    jsonl_writer = _write_jsonl_replace if args.overwrite else write_jsonl
+    jsonl_writer(runtime_outputs["locked_cases"], locked_cases)
+    jsonl_writer(runtime_outputs["rankings"], ranking_records)
     tracked = {
         "table_01_dataset_statistics": Path("artifacts/tables/table_01_dataset_statistics.csv"),
         "table_02_recommendation_results": Path(
@@ -898,8 +913,14 @@ def main() -> None:
         "environment": environment_summary(),
         "failure_counts": {"ranking_failures": 0, "trace_failures": 0},
         "trace_validation": {
-            "complete_five_rule_traces": all(
-                len(row["evidence_trace"]["rules"]) == 5 for row in locked_cases
+            "all_traces_strictly_applicable": all(
+                row["evidence_trace"]["rules"]
+                and all(
+                    rule.get("antecedent_established") is True
+                    and all(rule.get("antecedent_checks", {}).values())
+                    for rule in row["evidence_trace"]["rules"]
+                )
+                for row in locked_cases
             ),
             "locked_cases_checked": len(locked_cases),
         },
@@ -908,7 +929,10 @@ def main() -> None:
         ),
     }
     runtime_manifest = run_dir / "manifest.json"
-    write_new_json(runtime_manifest, manifest)
+    if args.overwrite:
+        write_json(runtime_manifest, manifest)
+    else:
+        write_new_json(runtime_manifest, manifest)
     write_json(Path("artifacts/manifests/stage6_recommendation_manifest.json"), manifest)
     print(
         json.dumps(

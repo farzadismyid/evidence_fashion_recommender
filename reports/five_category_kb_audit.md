@@ -1,6 +1,6 @@
 # Five-category knowledge-base audit
 
-Audit date: 2026-08-16  
+Audit date: 2026-08-21  
 Scope: tops, bottoms, shoes, outerwear, bags  
 Experimental condition results inspected: **no**
 
@@ -18,18 +18,19 @@ Experimental condition results inspected: **no**
   `artifacts/manifests/stage2_kb_freeze_manifest.json`.
 
 The final pre-result thresholds are maximum rule prevalence 30%, duplicate-packet participation
-70%, and at least 100 unique non-empty packets. The final audit passes at 28%, 67.5%, and 104
+70%, and at least 100 unique non-empty packets. The refreshed audit passes at 28%, 65%, and 110
 respectively, while retaining 200/200 case coverage. No experimental condition results were
 inspected.
 
 ## Outcome
 
 The legacy audit accounts for **126 / 126** rules. No legacy rule text was carried forward
-verbatim. The canonical replacement contains 100 narrowly scoped rules: exactly 20 for each of
-tops, bottoms, shoes, outerwear and bags. It cites 43 distinct source pages and retains
+verbatim. The canonical replacement contains 120 source-audited rules: 24 for each of
+tops, bottoms, shoes, outerwear and bags. It cites 49 distinct source pages and retains
 source identity, URL, locator, access date, evidence summary, scope, limitations, reliability,
 source-validation status, version, and predecessor IDs in every row. Every active source URL was
-reachable and its cited passage was checked for direct support on 2026-08-16; no retained rule is
+reachable and its cited passage was checked for direct support on its recorded access date
+(2026-08-16 or 2026-08-21); no retained rule is
 backed only by a broken, unidentified, or method-only reference.
 
 Legacy dispositions are: 23 outside the five-category taxonomy, 25 based on the retired mixed
@@ -48,11 +49,11 @@ wording stored in `rule_text`; it does not mean the prescription is universally 
 High reliability denotes direct prescriptive support from an established fashion editorial or
 etiquette guide. Medium reliability denotes a direct stylist/retailer prescription or a clearly
 documented editorial outfit direction with narrower generalisability. Low-reliability and
-method-only citations are excluded. The final set has 51 high- and 49 medium-reliability rules.
+method-only citations are excluded. The final set has 51 high- and 69 medium-reliability rules.
 
-No individual source page supplies more than 7 rules (7% of the KB), and the source registry
-contains 43 pages from 7 named editorial organisations. Publication-family concentration remains
-a declared limitation: 74 rules come from Vogue/GQ brands. This is defensible as a transparent
+No individual source page supplies more than 9 rules (7.5% of the KB), and the source registry
+contains 49 pages from 7 named editorial organisations. Publication-family concentration remains
+a declared limitation: 94 rules come from Vogue/GQ brands. This is defensible as a transparent
 curated editorial KB, but it must not be described as a consensus of independent fashion
 authorities. Future expansion should prioritize independent publishers rather than add further
 Vogue/GQ rules.
@@ -64,11 +65,11 @@ checks. Same-category recommendations are intentionally excluded.
 
 | Query category | Bags | Bottoms | Outerwear | Shoes | Tops |
 |---|---:|---:|---:|---:|---:|
-| Bags | 0 | 3 | 3 | 3 | 3 |
-| Bottoms | 12 | 0 | 8 | 9 | 8 |
-| Outerwear | 13 | 3 | 0 | 5 | 4 |
-| Shoes | 17 | 7 | 5 | 0 | 5 |
-| Tops | 13 | 7 | 6 | 7 | 0 |
+| Bags | 0 | 4 | 4 | 4 | 4 |
+| Bottoms | 12 | 0 | 9 | 10 | 9 |
+| Outerwear | 15 | 4 | 0 | 6 | 5 |
+| Shoes | 18 | 8 | 6 | 0 | 6 |
+| Tops | 14 | 8 | 7 | 8 | 0 |
 
 The machine-readable matrix is `data/kb/coverage_matrix.csv`. The unique-page provenance audit is
 `data/kb/kb_source_registry.csv`. The normalized-text similarity audit is
@@ -104,7 +105,7 @@ or any other output: experimental condition results were not inspected.
 | Frozen taxonomy | PASS | only tops, bottoms, shoes, outerwear and bags |
 | Canonical integrity | PASS | 100 unique IDs; 20 per target; required provenance fields non-empty |
 | Citation restraint | PASS | no low-reliability or method-only rules; limitations explicit |
-| Source validity | PASS | 100/100 direct HTTPS citations with locators and access dates |
+| Source validity | PASS | 120/120 direct HTTPS citations with locators and access dates |
 | Source-page concentration | PASS | maximum 7/100 rules from any one page |
 | Duplicate review | PASS | no exact normalized duplicates; all 63 flagged pairs dispositioned |
 | Static cross-category coverage | PASS | every one of 20 valid directed category pairs has >=3 rules |
@@ -112,7 +113,7 @@ or any other output: experimental condition results were not inspected.
 | Stage 1 taxonomy/data freeze | PASS | frozen manifest binds 1,000 cases and 200 bag audit cases |
 | Empirical bag-case coverage | PASS | 200/200 supported; zero unsupported cases |
 | Bag-rule prevalence | PASS | maximum 28%, below the pre-result 30% threshold |
-| Bag packet diversity | PASS | 104 unique packets; 67.5% duplicate-packet participation, below 70% |
+| Bag packet diversity | PASS | 110 unique packets; 65% duplicate-packet participation, below 70% |
 | Stage 2 KB freeze | PASS | immutable manifest binds the KB, audits, thresholds and Stage 1 freeze |
 
 The preliminary `bag_rule_audit.csv` and `stage2_bag_rule_audit.md` are retained only as historical

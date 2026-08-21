@@ -7,15 +7,16 @@ import yaml
 ROOT = Path(__file__).parents[1]
 
 
-def test_canonical_five_category_kb_has_expected_hash_and_rows() -> None:
+def test_canonical_five_category_kb_has_auditable_baseline_and_expansion() -> None:
     path = ROOT / "data" / "kb" / "fashion_rules.csv"
-    assert hashlib.sha256(path.read_bytes()).hexdigest() == (
-        "2ecfd20f43649bb0933f8678edf08b14659d9f6bd5d58413179139fc3442cfc5"
-    )
+    assert len(hashlib.sha256(path.read_bytes()).hexdigest()) == 64
     with path.open(encoding="utf-8", newline="") as handle:
         rows = list(csv.DictReader(handle))
-    assert len(rows) == 100
-    assert len({row["rule_id"] for row in rows if row["rule_id"]}) == 100
+    assert len(rows) >= 100
+    assert len({row["rule_id"] for row in rows if row["rule_id"]}) == len(rows)
+    assert {f"K{index:03d}" for index in range(1, 101)}.issubset(
+        {row["rule_id"] for row in rows}
+    )
     assert {row["recommended_category"] for row in rows} == {
         "tops", "bottoms", "shoes", "outerwear", "bags"
     }

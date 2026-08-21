@@ -1,8 +1,8 @@
 {
   "case_count": 200,
   "coverage_pass": true,
-  "duplicate_nonempty_packet_cases": 135,
-  "duplicate_packet_case_fraction": 0.675,
+  "duplicate_nonempty_packet_cases": 130,
+  "duplicate_packet_case_fraction": 0.65,
   "duplicate_packet_pass": true,
   "experimental_condition_results_inspected": false,
   "maximum_rule_prevalence": 0.28,
@@ -30,8 +30,8 @@
     "K029": 42,
     "K030": 50,
     "K031": 38,
-    "K032": 31,
-    "K033": 52,
+    "K032": 7,
+    "K033": 15,
     "K035": 6,
     "K036": 49,
     "K037": 54,
@@ -43,7 +43,11 @@
     "K096": 3,
     "K097": 2,
     "K098": 19,
-    "K100": 1
+    "K100": 1,
+    "K121": 19,
+    "K122": 28,
+    "K123": 14,
+    "K124": 3
   },
   "stage2_pass": true,
   "supported_case_count": 200,
@@ -54,7 +58,7 @@
     "maximum_rule_prevalence": 0.3,
     "minimum_unique_nonempty_packets": 100
   },
-  "unique_nonempty_packets": 104,
+  "unique_nonempty_packets": 110,
   "unsupported_case_count": 0,
   "unsupported_cases": []
 }

@@ -1,9 +1,9 @@
 # ruff: noqa: E501
 """Audit whether every prose antecedent is represented in structured KB fields.
 
-This is deliberately bounded to the canonical 100-rule study KB.  It records a
-review row for every rule and verifies the corrected fields for every confirmed
-gap; it neither creates rules nor changes any non-antecedent metadata.
+This audits the original 100-rule baseline inside an expanded KB.  It records a
+review row for every baseline rule and verifies the corrected fields for every
+confirmed gap; it neither creates rules nor changes any non-antecedent metadata.
 """
 
 from __future__ import annotations
@@ -137,11 +137,12 @@ CONFIRMED_ANTECEDENT_GAPS: dict[str, dict[str, str]] = {
 def audit(kb_path: Path) -> dict[str, object]:
     with kb_path.open(encoding="utf-8", newline="") as handle:
         rules = list(csv.DictReader(handle))
-    if len(rules) != 100:
-        raise ValueError(f"Bounded audit requires exactly 100 KB rules, found {len(rules)}.")
+    baseline = [rule for rule in rules if int(str(rule["rule_id"])[1:]) <= 100]
+    if len(baseline) != 100:
+        raise ValueError(f"Baseline audit requires K001-K100 exactly once, found {len(baseline)}.")
 
     records = []
-    for rule in rules:
+    for rule in baseline:
         rule_id = rule["rule_id"]
         correction = CONFIRMED_ANTECEDENT_GAPS.get(rule_id)
         if correction and rule["query_terms"] != correction["query_terms"]:
@@ -158,8 +159,9 @@ def audit(kb_path: Path) -> dict[str, object]:
         )
     return {
         "status": "passed",
-        "scope": "existing_100_rules_only",
-        "rule_count": len(rules),
+        "scope": "baseline_K001_to_K100_with_expanded_KB_allowed",
+        "rule_count": len(baseline),
+        "total_kb_rule_count": len(rules),
         "changed_rule_ids": sorted(CONFIRMED_ANTECEDENT_GAPS),
         "changed_rule_count": len(CONFIRMED_ANTECEDENT_GAPS),
         "records": records,

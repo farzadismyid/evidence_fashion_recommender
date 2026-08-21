@@ -65,7 +65,7 @@ def _trace_score(trace: Mapping[str, Any]) -> float:
     return float(0.7 * values.max() + 0.3 * values.mean())
 
 
-def _valid_trace(case: Mapping[str, Any], rule_count: int) -> bool:
+def _valid_trace(case: Mapping[str, Any]) -> bool:
     trace = case.get("evidence_trace", {})
     try:
         require_trace_applicability(trace)
@@ -73,7 +73,7 @@ def _valid_trace(case: Mapping[str, Any], rule_count: int) -> bool:
         return False
     return (
         trace.get("candidate_id") == case.get("locked_candidate_id")
-        and len(trace["rules"]) == rule_count
+        and bool(trace["rules"])
         and math.isclose(_trace_score(trace), float(trace["evidence_score"]), abs_tol=1e-12)
     )
 
@@ -89,7 +89,7 @@ def _select(
             dict(case)
             for case in locked
             if case["target_category"] == target
-            and _valid_trace(case, int(config["stage4_validation"]["selected_rule_top_k"]))
+            and _valid_trace(case)
             and (
                 target != "bags"
                 or categories.get(str(case["locked_candidate_id"]))

@@ -8,36 +8,37 @@
   },
   "audit_metrics": {
     "case_count": 200,
-    "duplicate_nonempty_packet_cases": 135,
-    "duplicate_packet_case_fraction": 0.675,
+    "duplicate_nonempty_packet_cases": 130,
+    "duplicate_packet_case_fraction": 0.65,
     "maximum_rule_prevalence": 0.28,
     "supported_case_count": 200,
-    "unique_nonempty_packets": 104,
+    "unique_nonempty_packets": 110,
     "unsupported_case_count": 0
   },
   "bound_artifact_hashes": {
     "artifacts\\manifests\\stage1_taxonomy_freeze_manifest.json": "1084f4d305bd0b3ea28a5e9f7aedbb63f12a7ff3f81438c6304b4ad54920f132",
-    "data\\kb\\coverage_matrix.csv": "be7fa53d88a4c52c5edd238826d95ad82c07f1f327b56cfdf566a8a7a5542145",
-    "data\\kb\\fashion_rules.csv": "2ecfd20f43649bb0933f8678edf08b14659d9f6bd5d58413179139fc3442cfc5",
-    "data\\kb\\kb_rule_similarity_audit.csv": "92203c275062f54c4f34f3742c93ca6b04216ace40e536df1f610b763f6869d4",
-    "data\\kb\\kb_source_registry.csv": "e77a89c26540088ced8a813203c1c74221a60f408ba54e0981f8b6bb39456996",
-    "reports\\stage2_bag_case_applicability_audit.json": "880c64da0e840c96c7d6b6238ba3a5a989dc2643f4261e0cd8a32e4caeeb5114"
+    "data\\kb\\coverage_matrix.csv": "f6dcfaedcf52673e2f1c5a02dd6c393bd4cc17b59e2298448d2262bcc93ceef5",
+    "data\\kb\\fashion_rules.csv": "a823e732fe5ad6687d1186b8dc3f484ae580cd4533d52335971785e7d1bceea3",
+    "data\\kb\\kb_rule_similarity_audit.csv": "fcfd74f18fefde2c75f07aec864b1453ea36d3968d227d4101ca78bc09fbc5e2",
+    "data\\kb\\kb_source_registry.csv": "822f79b56ade53d08fdf1268592d667a113e5c9a7373eb4c5bd18ff60740dd5e",
+    "reports\\stage2_bag_case_applicability_audit.json": "72d16655b426138e03a2dcf0f91ac8329c89a1f19086481f27e7cb19dc894af4"
   },
   "experimental_condition_results_inspected": false,
-  "git_commit": "93a2a01928e7e71f236a603095b708ffa1729aa7",
+  "git_commit": "156998395e2ff25abd8c9ec16e8165bf15d59135",
   "next_gate": "Proceed to Stage 3 without changing the frozen taxonomy or KB.",
-  "rule_count": 100,
+  "rule_count": 120,
   "rule_counts_by_target": {
-    "bags": 20,
-    "bottoms": 20,
-    "outerwear": 20,
-    "shoes": 20,
-    "tops": 20
+    "bags": 24,
+    "bottoms": 24,
+    "outerwear": 24,
+    "shoes": 24,
+    "tops": 24
   },
   "schema_version": 1,
-  "source_page_count": 43,
+  "source_page_count": 49,
   "source_validation_statuses": [
-    "verified_reachable_and_direct_2026-08-16"
+    "verified_reachable_and_direct_2026-08-16",
+    "verified_reachable_and_direct_2026-08-21"
   ],
   "stage": 2,
   "status": "frozen",
@@ -46,5 +47,5 @@
     "maximum_rule_prevalence": 0.3,
     "minimum_unique_nonempty_packets": 100
   },
-  "timestamp_utc": "2026-08-20T21:38:30Z"
+  "timestamp_utc": "2026-08-21T08:59:21Z"
 }
