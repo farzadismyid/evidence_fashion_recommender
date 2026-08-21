@@ -20,7 +20,6 @@ def full_kb_candidate_retrieval(
     """Return verification candidates only; this deliberately does not assess antecedents."""
     candidates = rules[
         rules["recommended_category"].astype(str).eq(target_category)
-        & rules["audit_status"].astype(str).eq("retain")
         & rules["applicable_query_categories"]
         .astype(str)
         .map(

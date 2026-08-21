@@ -31,6 +31,16 @@ def _case() -> dict:
     }
 
 
+def _valid_explanation(citation: str = "[K001]") -> str:
+    return (
+        "The rib cardigan is the recommended item because it gives the outfit a balanced upper "
+        "layer while keeping proportions clear with wide-leg trousers. Its simple cardigan role "
+        "supports the requested top category without assuming colour, fabric, occasion, or other "
+        "unprovided details. This explanation stays focused on the locked recommendation and the "
+        f"supplied rule evidence. {citation}"
+    )
+
+
 def test_shared_gate_fails_closed_and_exact_trace_requires_the_passed_decision() -> None:
     decision = rule_applicability_gate(
         _rule(), case=_case(), candidate={"category": "Tops", "text": "rib cardigan"}
@@ -46,7 +56,7 @@ def test_shared_gate_fails_closed_and_exact_trace_requires_the_passed_decision()
 
 
 def test_locked_item_and_citation_contracts_reject_drift_grouping_and_out_of_trace_ids() -> None:
-    valid = "The rib cardigan is the recommended item. [K001]"
+    valid = _valid_explanation()
     assert validate_generated_explanation(
         valid,
         locked_item_name="rib cardigan",
@@ -76,7 +86,7 @@ def test_citation_occurrences_preserve_grouped_duplicate_and_unknown_diagnostics
         canonical_citation_ids("The rib cardigan works. [K001, K002]")
     with pytest.raises(ValueError, match="outside"):
         validate_generated_explanation(
-            "The rib cardigan works. [K002]",
+            _valid_explanation("[K002]"),
             locked_item_name="rib cardigan",
             target_category="tops",
             trace_rule_ids=["K001"],

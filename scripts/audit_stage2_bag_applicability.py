@@ -12,7 +12,7 @@ from evidence_fashion.kb_audit import audit_static_case_applicability, load_cano
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser()
     parser.add_argument("--cases", type=Path, required=True)
-    parser.add_argument("--kb", type=Path, default=Path("data/kb/fashion_rules.csv"))
+    parser.add_argument("--kb", type=Path, default=Path("data/kb/fashion_rules_v3.csv"))
     parser.add_argument("--output", type=Path, required=True)
     return parser.parse_args()
 

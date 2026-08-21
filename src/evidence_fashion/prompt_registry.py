@@ -38,6 +38,12 @@ REQUIRED_ROLES = frozenset(
         "blind_judge",
     }
 )
+EXPLANATION_WORD_CONTRACT = {
+    "minimum_words": 55,
+    "target_words": 65,
+    "maximum_words": 75,
+    "normally_sentence_count": [2, 3],
+}
 
 
 def text_sha256(value: str) -> str:
@@ -90,6 +96,14 @@ def validate_prompt_registry(registry: Mapping[str, Any]) -> None:
             raise ValueError(f"Prompt role {role_name} must declare prohibited inference.")
         if not isinstance(role["output_schema"], Mapping) or not role["output_schema"]:
             raise ValueError(f"Prompt role {role_name} must declare an output schema.")
+        if role_name in {"no_rag_explanation", "rule_rag_explanation"}:
+            contract = {
+                key: role["output_schema"].get(key) for key in EXPLANATION_WORD_CONTRACT
+            }
+            if contract != EXPLANATION_WORD_CONTRACT:
+                raise ValueError(
+                    f"Prompt role {role_name} must use the shared 55–75 word explanation contract."
+                )
         if not isinstance(role["token_limit"], int) or role["token_limit"] <= 0:
             raise ValueError(f"Prompt role {role_name} has an invalid token limit.")
         if not isinstance(role["temperature"], (int, float)) or role["temperature"] < 0:

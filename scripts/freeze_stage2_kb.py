@@ -5,11 +5,13 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
+import yaml
+
 from evidence_fashion.kb_audit import load_canonical_rules
 from evidence_fashion.manifest import git_commit, sha256_file, utc_timestamp, write_json
 
 ROOT = Path(__file__).parents[1]
-KB_PATH = ROOT / "data/kb/fashion_rules.csv"
+EXPERIMENT_CONFIG = ROOT / "configs/experiment.yaml"
 AUDIT_PATH = ROOT / "reports/stage2_bag_case_applicability_audit.json"
 SOURCE_REGISTRY = ROOT / "data/kb/kb_source_registry.csv"
 SIMILARITY_AUDIT = ROOT / "data/kb/kb_rule_similarity_audit.csv"
@@ -19,7 +21,9 @@ OUTPUT_PATH = ROOT / "artifacts/manifests/stage2_kb_freeze_manifest.json"
 
 
 def main() -> None:
-    rules = load_canonical_rules(KB_PATH)
+    experiment = yaml.safe_load(EXPERIMENT_CONFIG.read_text(encoding="utf-8"))
+    kb_path = ROOT / experiment["paths"]["knowledge_base"]
+    rules = load_canonical_rules(kb_path)
     counts = rules["recommended_category"].value_counts().to_dict()
     minimum = {category: 20 for category in ("tops", "bottoms", "shoes", "outerwear", "bags")}
     if any(int(counts.get(category, 0)) < required for category, required in minimum.items()):
@@ -34,7 +38,7 @@ def main() -> None:
         raise ValueError("Stage 1 must be frozen before Stage 2.")
 
     artifacts = [
-        KB_PATH,
+        kb_path,
         AUDIT_PATH,
         SOURCE_REGISTRY,
         SIMILARITY_AUDIT,

@@ -30,12 +30,15 @@ def build_no_rag_prompt(case: Mapping[str, Any], word_limit: int | None = None) 
     """Render the A-only baseline, optionally under the shared length instruction."""
     context = common_context(case)
     instruction = (
-        "Explain why the exact recommended item works with the outfit. Repeat the recommended "
-        "item verbatim and do not substitute another recommendation."
+        "Write a 55–75 word explanation, aiming for about 65 words in 2–3 sentences. Explain "
+        "why the exact recommended item works with the outfit using only supplied context; do "
+        "not pad it with unsupported details. Repeat the recommended item verbatim and do not "
+        "substitute another recommendation."
     )
     if word_limit is not None:
         instruction = (
-            f"Write a recommendation explanation in at most {word_limit} words. {instruction}"
+            f"Write a recommendation explanation within the 55–75 word shared contract. "
+            f"{instruction}"
         )
     return (
         f"{instruction}\n\n"
@@ -94,9 +97,11 @@ def build_rule_rag_prompt(
         )
     )
     prompt = (
-        f"Write an evidence-grounded recommendation explanation in at most "
-        f"{settings['word_limit']} words. {grounding} {citation_instruction} Name the exact "
-        "recommended item verbatim and do not substitute another recommendation.\n\n"
+        "Write an evidence-grounded recommendation explanation in 55–75 words, aiming for "
+        f"about 65 words in 2–3 sentences. {grounding} {citation_instruction} Develop why the "
+        "recommendation works rather than merely restating a rule, but do not add unsupported "
+        "detail. Name the exact recommended item verbatim and do not substitute another "
+        "recommendation.\n\n"
         f"User request: {context['user_request']}\n"
         f"Query item: {context['query_item_minimal_name']}\n"
         f"Recommended item: {context['locked_item_minimal_name']}\n"
