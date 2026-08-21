@@ -7,22 +7,42 @@ K013,"For an explicitly tailored blazer or coat in workwear, tailored trousers a
 K018,"For an explicit black-tie menswear request, prefer black patent or highly polished formal shoes.",200,0.0019994801351648573,200,0.0003998960270329714
 K026,"For an explicit casual tee, a relaxed jacket such as a denim jacket or bomber is category-appropriate when the request remains casual.",100,0.0009997400675824286,100,0.0001999480135164857
 K027,"For explicit black-tie footwear or a tuxedo context, outerwear must preserve formal evening tone; do not recommend clearly casual jackets.",200,0.0019994801351648573,200,0.0003998960270329714
-K029,"When boots are explicit in the outfit, a shoulder or handbag is a documented finishing direction.",4114,0.04112930638034111,4114,0.008225861276068223
-K030,"When jeans or denim are explicit, a leather shoulder bag or woven bag is a documented pairing.",4861,0.04859736468518185,4861,0.00971947293703637
-K031,"When a skirt is explicit, a shoulder bag is a documented accompaniment to a skirt-led outfit.",3321,0.03320136764441245,3321,0.00664027352888249
+K029,"When boots are explicit in the outfit, a shoulder or handbag is a documented finishing direction.",3935,0.03933977165936856,3935,0.007867954331873712
+K030,"When jeans or denim are explicit, a leather shoulder bag or woven bag is a documented pairing.",4818,0.048167476456121405,4818,0.009633495291224281
+K031,"When a skirt is explicit, a shoulder bag is a documented accompaniment to a skirt-led outfit.",3220,0.0321916301761542,3220,0.00643832603523084
 K032,"When a jacket or coat is explicit with boots, a shoulder bag or tote is a documented finishing direction.",701,0.007008177873752824,701,0.0014016355747505649
 K033,"When a sweater knit or jumper dress is explicit with boots, a shoulder bag or top-handle bag is a documented pairing.",1501,0.015006098414412253,1501,0.0030012196828824505
 K035,"When sneakers or trainers are explicit, a shoulder bag, tote or basket bag is a documented finishing direction.",601,0.006008437806170395,601,0.001201687561234079
-K036,"When polished footwear is explicit with a trouser, skirt, short, tank or shirt context, a shoulder bag, clutch or tote is a documented finishing direction.",4878,0.04876732049667087,4878,0.009753464099334173
-K037,"When a top shirt tee tank or blouse is explicit with polished footwear or a skirt or trouser context, a shoulder or tote bag is a documented finishing direction.",6448,0.06446323955771499,6448,0.012892647911543
+K036,"When polished footwear is explicit with a trouser, skirt, short, tank or shirt context, a shoulder bag, clutch or tote is a documented finishing direction.",4858,0.04856737248315438,4858,0.009713474496630877
+K037,"When a top shirt tee tank or blouse is explicit with polished footwear or a skirt or trouser context, a shoulder or tote bag is a documented finishing direction.",6437,0.06435326815028093,6437,0.012870653630056185
 K049,"For an explicit T-shirt being smartened within a preppy request, pleated trousers are a directly supported bottom direction.",100,0.0009997400675824286,100,0.0001999480135164857
 K054,"For an explicit formal clutch or elegant top-handle bag, polished stilettos, kitten heels or polished flats are supported shoe categories.",100,0.0009997400675824286,100,0.0001999480135164857
-K070,"When trousers pants or shorts are explicit, a shoulder bag tote or clutch is a documented finishing direction.",5600,0.055985443784616,5600,0.0111970887569232
-K071,"When ankle booties or booties are explicit, a shoulder bag or tote is a documented finishing direction.",3482,0.03481094915322016,3482,0.006962189830644032
+K070,"When trousers pants or shorts are explicit, a shoulder bag tote or clutch is a documented finishing direction.",5552,0.055505568552176435,5552,0.011101113710435286
+K071,"When ankle booties or booties are explicit, a shoulder bag or tote is a documented finishing direction.",3312,0.03311139103833004,3312,0.0066222782076660065
 K073,"When pumps heels stilettos or wedges are explicit, a shoulder bag or clutch is a documented finishing direction.",2800,0.027992721892308,2800,0.0055985443784616
-K074,"When flat shoes slippers loafers or oxfords are explicit, a shoulder bag or basket bag is a documented finishing direction.",1824,0.018235258832703497,1824,0.0036470517665406995
-K075,"When a top tee tank blouse or shirt is explicit, a shoulder or tote bag is a documented finishing direction.",5511,0.05509567512446764,5511,0.011019135024893528
-K096,"With explicit pumps or heels and a skirt or dress, a shoulder bag is a documented bag direction.",265,0.0026493111790934355,265,0.0005298622358186871
-K097,"With explicit flat shoes and a dress, skirt or denim context, a raffia or basket bag is a documented bag direction.",199,0.001989482734489033,199,0.00039789654689780657
-K098,"With an explicit top plus a skirt, denim or trouser context, a shoulder or tote bag is a documented bag direction.",3260,0.03259152620318717,3260,0.006518305240637434
+K074,"When flat shoes slippers loafers or oxfords are explicit, a shoulder bag or basket bag is a documented finishing direction.",1788,0.01787535240837382,1788,0.0035750704816747644
+K075,"When a top tee tank blouse or shirt is explicit, a shoulder or tote bag is a documented finishing direction.",5445,0.05443584667986324,5445,0.010887169335972648
+K096,"With explicit pumps or heels and a skirt or dress, a shoulder bag is a documented bag direction.",266,0.00265930857976926,266,0.000531861715953852
+K097,"With explicit flat shoes and a dress, skirt or denim context, a raffia or basket bag is a documented bag direction.",186,0.0018595165257033171,186,0.0003719033051406634
+K098,"With an explicit top plus a skirt, denim or trouser context, a shoulder or tote bag is a documented bag direction.",3100,0.030991942095055285,3100,0.006198388419011057
 K100,"With explicit wedges and a tank, trouser, short or skirt context, a shoulder or tote bag is a documented bag direction.",49,0.00048987263311539,49,9.7974526623078e-05
+K101,"When the explicit query item is a top and the request is for bottoms, a bottom-category item can fill the complementary lower-body role in a documented everyday outfit formula.",7701,0.07698998260452282,7701,0.015397996520904565
+K102,"When the explicit query item is a top and the request is for shoes, a shoe-category item can complete the documented outfit formula as footwear.",6502,0.0650030991942095,6502,0.013000619838841902
+K103,"When the explicit query item is a top and the request is for outerwear, an outerwear-category item can provide the documented layering component of an outfit.",5401,0.05399596105012697,5401,0.010799192210025394
+K105,"When the explicit query item is bottoms and the request is for a top, a top-category item can provide the documented upper-body component of an everyday outfit formula.",6802,0.06800231939695679,6802,0.013600463879391358
+K106,"When the explicit query item is bottoms and the request is for shoes, a shoe-category item can supply the documented footwear component of an outfit formula.",4701,0.046997780577049966,4701,0.009399556115409994
+K107,"When the explicit query item is bottoms and the request is for outerwear, an outerwear-category item can supply the documented layer in an outfit formula.",4000,0.03998960270329714,4000,0.007997920540659429
+K109,"When the explicit query item is shoes and the request is for a top, a top-category item can supply the documented upper-body component of an outfit formula.",5101,0.05099674084737968,5101,0.010199348169475935
+K110,"When the explicit query item is shoes and the request is for bottoms, a bottom-category item can supply the documented lower-body component of an outfit formula.",5402,0.05400595845080279,5402,0.010801191690160559
+K111,"When the explicit query item is shoes and the request is for outerwear, an outerwear-category item can supply the documented layer in a complete outfit formula.",5501,0.0549957011177094,5501,0.010999140223541879
+K113,"When the explicit query item is outerwear and the request is for a top, a top-category item can provide the documented base-layer component of an outfit.",2801,0.028002719292983824,2801,0.005600543858596765
+K114,"When the explicit query item is outerwear and the request is for bottoms, a bottom-category item can provide the documented lower-body component of an outfit.",2604,0.02603323135984644,2604,0.005206646271969288
+K115,"When the explicit query item is outerwear and the request is for shoes, a shoe-category item can provide the documented footwear component of an outfit.",2800,0.027992721892308,2800,0.0055985443784616
+K117,"When the explicit query item is a bag and the request is for a top, a top-category item can provide the documented apparel component of an outfit formula.",5301,0.052996220982544535,5301,0.010599244196508907
+K118,"When the explicit query item is a bag and the request is for bottoms, a bottom-category item can provide the documented lower-body component of an outfit formula.",4302,0.04300881770739608,4302,0.008601763541479216
+K119,"When the explicit query item is a bag and the request is for shoes, a shoe-category item can provide the documented footwear component of an outfit formula.",6001,0.059994401455621536,6001,0.011998880291124307
+K120,"When the explicit query item is a bag and the request is for outerwear, an outerwear-category item can provide the documented layer in an outfit formula.",5100,0.050986743446703855,5100,0.010197348689340772
+K121,"When a sweater cardigan knit or jumper is explicit in the query, a bag-category item can supply the documented accessory component of a layered outfit.",1746,0.017455461579989204,1746,0.0034910923159978406
+K122,"When a jacket coat or blazer is explicit in the query, a bag-category item can supply the documented accessory component of a complete outfit.",2802,0.028012716693659647,2802,0.005602543338731929
+K123,"When sandals or clogs are explicit in the query, a bag-category item can supply the documented accessory component of an outfit formula.",1400,0.013996360946154,1400,0.0027992721892308
+K124,"When floral or jacquard outerwear is explicit in the query, a bag-category item can supply the documented structured accessory component of the outfit.",301,0.00300921760342311,301,0.000601843520684622

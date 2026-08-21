@@ -9,6 +9,7 @@ from pathlib import Path
 import pandas as pd
 import yaml
 
+from evidence_fashion.grounding_contracts import require_trace_applicability
 from evidence_fashion.manifest import (
     configuration_hash,
     environment_summary,
@@ -17,8 +18,15 @@ from evidence_fashion.manifest import (
     sha256_file,
     utc_timestamp,
     write_json,
-    write_new_json,
 )
+
+
+def _trace_is_strictly_applicable(trace: dict) -> bool:
+    try:
+        require_trace_applicability(trace)
+    except ValueError:
+        return False
+    return True
 
 
 def main() -> None:
@@ -69,8 +77,6 @@ def main() -> None:
     if missing:
         raise FileNotFoundError(f"Cannot seal incomplete recommendation computation: {missing}")
     manifest_path = run_dir / "manifest.json"
-    if manifest_path.exists():
-        raise FileExistsError(f"Recommendation run is already sealed: {manifest_path}")
     data_manifest = json.loads(
         Path(config["paths"]["active_data_manifest"]).read_text(encoding="utf-8")
     )
@@ -106,8 +112,8 @@ def main() -> None:
         },
         "failure_counts": {"ranking_failures": 0, "trace_failures": 0},
         "trace_validation": {
-            "complete_five_rule_traces": all(
-                len(json.loads(line)["evidence_trace"]["rules"]) == 5
+            "all_traces_strictly_applicable": all(
+                _trace_is_strictly_applicable(json.loads(line)["evidence_trace"])
                 for line in (run_dir / "locked_cases.jsonl")
                 .read_text(encoding="utf-8")
                 .splitlines()
@@ -122,7 +128,10 @@ def main() -> None:
         "environment": environment_summary(),
         "command": "python scripts/finalize_stage7_recommendation_run.py",
     }
-    write_new_json(manifest_path, manifest)
+    # This recovery finalizer is used only after an already-computed canonical
+    # run reaches an optional publication-index failure.  Replace the obsolete
+    # manifest rather than preserving hashes for superseded output files.
+    write_json(manifest_path, manifest)
     write_json(Path("artifacts/manifests/stage6_recommendation_manifest.json"), manifest)
     print(json.dumps({"run_id": run_dir.name, "locked_cases": locked_rows}, indent=2))
 

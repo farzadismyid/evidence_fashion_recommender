@@ -1,6 +1,6 @@
 query_category,bags,bottoms,outerwear,shoes,tops
-bags,0,3,3,3,3
-bottoms,12,0,8,9,8
-outerwear,13,3,0,5,4
-shoes,17,7,5,0,5
-tops,13,7,6,7,0
+bags,0,4,4,4,4
+bottoms,12,0,9,10,9
+outerwear,15,4,0,6,5
+shoes,18,8,6,0,6
+tops,14,8,7,8,0

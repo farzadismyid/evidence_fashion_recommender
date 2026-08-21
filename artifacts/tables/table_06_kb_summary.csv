@@ -1,10 +1,10 @@
 recommended_category,source_reliability,rule_count
-bags,medium,20
+bags,medium,24
 bottoms,high,12
-bottoms,medium,8
+bottoms,medium,12
 outerwear,high,13
-outerwear,medium,7
+outerwear,medium,11
 shoes,high,13
-shoes,medium,7
+shoes,medium,11
 tops,high,13
-tops,medium,7
+tops,medium,11

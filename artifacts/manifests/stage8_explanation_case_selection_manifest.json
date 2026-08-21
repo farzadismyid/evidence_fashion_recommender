@@ -1,73 +1,19 @@
 {
-  "command": "python scripts/finalize_stage7_recommendation_run.py",
+  "command": "python scripts/freeze_stage8_explanation_cases.py --config configs/experiment.yaml --models-config configs/models.yaml --runtime-root .runtime/current/explanations",
   "configuration_hash": "414ac73b4696d9e7d9d01b138130978be92ea73675092f2abd1b3ba847ac738a",
   "environment": {
     "machine": "AMD64",
     "os": "Windows-11-10.0.26200-SP0",
     "python": "3.12.13"
   },
-  "failure_counts": {
-    "ranking_failures": 0,
-    "trace_failures": 0
-  },
   "git_commit": "156998395e2ff25abd8c9ec16e8165bf15d59135",
   "input_artifact_hashes": {
     ".runtime\\current\\data\\data-a65702f6537a\\prepared_items.parquet": "c7adf4a9e9ff01f1dc8e37f2bed8de107ca2649c6cc3e199661d9b658f30f2a0",
-    "data/kb/fashion_rules.csv": "a823e732fe5ad6687d1186b8dc3f484ae580cd4533d52335971785e7d1bceea3"
-  },
-  "models": {
-    "clip": {
-      "batch_size": 64,
-      "device": "auto",
-      "dimension": 512,
-      "immutable_digest": "3d74acf9a28c67741b2f4f2ea7635f0aaf6f0268",
-      "max_sequence_length": 77,
-      "model_id": "openai/clip-vit-base-patch32",
-      "normalize": true,
-      "precision": "float32",
-      "provider": "transformers",
-      "revision": "3d74acf9a28c67741b2f4f2ea7635f0aaf6f0268"
-    },
-    "qwen3_embedding": {
-      "architecture": "qwen3",
-      "batch_size": 64,
-      "device": "local_ollama",
-      "dimension": 1024,
-      "immutable_digest": "06507c7b42688469c4e7298b0a1e16deff06caf291cf0a5b278c308249c3e439",
-      "max_sequence_length": 32768,
-      "model_id": "qwen3-embedding:0.6b",
-      "normalize": true,
-      "parameters": "0.6B",
-      "precision": "Q8_0",
-      "provider": "ollama",
-      "quantization": "Q8_0",
-      "revision": "0.6b-q8_0"
-    }
+    ".runtime\\current\\recommendations\\stage6\\stage6-confirmatory-414ac73b4696\\locked_cases.jsonl": "37f55e282e8044990f5110198c570e79fce1f8caf90e9e0f8acf6a1a7ae28cc6"
   },
   "output_artifact_hashes": {
-    ".runtime\\current\\recommendations\\stage6\\stage6-confirmatory-414ac73b4696\\candidate_rankings.jsonl": "3c2c8df0da920466d8b2d02751f84ddf8ed47c944d19a65829db1f12f8774b1e",
-    ".runtime\\current\\recommendations\\stage6\\stage6-confirmatory-414ac73b4696\\case_metrics.csv": "92a659aae3eb5e001d219d536a4c99952033487adaf9be46d6c3608b544f54a0",
-    ".runtime\\current\\recommendations\\stage6\\stage6-confirmatory-414ac73b4696\\evidence_diagnostics.csv": "0401e87b784541e6bb764fdc77851e5a06caab5302e650f5044d1ba0d95c2b50",
-    ".runtime\\current\\recommendations\\stage6\\stage6-confirmatory-414ac73b4696\\locked_cases.jsonl": "37f55e282e8044990f5110198c570e79fce1f8caf90e9e0f8acf6a1a7ae28cc6",
-    "artifacts\\figures\\fig_01_system_architecture.svg": "4e893ed1f221055c5ba1ca8e7389cccb8917a78735006540ce92e86b131d4b6e",
-    "artifacts\\figures\\fig_02_evidence_ablation.svg": "dd0bf61884c29cce8dd2f8efb90633856ee1186fe06fdb6190ae464d4f04e0d8",
-    "artifacts\\figures\\fig_03_evidence_trace.svg": "8ee1cec133044fb3b00e9de3c248b77b7ccfb1fae7b385c7627d951c536f5159",
-    "artifacts\\figures\\fig_04_dataset_pipeline.svg": "ad96724cd308f1b68bb7df6e03b7d8a572660eb7bc23810084a713f365c5ff7f",
-    "artifacts\\tables\\table_01_dataset_statistics.csv": "8094b8286a26ab598e8960a796eb52bd796b3dedfcf4d648514c71246243b792",
-    "artifacts\\tables\\table_02_recommendation_results.csv": "945a29ed9b0a6bf92df55370c6326e60787f11f048365d0c0ad19215d5febc3e",
-    "artifacts\\tables\\table_03_recommendation_contrasts.csv": "8530276f1c0aa378e4c526f64b343983d9cf515d7b885d22039fbb7c39a42c5b",
-    "artifacts\\tables\\table_04_evidence_participation.csv": "bf74ccddaa60f0b1b4a34ba462f7803a4cb861f1fea2186956f6d3b7916be113",
-    "artifacts\\tables\\table_05_stage6_rule_frequency.csv": "61f6ad8dcdc4a17e3fad87fa7846dcb38e47b36eb594e59378adc0e653cc7dfc",
-    "artifacts\\tables\\table_06_kb_summary.csv": "c7f5570375e12bb8a367593bcbbc04bf8bfddad6d95037b8a33bf30dcdc81da2",
-    "artifacts\\tables\\table_07_publication_readiness.csv": "45afbd2fab37fef14fd56e8ba034107f4c0d10bd001009207760dc7346b99a42"
-  },
-  "publication_assembly": {
-    "legacy_optional_figures_skipped": [
-      "fig_07",
-      "fig_08",
-      "fig_09"
-    ],
-    "reason": "their obsolete source tables are intentionally not retained"
+    ".runtime\\current\\explanations\\stage8-selection-414ac73b4696\\condition_inputs.jsonl": "74fa75c2694ef8b77137252c4bcc25e9406c42844e736a831421c087c4a89032",
+    ".runtime\\current\\explanations\\stage8-selection-414ac73b4696\\selected_locked_cases.jsonl": "6fd25d460155ed64a10b8eb48bc4fdb0e66cce52dde375c78edb46a494f28c97"
   },
   "resolved_configuration": {
     "experiment": {
@@ -875,17 +821,25 @@
     }
   },
   "row_counts": {
-    "case_metric_rows": 5000,
-    "confirmatory_cases": 1000,
-    "locked_cases": 1000
+    "condition_inputs": 1000,
+    "selected_cases": 500
   },
-  "run_id": "stage6-confirmatory-414ac73b4696",
+  "run_id": "stage8-selection-414ac73b4696",
   "schema_version": 1,
-  "stage": 7,
-  "status": "complete",
-  "timestamp_utc": "2026-08-21T10:05:18Z",
-  "trace_validation": {
-    "all_traces_strictly_applicable": true,
-    "locked_cases_checked": 1000
+  "stage": 8,
+  "status": "frozen",
+  "timestamp_utc": "2026-08-21T10:05:32Z",
+  "validation": {
+    "bag_allowlist": true,
+    "condition_contexts_identical": true,
+    "per_category": {
+      "bags": 100,
+      "bottoms": 100,
+      "outerwear": 100,
+      "shoes": 100,
+      "tops": 100
+    },
+    "trace_valid": true,
+    "unique_case_ids": true
   }
 }
