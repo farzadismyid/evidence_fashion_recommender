@@ -392,7 +392,7 @@ statistics:
 
 stage6:
   reference_method: fused_clip_main_040_060
-  contrast_methods: [minilm_text, clip_image, clip_text, evidence_rerank_main_075_025]
+  contrast_methods: [qwen3_embedding_text, clip_image, clip_text, evidence_rerank_main_075_025]
   publication_example_cases_per_category: 1
   publication_top_k: 5
   save_candidate_rankings: true
@@ -449,6 +449,6 @@ stage8:
     - "unable to provide"
     - "i can't fulfill"
     - "i cannot fulfill"
-  citation_pattern: '\[(R[0-9]{3})\]'
+  citation_pattern: '\[(K[0-9]{3})\]'
   verification_evidence_packet: common_union_A_plus_B
   preserve_generation_evidence_visibility: true

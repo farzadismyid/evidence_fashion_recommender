@@ -191,10 +191,15 @@ class OllamaClient:
             headers={"Content-Type": "application/json"},
             method="POST",
         )
-        with urllib.request.urlopen(
-            request, timeout=float(self.defaults["timeout_seconds"])
-        ) as response:
-            response.read()
+        try:
+            # Ollama may complete the unload but fail to close the acknowledgement socket.
+            # A short bounded wait preserves sequential release without discarding a batch.
+            with urllib.request.urlopen(
+                request, timeout=min(10.0, float(self.defaults["timeout_seconds"]))
+            ) as response:
+                response.read()
+        except TimeoutError:
+            return
 
     def generate_json(
         self,

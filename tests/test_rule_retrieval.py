@@ -127,16 +127,18 @@ def test_candidate_representation_contains_only_approved_dataset_and_request_fie
     assert "image" not in text.lower()
 
 
-def test_query_term_conjunction_fails_closed_until_every_clause_is_present() -> None:
+def test_query_term_conjunction_yields_empty_trace_until_every_clause_is_present() -> None:
     rules = _rules().iloc[[0]].copy()
     rules.loc[:, "query_terms"] = "dress & smart casual|smart-casual"
     retriever = RuleRetriever(rules, np.array([[1.0, 0.0]]), _settings())
-    with pytest.raises(ValueError, match="No audited applicable rules"):
-        retriever.retrieve_and_score(
-            case=_case(),
-            candidate=_candidate(),
-            representation_embedding=np.array([1.0, 0.0]),
-        )
+    empty = retriever.retrieve_and_score(
+        case=_case(),
+        candidate=_candidate(),
+        representation_embedding=np.array([1.0, 0.0]),
+    )
+    assert empty.rules == ()
+    assert empty.evidence_score == 0.0
+    assert empty.filtering["empty_trace_reason"] == "no_rule_with_established_antecedent"
     case = _case()
     case["user_request"] = "Recommend shoes for a smart-casual look."
     trace = retriever.retrieve_and_score(

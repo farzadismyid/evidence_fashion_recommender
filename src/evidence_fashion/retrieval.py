@@ -1,7 +1,9 @@
-"""Frozen MiniLM/CLIP encoders and deterministic controlled-pool retrieval interfaces."""
+"""Frozen Ollama/CLIP encoders and deterministic controlled-pool retrieval interfaces."""
 
 from __future__ import annotations
 
+import json
+import urllib.request
 from collections.abc import Sequence
 from dataclasses import dataclass
 from typing import Any
@@ -108,6 +110,49 @@ class MiniLMEmbedder:
             show_progress_bar=False,
         )
         return l2_normalize(vectors) if self.settings["normalize"] else vectors.astype(np.float32)
+
+
+@dataclass
+class OllamaEmbedder:
+    """Deterministic batched text embeddings from a locally pinned Ollama model."""
+
+    settings: dict[str, Any]
+    endpoint: str = "http://127.0.0.1:11434"
+
+    def __post_init__(self) -> None:
+        if self.settings.get("provider") != "ollama":
+            raise ValueError("OllamaEmbedder requires an Ollama embedding-model configuration.")
+        self.device = str(self.settings.get("device", "local_ollama"))
+
+    def encode(self, texts: Sequence[str], batch_size: int | None = None) -> np.ndarray:
+        size = batch_size or int(self.settings["batch_size"])
+        batches = []
+        for start in range(0, len(texts), size):
+            chunk = list(texts[start : start + size])
+            payload = json.dumps(
+                {
+                    "model": self.settings["model_id"],
+                    "input": chunk,
+                    "truncate": True,
+                    "keep_alive": "10m",
+                }
+            ).encode("utf-8")
+            request = urllib.request.Request(
+                f"{self.endpoint.rstrip('/')}/api/embed",
+                data=payload,
+                headers={"Content-Type": "application/json"},
+                method="POST",
+            )
+            with urllib.request.urlopen(request, timeout=120) as response:
+                result = json.loads(response.read().decode("utf-8"))
+            vectors = np.asarray(result.get("embeddings", []), dtype=np.float32)
+            if vectors.shape != (len(chunk), int(self.settings["dimension"])):
+                raise ValueError(
+                    "Ollama embedding response has an unexpected batch size or dimension."
+                )
+            batches.append(vectors)
+        values = np.concatenate(batches).astype(np.float32)
+        return l2_normalize(values) if self.settings["normalize"] else values
 
 
 @dataclass

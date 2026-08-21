@@ -1,17 +1,20 @@
 schema_version: 1
 
 embedders:
-  minilm:
-    provider: sentence_transformers
-    model_id: sentence-transformers/all-MiniLM-L6-v2
-    revision: 1110a243fdf4706b3f48f1d95db1a4f5529b4d41
-    immutable_digest: 1110a243fdf4706b3f48f1d95db1a4f5529b4d41
-    dimension: 384
-    max_sequence_length: 256
-    batch_size: 256
+  qwen3_embedding:
+    provider: ollama
+    model_id: qwen3-embedding:0.6b
+    revision: 0.6b-q8_0
+    immutable_digest: 06507c7b42688469c4e7298b0a1e16deff06caf291cf0a5b278c308249c3e439
+    architecture: qwen3
+    parameters: 0.6B
+    quantization: Q8_0
+    dimension: 1024
+    max_sequence_length: 32768
+    batch_size: 64
     normalize: true
-    device: auto
-    precision: float32
+    device: local_ollama
+    precision: Q8_0
   clip:
     provider: transformers
     model_id: openai/clip-vit-base-patch32

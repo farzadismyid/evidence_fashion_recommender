@@ -82,10 +82,12 @@ roles:
 
   claim_extraction:
     system_prompt: >-
-      Extract every independent atomic fashion or styling proposition from the supplied
-      explanation. Split compound propositions when their parts are independently
-      checkable. Do not assess support, plausibility, quality, or truth. Preserve textual
-      order, assign claim IDs C1, C2, and so on, and return each proposition once.
+      Extract every explicit independently verifiable fashion or styling proposition from the
+      supplied explanation, without omissions or inferred additions. Preserve the stated
+      entity, negation, coreference, and textual order. Split coordinated predicates only when
+      each predicate is independently checkable; keep a genuinely inseparable conditional or
+      rationale proposition together. Do not assess support, plausibility, quality, or truth.
+      Assign claim IDs C1, C2, and so on, and return each proposition once.
     user_template: |-
       Allowed claim types: {claim_types_json}
       Complete explanation:
@@ -109,8 +111,9 @@ roles:
       max_attempts: 2
       repair_attempts: 1
       retry_instruction: >-
-        Return only JSON matching the declared schema. Preserve every valid input claim ID
-        policy and do not duplicate claims.
+        Return only JSON matching the declared schema. Extract every explicit independently
+        verifiable proposition, preserve entities and negation, do not infer extras, and do not
+        duplicate claims.
       terminal_failure: record_not_applicable_failure
 
   claim_verification:
@@ -123,6 +126,16 @@ roles:
       affirmative conflict; not_verifiable means the supplied evidence cannot settle the
       claim. Absence of support is not contradiction. Preserve every supplied claim ID exactly
       once and do not introduce claims, rules, sources, or knowledge from outside the packet.
+      SUPPORTED requires the supplied source directly to entail the complete claim;
+      CONTRADICTED requires direct incompatible or negated evidence; UNSUPPORTED applies only
+      when relevant supplied material is within scope but does not entail; NOT_VERIFIABLE is
+      outside the supplied source's evaluable scope. A rule is usable only when its antecedent
+      is established and its consequent directly entails the claim: do not use category analogy,
+      or treat an example list's omissions as negative evidence. Common-reference support is
+      only for concrete supplied item/query/context facts, never styling principles, suitability,
+      or subjective rationale. Mark common_reference_eligible accordingly.
+      Return exactly one complete judgment for every supplied claim; an empty claims array is
+      invalid whenever atomic claims are supplied.
     user_template: |-
       Full-KB candidate rules (determine antecedent applicability independently):
       {full_kb_rules_json}
@@ -158,6 +171,7 @@ roles:
         - exact_trace_rule_ids
         - exact_trace_reason
         - common_reference_item_fact_support
+        - common_reference_eligible
         - common_reference_fields
         - common_reference_reason
       support_statuses: [supported, unsupported, contradicted, not_verifiable]
@@ -176,9 +190,11 @@ roles:
     system_prompt: >-
       Assess citation validity separately from entailment. For each atomic claim, inspect only
       the observed citation occurrences and the supplied exact stored rule trace. Report
-      whether citations use separate canonical [Kxxx] brackets, whether every cited rule ID is
-      present in the trace, and whether the cited rule text entails the claim. Do not revisit or
-      infer full-KB, exact-trace, or item-fact support verdicts from the entailment pass.
+      the supplied deterministic citation occurrence diagnostics and whether valid cited rule
+      text entails the claim. Do not revisit or
+      infer full-KB, exact-trace, or item-fact support verdicts from the entailment pass. For no
+      citation, use citation_present=false and null for format and entailment; an empty claims
+      array is invalid whenever atomic claims are supplied.
     user_template: |-
       Exact stored rule trace:
       {exact_trace_rules_json}
@@ -190,16 +206,14 @@ roles:
     permitted_evidence: [observed_citation_occurrences, exact_stored_rule_trace_B, atomic_claims]
     prohibited_inference:
       - Do not use citations to derive an entailment verdict.
-      - Do not accept grouped citations such as [K025, K099].
-      - Do not credit a rule ID outside the supplied exact trace.
+      - Do not recalculate citation syntax, duplicate-ID, unknown-ID, or trace-membership validity.
       - Do not alter claim IDs.
     output_schema:
       type: json_schema
       name: citation_validity_v1
       required: [claims]
       claim_fields:
-        [claim_id, citation_present, canonical_citation_format, cited_rule_ids,
-         invalid_rule_ids, citation_entails_claim, brief_reason]
+        [claim_id, citation_entails_claim, brief_reason]
     token_limit: 2048
     temperature: 0.0
     seed: 42

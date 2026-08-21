@@ -81,19 +81,47 @@ def require_trace_applicability(trace: Mapping[str, Any]) -> None:
         raise ValueError(f"Exact trace contains rule(s) without established antecedents: {invalid}")
 
 
-def citation_occurrences(text: str) -> list[dict[str, Any]]:
-    """Parse all rule-like bracket citations while defining only [K###] as canonical."""
+def citation_occurrences(
+    text: str,
+    *,
+    known_rule_ids: Sequence[str] = (),
+    trace_rule_ids: Sequence[str] = (),
+) -> list[dict[str, Any]]:
+    """Return occurrence-level K-citation diagnostics without dropping malformed brackets.
+
+    Syntax is entirely deterministic.  A canonical citation is exactly one ``[K###]``
+    bracket; an unknown or out-of-trace ID is not a valid occurrence even if its
+    bracket syntax is canonical.  The optional sets intentionally let production
+    generation, Stage 5, and final evaluation share the same parser.
+    """
+    known = set(known_rule_ids)
+    trace = set(trace_rule_ids)
     occurrences = []
-    for raw in BRACKETED_RE.findall(text):
+    for index, raw in enumerate(BRACKETED_RE.findall(text), start=1):
         ids = RULE_LIKE_ID_RE.findall(raw)
-        if ids:
-            occurrences.append(
-                {
-                    "raw": raw,
-                    "rule_ids": ids,
-                    "canonical_separate_format": bool(CANONICAL_CITATION_RE.fullmatch(raw)),
-                }
-            )
+        canonical_syntax = bool(CANONICAL_CITATION_RE.fullmatch(raw))
+        duplicate_ids = sorted({rule_id for rule_id in ids if ids.count(rule_id) > 1})
+        unknown_ids = sorted(set(ids).difference(known)) if known else []
+        out_of_trace_ids = sorted(set(ids).difference(trace)) if trace else []
+        valid = (
+            canonical_syntax
+            and len(ids) == 1
+            and not duplicate_ids
+            and not unknown_ids
+            and not out_of_trace_ids
+        )
+        occurrences.append(
+            {
+                "occurrence_index": index,
+                "raw": raw,
+                "rule_ids": ids,
+                "canonical_syntax": canonical_syntax,
+                "duplicate_rule_ids": duplicate_ids,
+                "unknown_rule_ids": unknown_ids,
+                "out_of_trace_rule_ids": out_of_trace_ids,
+                "valid_canonical_occurrence": valid,
+            }
+        )
     return occurrences
 
 
@@ -101,7 +129,7 @@ def canonical_citation_ids(text: str) -> list[str]:
     """Return unique K IDs, rejecting grouped, foreign, and malformed rule citations."""
     ids: list[str] = []
     for occurrence in citation_occurrences(text):
-        if not occurrence["canonical_separate_format"]:
+        if not occurrence["canonical_syntax"]:
             raise ValueError(
                 "Grouped or malformed rule citations must use separate canonical [K###] brackets; "
                 f"found {occurrence['raw']!r}."

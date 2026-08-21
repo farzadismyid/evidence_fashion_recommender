@@ -2,6 +2,7 @@ import pytest
 
 from evidence_fashion.grounding_contracts import (
     canonical_citation_ids,
+    citation_occurrences,
     require_trace_applicability,
     rule_applicability_gate,
     validate_generated_explanation,
@@ -61,6 +62,16 @@ def test_locked_item_and_citation_contracts_reject_drift_grouping_and_out_of_tra
             trace_rule_ids=["K001"],
             citations_required=True,
         )
+
+
+def test_citation_occurrences_preserve_grouped_duplicate_and_unknown_diagnostics() -> None:
+    diagnostics = citation_occurrences(
+        "Evidence [K001, K001] [K999] [bad].", known_rule_ids=["K001"], trace_rule_ids=["K001"]
+    )
+    assert [row["raw"] for row in diagnostics] == ["[K001, K001]", "[K999]", "[bad]"]
+    assert diagnostics[0]["duplicate_rule_ids"] == ["K001"]
+    assert diagnostics[1]["unknown_rule_ids"] == ["K999"]
+    assert all(not row["valid_canonical_occurrence"] for row in diagnostics)
     with pytest.raises(ValueError, match="Grouped"):
         canonical_citation_ids("The rib cardigan works. [K001, K002]")
     with pytest.raises(ValueError, match="outside"):

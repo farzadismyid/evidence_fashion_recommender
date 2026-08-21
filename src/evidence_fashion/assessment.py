@@ -17,6 +17,156 @@ from .grounding_contracts import (
 
 CLAIM_STATUSES = {"supported", "unsupported", "contradicted", "not_verifiable"}
 SUPPORT_SOURCES = {"query_or_locked_item", "rule_evidence"}
+ENTAILMENT_FIELDS = (
+    "full_kb_entailment",
+    "exact_trace_entailment",
+    "common_reference_item_fact_support",
+)
+ENTAILMENT_REQUIRED_FIELDS = (
+    "claim_id",
+    "full_kb_candidate_applicable_rule_ids",
+    "full_kb_entailment",
+    "full_kb_rule_ids",
+    "full_kb_reason",
+    "exact_trace_entailment",
+    "exact_trace_rule_ids",
+    "exact_trace_reason",
+    "common_reference_item_fact_support",
+    "common_reference_fields",
+    "common_reference_reason",
+)
+CITATION_REQUIRED_FIELDS = (
+    "claim_id",
+    "citation_present",
+    "canonical_citation_format",
+    "cited_rule_ids",
+    "invalid_rule_ids",
+    "citation_entails_claim",
+    "brief_reason",
+)
+
+VERDICT_DEFINITIONS = """SUPPORTED: the supplied source directly semantically entails the
+complete claim.
+CONTRADICTED: the supplied source directly entails an incompatible or negated proposition.
+UNSUPPORTED: the claim is within the source's evaluable scope and relevant source material exists,
+but that material does not entail the claim.
+NOT_VERIFIABLE: the claim falls outside what that source can establish from the supplied packet.
+Absence of evidence alone never implies contradiction."""
+
+_SUBJECTIVE_OR_RULE_TERMS = frozenset(
+    {
+        "appropriate",
+        "balance",
+        "balanced",
+        "contrast",
+        "comfort",
+        "comfortable",
+        "complement",
+        "complements",
+        "coordinate",
+        "coordinates",
+        "elegant",
+        "formal",
+        "formality",
+        "good",
+        "harmony",
+        "harmonious",
+        "pairing",
+        "proportion",
+        "sophisticated",
+        "style",
+        "styling",
+        "suitable",
+        "suitability",
+        "works",
+    }
+)
+
+_FACT_STOPWORDS = frozenset(
+    {
+        "a",
+        "an",
+        "and",
+        "are",
+        "as",
+        "at",
+        "be",
+        "because",
+        "for",
+        "from",
+        "in",
+        "is",
+        "it",
+        "of",
+        "on",
+        "or",
+        "the",
+        "this",
+        "to",
+        "with",
+    }
+)
+
+
+def _fact_texts(value: Any) -> list[str]:
+    if isinstance(value, Mapping):
+        return [text for nested in value.values() for text in _fact_texts(nested)]
+    if isinstance(value, Sequence) and not isinstance(value, str):
+        return [text for nested in value for text in _fact_texts(nested)]
+    return [str(value).lower()]
+
+
+def common_reference_eligibility(
+    claim: Mapping[str, Any], common_reference_item_facts: Mapping[str, Any]
+) -> dict[str, Any]:
+    """Decide whether common item/context facts can assess this factual proposition.
+
+    This is deliberately an eligibility decision, not a support verdict.  Styling
+    rationales and subjective suitability statements remain outside the factual metric.
+    """
+    text = str(claim.get("claim_text", "")).lower()
+    tokens = {token for token in re.findall(r"[a-z0-9]+", text) if token not in _FACT_STOPWORDS}
+    if tokens & _SUBJECTIVE_OR_RULE_TERMS:
+        return {"eligible": False, "reason": "subjective_or_general_styling_claim"}
+    fact_text = " ".join(_fact_texts(common_reference_item_facts))
+    fact_tokens = set(re.findall(r"[a-z0-9]+", fact_text))
+    item_aliases = [
+        str(common_reference_item_facts.get(field, "")).lower()
+        for field in (
+            "locked_item_minimal_name",
+            "query_item_minimal_name",
+            "locked_item_category",
+            "query_item_category",
+            "outfit_context_text",
+        )
+    ]
+    subject_tokens = set()
+    for alias in item_aliases:
+        alias_tokens = set(re.findall(r"[a-z0-9]+", alias)) - _FACT_STOPWORDS
+        if alias and (alias in text or alias_tokens & tokens):
+            subject_tokens.update(alias_tokens)
+    concrete_subject = bool(subject_tokens) or bool(
+        re.search(r"\b(exact|locked|query) item\b", text)
+    )
+    if not concrete_subject:
+        return {"eligible": False, "reason": "no_concrete_case_entity"}
+    predicate_match = re.search(r"\b(?:is|are|has|have|contains)\b\s+(.+)", text)
+    predicate_tokens = (
+        {
+            token
+            for token in re.findall(r"[a-z0-9]+", predicate_match.group(1))
+            if token not in _FACT_STOPWORDS
+        }
+        if predicate_match
+        else tokens - subject_tokens - {"exact", "locked", "query", "item"}
+    )
+    if not predicate_tokens or not predicate_tokens.issubset(fact_tokens):
+        return {"eligible": False, "reason": "not_a_literal_supplied_case_fact"}
+    return {
+        "eligible": True,
+        "reason": "literal_supplied_case_fact",
+    }
+
 
 CONDITION_REVEALING_PHRASES = (
     r"\bno[- ]?rag\b",
@@ -46,6 +196,7 @@ def separated_entailment_schema() -> dict[str, Any]:
             "exact_trace_rule_ids": {"type": "array", "items": {"type": "string"}},
             "exact_trace_reason": {"type": "string"},
             "common_reference_item_fact_support": status,
+            "common_reference_eligible": {"type": "boolean"},
             "common_reference_fields": {"type": "array", "items": {"type": "string"}},
             "common_reference_reason": {"type": "string"},
         },
@@ -59,49 +210,176 @@ def separated_entailment_schema() -> dict[str, Any]:
             "exact_trace_rule_ids",
             "exact_trace_reason",
             "common_reference_item_fact_support",
+            "common_reference_eligible",
             "common_reference_fields",
             "common_reference_reason",
         ],
     }
     return {
         "type": "object",
-        "properties": {"claims": {"type": "array", "items": item}},
+        "properties": {"claims": {"type": "array", "minItems": 1, "items": item}},
         "required": ["claims"],
     }
 
 
 def citation_validation_schema() -> dict[str, Any]:
+    """Schema for Phi's semantic pass; syntax and ID validity are deterministic."""
     item = {
         "type": "object",
         "properties": {
             "claim_id": {"type": "string"},
-            "citation_present": {"type": "boolean"},
-            "canonical_citation_format": {"type": "boolean"},
-            "cited_rule_ids": {"type": "array", "items": {"type": "string"}},
-            "invalid_rule_ids": {"type": "array", "items": {"type": "string"}},
             "citation_entails_claim": {"type": ["boolean", "null"]},
             "brief_reason": {"type": "string"},
         },
         "required": [
             "claim_id",
-            "citation_present",
-            "canonical_citation_format",
-            "cited_rule_ids",
-            "invalid_rule_ids",
             "citation_entails_claim",
             "brief_reason",
         ],
     }
     return {
         "type": "object",
-        "properties": {"claims": {"type": "array", "items": item}},
+        "properties": {"claims": {"type": "array", "minItems": 1, "items": item}},
         "required": ["claims"],
     }
 
 
-def citation_occurrences(explanation: str) -> list[dict[str, Any]]:
+def validate_separated_entailment(
+    payload: Mapping[str, Any],
+    claims: Sequence[Mapping[str, Any]],
+    *,
+    full_kb_rule_ids: set[str],
+    exact_trace_rule_ids: set[str],
+    common_reference_item_facts: Mapping[str, Any],
+) -> dict[str, Any]:
+    """Fail closed unless Phi returns one complete judgment for every supplied claim."""
+    rows = payload.get("claims")
+    if not isinstance(rows, list) or len(rows) != len(claims) or not rows:
+        raise ValueError(
+            "Entailment output must contain exactly one non-empty row per input claim."
+        )
+    expected_ids = [str(claim["claim_id"]) for claim in claims]
+    observed_ids = [row.get("claim_id") for row in rows if isinstance(row, Mapping)]
+    if observed_ids != expected_ids or len(observed_ids) != len(rows):
+        raise ValueError("Entailment claim IDs must exactly preserve the supplied order and IDs.")
+    validated = []
+    for row in rows:
+        if any(field not in row for field in ENTAILMENT_REQUIRED_FIELDS):
+            raise ValueError(
+                "Entailment output is missing a required verdict, evidence, or reason field."
+            )
+        candidate_ids = row["full_kb_candidate_applicable_rule_ids"]
+        kb_ids = row["full_kb_rule_ids"]
+        trace_ids = row["exact_trace_rule_ids"]
+        if not all(isinstance(value, list) for value in (candidate_ids, kb_ids, trace_ids)):
+            raise ValueError("Entailment rule evidence fields must be arrays.")
+        if not set(candidate_ids).issubset(full_kb_rule_ids) or not set(kb_ids).issubset(
+            full_kb_rule_ids
+        ):
+            raise ValueError("Entailment cited a rule outside the supplied full-KB candidates.")
+        if not set(trace_ids).issubset(exact_trace_rule_ids):
+            raise ValueError("Entailment cited a rule outside the supplied exact trace.")
+        if any(str(row[field]) not in CLAIM_STATUSES for field in ENTAILMENT_FIELDS):
+            raise ValueError("Entailment contains an invalid verdict.")
+        if not all(
+            str(row[field]).strip()
+            for field in ("full_kb_reason", "exact_trace_reason", "common_reference_reason")
+        ):
+            raise ValueError("Entailment requires a non-empty reason for every evidence dimension.")
+        if not isinstance(row["common_reference_fields"], list):
+            raise ValueError("Entailment common-reference fields must be an array.")
+        eligibility = common_reference_eligibility(
+            claims[len(validated)], common_reference_item_facts
+        )
+        normalized = dict(row)
+        normalized["common_reference_eligible"] = eligibility["eligible"]
+        if not eligibility["eligible"]:
+            normalized["common_reference_item_fact_support"] = "not_verifiable"
+            normalized["common_reference_fields"] = []
+            normalized["common_reference_reason"] = (
+                "N/A: common-reference facts cannot establish styling or subjective rationale."
+            )
+        validated.append(normalized)
+    return {"claims": validated}
+
+
+def validate_citation_validation(
+    payload: Mapping[str, Any],
+    claims: Sequence[Mapping[str, Any]],
+    *,
+    occurrence_diagnostics: Sequence[Mapping[str, Any]],
+) -> dict[str, Any]:
+    """Combine Phi semantic judgments with deterministic citation diagnostics."""
+    rows = payload.get("claims")
+    if not isinstance(rows, list) or len(rows) != len(claims) or not rows:
+        raise ValueError("Citation output must contain exactly one non-empty row per input claim.")
+    expected_ids = [str(claim["claim_id"]) for claim in claims]
+    observed_ids = [row.get("claim_id") for row in rows if isinstance(row, Mapping)]
+    if observed_ids != expected_ids or len(observed_ids) != len(rows):
+        raise ValueError("Citation claim IDs must exactly preserve the supplied order and IDs.")
+    citation_present = bool(occurrence_diagnostics)
+    valid_occurrences = [
+        occurrence
+        for occurrence in occurrence_diagnostics
+        if occurrence.get("valid_canonical_occurrence") is True
+    ]
+    canonical = (
+        None
+        if not citation_present
+        else bool(valid_occurrences) and len(valid_occurrences) == len(occurrence_diagnostics)
+    )
+    cited_rule_ids = list(
+        dict.fromkeys(
+            rule_id
+            for occurrence in occurrence_diagnostics
+            for rule_id in occurrence.get("rule_ids", [])
+        )
+    )
+    invalid_rule_ids = sorted(
+        {
+            rule_id
+            for occurrence in occurrence_diagnostics
+            for field in ("unknown_rule_ids", "out_of_trace_rule_ids")
+            for rule_id in occurrence.get(field, [])
+        }
+    )
+    validated = []
+    for row in rows:
+        if any(
+            field not in row for field in ("claim_id", "citation_entails_claim", "brief_reason")
+        ):
+            raise ValueError("Citation output is missing a required field.")
+        entails = row["citation_entails_claim"]
+        if not str(row["brief_reason"]).strip():
+            raise ValueError("Citation output requires a brief reason.")
+        if not citation_present or canonical is False:
+            entails = None
+        elif not isinstance(entails, bool):
+            raise ValueError("Valid citations require a boolean citation-entailment judgment.")
+        validated.append(
+            {
+                "claim_id": str(row["claim_id"]),
+                "citation_present": citation_present,
+                "canonical_citation_format": canonical,
+                "cited_rule_ids": cited_rule_ids,
+                "invalid_rule_ids": invalid_rule_ids,
+                "citation_entails_claim": entails,
+                "brief_reason": str(row["brief_reason"]),
+            }
+        )
+    return {"claims": validated}
+
+
+def citation_occurrences(
+    explanation: str,
+    *,
+    known_rule_ids: Sequence[str] = (),
+    trace_rule_ids: Sequence[str] = (),
+) -> list[dict[str, Any]]:
     """Preserve citations for the dedicated post-entailment citation assessment only."""
-    return parse_citation_occurrences(explanation)
+    return parse_citation_occurrences(
+        explanation, known_rule_ids=known_rule_ids, trace_rule_ids=trace_rule_ids
+    )
 
 
 def strip_rule_citations(text: str) -> str:
@@ -130,8 +408,14 @@ def build_separated_entailment_prompt(
     }
     return (
         "Independently assess full-KB entailment, exact-trace entailment, and common-reference "
-        "item-fact support for every claim. Do not derive any field from another. No citation "
-        "information is available in this pass.\n\n"
+        "item-fact support for every claim. Do not derive any field from another.\n"
+        f"{VERDICT_DEFINITIONS}\n"
+        "For KB and trace support, a rule counts only if its antecedent is established and its "
+        "stated consequent directly entails the complete claim. Do not use category similarity, "
+        "examples as exhaustive lists, or absence from a list as negative evidence. Common "
+        "reference support is eligible only for concrete supplied item/query/context facts; "
+        "styling principles, suitability, and subjective rationale are not verifiable there. "
+        "No citation information is available in this pass.\n\n"
         f"Evidence: {json.dumps(evidence, sort_keys=True, ensure_ascii=False)}\n\n"
         f"Explanation with citations removed: {strip_rule_citations(explanation)}\n\n"
         f"Atomic claims: {json.dumps(list(claims), sort_keys=True, ensure_ascii=False)}"
@@ -149,8 +433,10 @@ def build_citation_validation_prompt(
     serialized_occurrences = json.dumps(citation_occurrences(explanation), sort_keys=True)
     serialized_claims = json.dumps(list(claims), sort_keys=True, ensure_ascii=False)
     return (
-        "Assess citation format, trace membership, and citation-to-claim entailment only. Do "
-        "not produce or modify any general support verdict. Grouped citations are invalid.\n\n"
+        "The citation-occurrence diagnostics are deterministic and authoritative. Assess only "
+        "whether valid canonical cited rules semantically entail each claim. Do not produce or "
+        "modify general support verdicts. For absent or malformed citations, return null "
+        "citation entailment.\n\n"
         f"Exact stored rule trace: {serialized_trace}\n\n"
         f"Citation occurrences: {serialized_occurrences}\n\n"
         f"Atomic claims: {serialized_claims}"
@@ -322,9 +608,16 @@ def validate_extraction(
 
 
 def cited_rule_ids(explanation: str, pattern: str | None = None) -> list[str]:
-    """Use the study-wide K### parser; the legacy caller pattern is intentionally ignored."""
+    """Return only syntactically canonical IDs; retain malformed occurrences separately."""
     del pattern
-    return canonical_citation_ids(explanation)
+    return list(
+        dict.fromkeys(
+            rule_id
+            for occurrence in citation_occurrences(explanation)
+            if occurrence["canonical_syntax"]
+            for rule_id in occurrence["rule_ids"]
+        )
+    )
 
 
 def build_verification_prompt(
@@ -347,10 +640,12 @@ def build_verification_prompt(
         "same common union evidence packet A+B, regardless of what was visible during generation. "
         "Keep support status separate from support sources. A claim may have both allowed support "
         "sources, but each source label may appear at most once. Supported means semantic "
-        "entailment; unsupported means relevant evidence exists "
-        "but does not entail it; contradicted requires affirmative conflict; not_verifiable means "
-        "the packet cannot settle it. Absence of support is not contradiction. Rule support "
-        "requires an exact supplied rule ID whose text entails the claim. For an uncited claim, "
+        f"entailment. {VERDICT_DEFINITIONS} Rule support requires an exact supplied rule ID, an "
+        "established antecedent, and a consequent that directly entails the complete claim. Do not "
+        "broaden item categories by analogy and do not infer unsuitability from omission in a "
+        "non-exhaustive example list. Common packet facts support only concrete supplied case "
+        "facts, "
+        "not styling principles, suitability, or subjective rationale. For an uncited claim, "
         "citation_entails_claim must be null; otherwise it is true only if an observed valid "
         "citation entails that claim. Return each input claim ID exactly once and no others.\n\n"
         f"Evidence packet: {json.dumps(evidence, sort_keys=True, ensure_ascii=False)}\n\n"
@@ -364,6 +659,7 @@ def validate_verification(
     claims: Sequence[Mapping[str, Any]],
     allowed_rule_ids: set[str],
     citation_ids: Sequence[str],
+    common_reference_eligibility_by_claim: Mapping[str, Mapping[str, Any]] | None = None,
 ) -> list[dict[str, Any]]:
     rows = payload.get("claims")
     if not isinstance(rows, list) or len(rows) != len(claims):
@@ -405,6 +701,17 @@ def validate_verification(
             raise ValueError("Citation entailment must be boolean or null for a cited explanation.")
         if not reason:
             raise ValueError("Every verifier decision requires a brief reason.")
+        eligibility = (common_reference_eligibility_by_claim or {}).get(
+            str(row["claim_id"]), {"eligible": False, "reason": "not_assessed"}
+        )
+        if (
+            common_reference_eligibility_by_claim is not None
+            and "query_or_locked_item" in sources
+            and not eligibility["eligible"]
+        ):
+            raise ValueError(
+                "Common-reference source cannot support a styling or subjective claim."
+            )
         validated.append(
             {
                 "claim_id": str(row["claim_id"]),
@@ -413,6 +720,8 @@ def validate_verification(
                 "supporting_rule_ids": list(rule_ids),
                 "citation_entails_claim": citation_entails,
                 "brief_reason": reason,
+                "common_reference_eligible": bool(eligibility["eligible"]),
+                "common_reference_eligibility_reason": str(eligibility["reason"]),
             }
         )
     return validated

@@ -167,7 +167,7 @@ def _case(query_group: str) -> dict:
     }
 
 
-def test_bag_retrieval_fails_closed_when_no_rule_is_approved() -> None:
+def test_bag_retrieval_records_empty_trace_when_no_rule_is_approved() -> None:
     rules = pd.DataFrame(
         [{
             "rule_id": "R1",
@@ -183,12 +183,13 @@ def test_bag_retrieval_fails_closed_when_no_rule_is_approved() -> None:
         }]
     )
     retriever = RuleRetriever(rules, np.array([[1.0, 0.0]]), _settings())
-    with pytest.raises(ValueError, match="No audited applicable rules"):
-        retriever.retrieve_and_score(
-            case=_case("tops"),
-            candidate={"item_id": "b1", "category": "Tote Bags", "text": "black tote"},
-            representation_embedding=np.array([1.0, 0.0]),
-        )
+    trace = retriever.retrieve_and_score(
+        case=_case("tops"),
+        candidate={"item_id": "b1", "category": "Tote Bags", "text": "black tote"},
+        representation_embedding=np.array([1.0, 0.0]),
+    )
+    assert trace.rules == ()
+    assert trace.evidence_score == 0.0
 
 
 def test_bag_retrieval_enforces_query_applicability_before_top_k() -> None:

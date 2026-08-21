@@ -25,7 +25,7 @@ from evidence_fashion.manifest import (
 )
 from evidence_fashion.retrieval import (
     CLIPEmbedder,
-    MiniLMEmbedder,
+    OllamaEmbedder,
     fuse_clip_embeddings,
     rank_candidates,
 )
@@ -50,8 +50,7 @@ def select_validation_rows(frame: pd.DataFrame, config: dict[str, Any]) -> pd.Da
     validation = config["embedding_validation"]
     categories = config["preprocessing"]["target_categories"]
     eligible = frame[
-        (frame["research_split"] == validation["split"])
-        & frame["broad_category"].isin(categories)
+        (frame["research_split"] == validation["split"]) & frame["broad_category"].isin(categories)
     ].copy()
     eligible["_order"] = eligible["item_id"].map(
         lambda value: _hash_order(str(value), validation["seed"])
@@ -116,6 +115,23 @@ def validate_embeddings(
     }
 
 
+def encode_split_images(
+    clip: CLIPEmbedder,
+    raw_split: Any,
+    original_indices: list[int],
+    image_column: str,
+    *,
+    batch_size: int,
+) -> np.ndarray:
+    """Embed images in bounded batches without materialising the full image corpus."""
+    batches = []
+    for start in range(0, len(original_indices), batch_size):
+        indices = original_indices[start : start + batch_size]
+        images = [raw_split[index][image_column] for index in indices]
+        batches.append(clip.encode_images(images, batch_size=batch_size))
+    return np.concatenate(batches).astype(np.float32)
+
+
 def main() -> None:
     args = parse_args()
     config = yaml.safe_load(args.config.read_text(encoding="utf-8"))
@@ -150,17 +166,24 @@ def main() -> None:
         raise FileExistsError(f"Immutable run directory already exists: {run_dir}")
 
     frame = pd.read_parquet(items_path)
-    sample = select_validation_rows(frame, config) if args.validate_only else frame
+    validation_sample = select_validation_rows(frame, config)
+    sample = validation_sample if args.validate_only else frame
     raw_split, dataset_fingerprint = load_pinned_split(config)
     image_column = config["dataset"]["columns"]["image"]
-    images = [raw_split[int(index)][image_column] for index in sample["original_dataset_index"]]
     texts = (sample["category"].astype(str) + " | " + sample["text"].astype(str)).tolist()
-    mini = MiniLMEmbedder(models["embedders"]["minilm"])
+    text_embedder = OllamaEmbedder(models["embedders"]["qwen3_embedding"])
     clip = CLIPEmbedder(models["embedders"]["clip"])
     batch_size = config["embedding_validation"]["batch_size"] if args.validate_only else None
-    minilm_text = mini.encode(texts, batch_size=batch_size)
+    qwen3_embedding_text = text_embedder.encode(texts, batch_size=batch_size)
     clip_text = clip.encode_text(texts, batch_size=batch_size)
-    clip_image = clip.encode_images(images, batch_size=batch_size)
+    image_batch_size = batch_size or int(models["embedders"]["clip"]["batch_size"])
+    clip_image = encode_split_images(
+        clip,
+        raw_split,
+        [int(index) for index in sample["original_dataset_index"]],
+        image_column,
+        batch_size=image_batch_size,
+    )
     fusion = config["retrieval"]["fusion"]
     clip_fused = fuse_clip_embeddings(
         clip_image,
@@ -169,12 +192,21 @@ def main() -> None:
         text_weight=fusion["text_weight"],
     )
     arrays = {
-        "minilm_text": minilm_text,
+        "qwen3_embedding_text": qwen3_embedding_text,
         "clip_text": clip_text,
         "clip_image": clip_image,
         "clip_fused": clip_fused,
     }
-    validation = validate_embeddings(arrays, sample, config)
+    validation_positions = {
+        str(item_id): index for index, item_id in enumerate(sample["item_id"].astype(str))
+    }
+    validation_arrays = {
+        name: values[
+            [validation_positions[str(item_id)] for item_id in validation_sample["item_id"]]
+        ]
+        for name, values in arrays.items()
+    }
+    validation = validate_embeddings(validation_arrays, validation_sample, config)
     run_dir.mkdir(parents=True)
     output_hashes = {}
     for name, array in arrays.items():
@@ -203,7 +235,7 @@ def main() -> None:
                 "model_id": settings["model_id"],
                 "revision": settings["revision"],
                 "immutable_digest": settings["immutable_digest"],
-                "device": mini.device if name == "minilm" else clip.device,
+                "device": text_embedder.device if name == "qwen3_embedding" else clip.device,
                 "precision": settings["precision"],
             }
             for name, settings in models["embedders"].items()

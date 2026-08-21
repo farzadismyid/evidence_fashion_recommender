@@ -296,51 +296,62 @@ def _write_series_figure(
 
 def _write_additional_publication_figures() -> list[Path]:
     figures = Path("artifacts/figures")
-    fusion = pd.read_csv("artifacts/tables/table_stage4_fusion_search.csv").melt(
-        id_vars="image_weight",
-        value_vars=["hr_at_10", "ndcg_at_10", "mrr"],
-        var_name="metric",
-        value_name="estimate",
-    )
-    pool = pd.read_csv("artifacts/tables/table_stage4_pool_sensitivity.csv")
-    prompt = pd.read_csv("artifacts/tables/table_stage5_optimization.csv")
-    prompt_plot = prompt.assign(
-        mean_quality=prompt[["general_quality", "clarity", "specificity"]].mean(axis=1) / 5
-    ).melt(
-        id_vars="configuration_id",
-        value_vars=["support_rate", "mean_quality"],
-        var_name="metric",
-        value_name="estimate",
-    )
-    specifications = [
-        (
-            fusion,
-            "image_weight",
-            "metric",
-            "estimate",
-            "Validation fusion sensitivity",
-            "ranking metric",
-            figures / "fig_07_fusion_sensitivity.svg",
-        ),
-        (
-            pool,
-            "pool_target",
-            "method",
-            "ndcg_at_10",
-            "Candidate-pool-size sensitivity",
-            "NDCG@10",
-            figures / "fig_08_pool_sensitivity.svg",
-        ),
-        (
-            prompt_plot,
-            "configuration_id",
-            "metric",
-            "estimate",
-            "Explanation prompt ablation",
-            "rate or normalized score",
-            figures / "fig_09_prompt_ablation.svg",
-        ),
-    ]
+    specifications = []
+    fusion_path = Path("artifacts/tables/table_stage4_fusion_search.csv")
+    if fusion_path.exists():
+        fusion = pd.read_csv(fusion_path).melt(
+            id_vars="image_weight",
+            value_vars=["hr_at_10", "ndcg_at_10", "mrr"],
+            var_name="metric",
+            value_name="estimate",
+        )
+        specifications.append(
+            (
+                fusion,
+                "image_weight",
+                "metric",
+                "estimate",
+                "Validation fusion sensitivity",
+                "ranking metric",
+                figures / "fig_07_fusion_sensitivity.svg",
+            )
+        )
+    pool_path = Path("artifacts/tables/table_stage4_pool_sensitivity.csv")
+    if pool_path.exists():
+        pool = pd.read_csv(pool_path)
+        specifications.append(
+            (
+                pool,
+                "pool_target",
+                "method",
+                "ndcg_at_10",
+                "Candidate-pool-size sensitivity",
+                "NDCG@10",
+                figures / "fig_08_pool_sensitivity.svg",
+            )
+        )
+    prompt_path = Path("artifacts/tables/table_stage5_optimization.csv")
+    if prompt_path.exists():
+        prompt = pd.read_csv(prompt_path)
+        prompt_plot = prompt.assign(
+            mean_quality=prompt[["general_quality", "clarity", "specificity"]].mean(axis=1) / 5
+        ).melt(
+            id_vars="configuration_id",
+            value_vars=["support_rate", "mean_quality"],
+            var_name="metric",
+            value_name="estimate",
+        )
+        specifications.append(
+            (
+                prompt_plot,
+                "configuration_id",
+                "metric",
+                "estimate",
+                "Explanation prompt ablation",
+                "rate or normalized score",
+                figures / "fig_09_prompt_ablation.svg",
+            )
+        )
     for frame, x, series, value, title, y_label, path in specifications:
         _write_series_figure(
             frame,
@@ -490,7 +501,7 @@ def main() -> None:
     if run_dir.exists():
         raise FileExistsError(f"Immutable Stage 6 run already exists: {run_dir}")
 
-    from evidence_fashion.retrieval import CLIPEmbedder, MiniLMEmbedder
+    from evidence_fashion.retrieval import CLIPEmbedder, OllamaEmbedder
 
     items, items_path, items_hash = _active_items(config)
     cases = attach_candidate_pools(items, build_evaluation_cases(items, config), config)
@@ -503,7 +514,7 @@ def main() -> None:
     query_rows = item_lookup.loc[cases["query_item_id"].tolist()].reset_index(drop=True)
     raw_split, dataset_fingerprint = load_pinned_split(config)
     clip = CLIPEmbedder(models["embedders"]["clip"])
-    mini = MiniLMEmbedder(models["embedders"]["minilm"])
+    text_embedder = OllamaEmbedder(models["embedders"]["qwen3_embedding"])
     batch_size = int(config["stage4_validation"]["embedding_batch_size"])
 
     candidate_texts = (
@@ -511,7 +522,7 @@ def main() -> None:
     ).tolist()
     candidate_clip_text = clip.encode_text(candidate_texts, batch_size=batch_size)
     candidate_clip_image = _item_images(candidate_rows, raw_split, clip, batch_size)
-    candidate_minilm = mini.encode(candidate_texts, batch_size=batch_size)
+    candidate_qwen3_embedding = text_embedder.encode(candidate_texts, batch_size=batch_size)
     fusion = config["retrieval"]["fusion"]
     candidate_fused = fuse_clip_embeddings(
         candidate_clip_image,
@@ -532,7 +543,7 @@ def main() -> None:
     ]
     query_clip_text = clip.encode_text(query_texts, batch_size=batch_size)
     query_clip_image = _item_images(query_rows, raw_split, clip, batch_size)
-    query_minilm = mini.encode(query_texts, batch_size=batch_size)
+    query_qwen3_embedding = text_embedder.encode(query_texts, batch_size=batch_size)
     query_fused = fuse_clip_embeddings(
         query_clip_image,
         query_clip_text,
@@ -541,7 +552,9 @@ def main() -> None:
     )
 
     kb = load_audited_rules(config)
-    rule_embeddings = mini.encode(kb["rule_text"].astype(str).tolist(), batch_size=batch_size)
+    rule_embeddings = text_embedder.encode(
+        kb["rule_text"].astype(str).tolist(), batch_size=batch_size
+    )
     retriever = RuleRetriever(kb, rule_embeddings, config["rule_retrieval"])
     case_candidate_pairs = []
     representations = []
@@ -552,7 +565,7 @@ def main() -> None:
             candidate = item_lookup.loc[item_id].to_dict()
             case_candidate_pairs.append((case, candidate, bool(relevant)))
             representations.append(candidate_rule_representation(case, candidate))
-    representation_embeddings = mini.encode(representations, batch_size=batch_size)
+    representation_embeddings = text_embedder.encode(representations, batch_size=batch_size)
     traces = [
         retriever.retrieve_and_score(
             case=case,
@@ -578,7 +591,9 @@ def main() -> None:
         offset += count
         indices = [candidate_index[item] for item in case["candidate_item_ids"]]
         score_sets = {
-            "minilm_text": cosine_scores(query_minilm[case_index], candidate_minilm[indices]),
+            "qwen3_embedding_text": cosine_scores(
+                query_qwen3_embedding[case_index], candidate_qwen3_embedding[indices]
+            ),
             "clip_image": cosine_scores(
                 query_clip_image[case_index], candidate_clip_image[indices]
             ),

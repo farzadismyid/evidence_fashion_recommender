@@ -1,0 +1,9 @@
+metric,estimate
+top1_changed,0.124
+top5_changed,0.217
+top5_set_overlap,0.917
+top10_set_overlap,0.9308
+evidence_gain_at_1,0.004685927296943962
+evidence_gain_at_5,0.003519380515770614
+evidence_gain_at_10,0.003034864786560088
+mean_absolute_rank_shift_top10_union,1.3008208343127459
