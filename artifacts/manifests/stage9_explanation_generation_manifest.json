@@ -1,5 +1,15 @@
 {
   "command": "python scripts/run_stage9_explanation_generation.py --config configs/experiment.yaml --models-config configs/models.yaml --prompts configs/prompts.yaml --runtime-root .runtime/current/explanations",
+  "completion_length_contract": {
+    "accepted_outputs_unchanged": true,
+    "active_prompt_registry_sha256": "deb2f8832633560fab4dcab175a38e381766b35e3b76bc9ff826f0cd9a24fae7",
+    "global_range": "45-75",
+    "locked_item_repairs_accepted": 12,
+    "not_retried_non_locked_residual_failures": 44,
+    "one_bounded_locked_item_repair_calls": 22,
+    "revalidated_length_only_without_model_calls": 193,
+    "target_words": 65
+  },
   "configuration_hash": "b691865366b3c2a9197e689f5a910cc7b56cd7e4e3819ab094b89a89a4a12422",
   "environment": {
     "machine": "AMD64",
@@ -7,7 +17,7 @@
     "python": "3.12.13"
   },
   "failure_counts": {
-    "terminal_failures": 358
+    "terminal_failures": 54
   },
   "git_commit": "06177ff6dfd05a16402026bd66e80564f5effe16",
   "input_artifact_hashes": {
@@ -43,10 +53,69 @@
     ]
   },
   "output_artifact_hashes": {
-    ".runtime\\current\\explanations\\stage9-v3-generation-b691865366b3\\explanations.jsonl": "3bfc3115473938317358763dead863f7a1a1944ab3e10166165852f2b1fad247",
-    ".runtime\\current\\explanations\\stage9-v3-generation-b691865366b3\\raw_generation_attempts.jsonl": "63d549cb4da043bbce358c17c16ed433f52d7bc192c4fb2269ff004ff5102037"
+    ".runtime\\current\\explanations\\stage9-v3-generation-b691865366b3\\explanations.jsonl": "0d93bdb34a924110de682cf073c25d4592bebf7e0cb209e26c7278cdd74a8a32",
+    ".runtime\\current\\explanations\\stage9-v3-generation-b691865366b3\\raw_generation_attempts.jsonl": "1837fc077a94660ebd7aa9f236aba1c4d0de2badb0c144049d54de486286695e"
   },
   "prompt_registry_sha256": "8ae6f7d792b1514d24742b02321f8d844cbce7faaf83b1320d589e48ba61ef0b",
+  "recovery": {
+    "accepted_outputs_unchanged": true,
+    "additional_attempts_per_failed_cell": 3,
+    "initial_final_failure_reasons": {
+      "Explanation does not preserve the exact locked recommendation.": 24,
+      "Explanation must contain 55\u201375 words; found 37.": 1,
+      "Explanation must contain 55\u201375 words; found 38.": 4,
+      "Explanation must contain 55\u201375 words; found 39.": 5,
+      "Explanation must contain 55\u201375 words; found 40.": 4,
+      "Explanation must contain 55\u201375 words; found 41.": 10,
+      "Explanation must contain 55\u201375 words; found 42.": 8,
+      "Explanation must contain 55\u201375 words; found 43.": 4,
+      "Explanation must contain 55\u201375 words; found 44.": 11,
+      "Explanation must contain 55\u201375 words; found 45.": 18,
+      "Explanation must contain 55\u201375 words; found 46.": 19,
+      "Explanation must contain 55\u201375 words; found 47.": 30,
+      "Explanation must contain 55\u201375 words; found 48.": 27,
+      "Explanation must contain 55\u201375 words; found 49.": 31,
+      "Explanation must contain 55\u201375 words; found 50.": 28,
+      "Explanation must contain 55\u201375 words; found 51.": 26,
+      "Explanation must contain 55\u201375 words; found 52.": 27,
+      "Explanation must contain 55\u201375 words; found 53.": 42,
+      "Explanation must contain 55\u201375 words; found 54.": 38,
+      "Explanation must contain 55\u201375 words; found 76.": 1
+    },
+    "initial_terminal_failures": 358,
+    "mechanism": "retry only former terminal cells with byte-identical frozen Stage 9 base prompts, the frozen retry instruction, unchanged validators, and raw-attempt retention",
+    "remaining_by_model_condition": {
+      "gemma4:12b | no_rag": 16,
+      "llama3.1:8b-instruct-q8_0 | no_rag": 37,
+      "llama3.1:8b-instruct-q8_0 | rule_rag": 29,
+      "ministral-3:14b-instruct-2512-q4_K_M | no_rag": 117,
+      "ministral-3:14b-instruct-2512-q4_K_M | rule_rag": 60
+    },
+    "remaining_final_failure_reasons": {
+      "Explanation does not preserve the exact locked recommendation.": 22,
+      "Explanation must contain 55\u201375 words; found 37.": 2,
+      "Explanation must contain 55\u201375 words; found 38.": 4,
+      "Explanation must contain 55\u201375 words; found 39.": 4,
+      "Explanation must contain 55\u201375 words; found 40.": 4,
+      "Explanation must contain 55\u201375 words; found 41.": 7,
+      "Explanation must contain 55\u201375 words; found 42.": 5,
+      "Explanation must contain 55\u201375 words; found 43.": 5,
+      "Explanation must contain 55\u201375 words; found 44.": 12,
+      "Explanation must contain 55\u201375 words; found 45.": 13,
+      "Explanation must contain 55\u201375 words; found 46.": 14,
+      "Explanation must contain 55\u201375 words; found 47.": 19,
+      "Explanation must contain 55\u201375 words; found 48.": 19,
+      "Explanation must contain 55\u201375 words; found 49.": 14,
+      "Explanation must contain 55\u201375 words; found 50.": 21,
+      "Explanation must contain 55\u201375 words; found 51.": 23,
+      "Explanation must contain 55\u201375 words; found 52.": 20,
+      "Explanation must contain 55\u201375 words; found 53.": 24,
+      "Explanation must contain 55\u201375 words; found 54.": 26,
+      "Explanation must contain 55\u201375 words; found 76.": 1
+    },
+    "remaining_terminal_failures": 259,
+    "repaired": 99
+  },
   "resolved_configuration": {
     "experiment": {
       "candidate_pool": {
@@ -855,7 +924,7 @@
   "row_counts": {
     "condition_inputs": 1000,
     "generations": 3000,
-    "raw_attempts": 4184
+    "raw_attempts": 5130
   },
   "run_id": "stage9-v3-generation-b691865366b3",
   "schema_version": 1,

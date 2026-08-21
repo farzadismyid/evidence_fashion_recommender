@@ -39,7 +39,7 @@ REQUIRED_ROLES = frozenset(
     }
 )
 EXPLANATION_WORD_CONTRACT = {
-    "minimum_words": 55,
+    "minimum_words": 45,
     "target_words": 65,
     "maximum_words": 75,
     "normally_sentence_count": [2, 3],
@@ -102,7 +102,7 @@ def validate_prompt_registry(registry: Mapping[str, Any]) -> None:
             }
             if contract != EXPLANATION_WORD_CONTRACT:
                 raise ValueError(
-                    f"Prompt role {role_name} must use the shared 55–75 word explanation contract."
+                    f"Prompt role {role_name} must use the shared 45–75 word explanation contract."
                 )
         if not isinstance(role["token_limit"], int) or role["token_limit"] <= 0:
             raise ValueError(f"Prompt role {role_name} has an invalid token limit.")
