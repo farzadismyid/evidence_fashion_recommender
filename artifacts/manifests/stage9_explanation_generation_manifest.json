@@ -17,7 +17,16 @@
     "python": "3.12.13"
   },
   "failure_counts": {
-    "terminal_failures": 54
+    "terminal_failures": 15
+  },
+  "final_length_retry": {
+    "accepted": 35,
+    "accepted_outputs_unchanged": true,
+    "frozen_v3_cases_and_traces_preserved": true,
+    "one_attempt_per_target": true,
+    "prompt_contract": "current_global_45_75",
+    "remaining_terminal_failures": 19,
+    "targeted_terminal_length_failures": 44
   },
   "git_commit": "06177ff6dfd05a16402026bd66e80564f5effe16",
   "input_artifact_hashes": {
@@ -53,8 +62,8 @@
     ]
   },
   "output_artifact_hashes": {
-    ".runtime\\current\\explanations\\stage9-v3-generation-b691865366b3\\explanations.jsonl": "0d93bdb34a924110de682cf073c25d4592bebf7e0cb209e26c7278cdd74a8a32",
-    ".runtime\\current\\explanations\\stage9-v3-generation-b691865366b3\\raw_generation_attempts.jsonl": "1837fc077a94660ebd7aa9f236aba1c4d0de2badb0c144049d54de486286695e"
+    ".runtime\\current\\explanations\\stage9-v3-generation-b691865366b3\\explanations.jsonl": "d0a932b33c0be39371fe220ff8e56f3689458014a837873fb4377ec461866c09",
+    ".runtime\\current\\explanations\\stage9-v3-generation-b691865366b3\\raw_generation_attempts.jsonl": "68452e75009430b66144728bf1acc1c03f9e731cac7c7343ad8f789d44f57e47"
   },
   "prompt_registry_sha256": "8ae6f7d792b1514d24742b02321f8d844cbce7faaf83b1320d589e48ba61ef0b",
   "recovery": {
@@ -924,11 +933,42 @@
   "row_counts": {
     "condition_inputs": 1000,
     "generations": 3000,
-    "raw_attempts": 5130
+    "raw_attempts": 5193
   },
   "run_id": "stage9-v3-generation-b691865366b3",
   "schema_version": 1,
   "stage": 9,
+  "stage9_freeze": {
+    "accepted_matrix_cells": 2985,
+    "accepted_outputs_unchanged": true,
+    "final_targeted_calls": {
+      "length_rewrite": 9,
+      "locked_item_rewrite": 9,
+      "normal_http_retry": 1
+    },
+    "final_targeted_repairs_accepted": 4,
+    "frozen_regardless_of_remaining_failures": true,
+    "status": "frozen_after_final_targeted_repair",
+    "timestamp_utc": "2026-08-22T00:16:28Z",
+    "unresolved_cells": {
+      "case-04f411a897ac7ef9 | ministral-3:14b-instruct-2512-q4_K_M | rule_rag": "Explanation must contain 45\u201375 words; found 41.",
+      "case-16512ea253d9f43a | llama3.1:8b-instruct-q8_0 | no_rag": "Explanation does not preserve the exact locked recommendation.",
+      "case-16512ea253d9f43a | llama3.1:8b-instruct-q8_0 | rule_rag": "Explanation does not preserve the exact locked recommendation.",
+      "case-1f6de73980748067 | ministral-3:14b-instruct-2512-q4_K_M | no_rag": "Explanation must contain 45\u201375 words; found 40.",
+      "case-20c0daf9959bcee2 | ministral-3:14b-instruct-2512-q4_K_M | no_rag": "Explanation must contain 45\u201375 words; found 39.",
+      "case-45d1d1499e342031 | llama3.1:8b-instruct-q8_0 | no_rag": "Explanation does not preserve the exact locked recommendation.",
+      "case-84a86e133194431f | ministral-3:14b-instruct-2512-q4_K_M | no_rag": "Explanation must contain 45\u201375 words; found 39.",
+      "case-9191aa71073cdd07 | ministral-3:14b-instruct-2512-q4_K_M | rule_rag": "Explanation must contain 45\u201375 words; found 42.",
+      "case-a4deeeec85ab4325 | ministral-3:14b-instruct-2512-q4_K_M | no_rag": "Explanation must contain 45\u201375 words; found 41.",
+      "case-a66e4375a19a7b26 | llama3.1:8b-instruct-q8_0 | no_rag": "Explanation does not preserve the exact locked recommendation.",
+      "case-af84513c121c7811 | ministral-3:14b-instruct-2512-q4_K_M | rule_rag": "Explanation must contain 45\u201375 words; found 42.",
+      "case-b02f49322c9d64ff | llama3.1:8b-instruct-q8_0 | rule_rag": "Explanation does not preserve the exact locked recommendation.",
+      "case-b3312c490a6b7f35 | llama3.1:8b-instruct-q8_0 | no_rag": "Explanation does not preserve the exact locked recommendation.",
+      "case-b3312c490a6b7f35 | llama3.1:8b-instruct-q8_0 | rule_rag": "Explanation does not preserve the exact locked recommendation.",
+      "case-d7546ae32c13aa41 | ministral-3:14b-instruct-2512-q4_K_M | no_rag": "Explanation must contain 45\u201375 words; found 44."
+    }
+  },
+  "status": "frozen_complete_matrix_with_terminal_failures",
   "timestamp_utc": "2026-08-21T16:40:24Z",
   "validation": {
     "complete_matrix": true,
