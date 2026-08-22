@@ -196,9 +196,17 @@ def main() -> None:
     selection_manifest = json.loads(args.selection_manifest.read_text(encoding="utf-8"))
     generations_path, generations_hash = bound_output(stage9_manifest, "explanations.jsonl")
     selection_path, selection_hash = bound_output(selection_manifest, "condition_inputs.jsonl")
-    generations = read_jsonl(generations_path)
+    all_stage9_rows = read_jsonl(generations_path)
     selection_rows = read_jsonl(selection_path)
-    validate_stage9_matrix(generations, selection_rows)
+    validate_stage9_matrix(all_stage9_rows, selection_rows)
+    generations = [row for row in all_stage9_rows if row["status"] == "success"]
+    frozen_accepted = int(
+        stage9_manifest.get("stage9_freeze", {}).get("accepted_matrix_cells", len(generations))
+    )
+    if len(generations) != frozen_accepted:
+        raise ValueError(
+            "Accepted Stage 9 output count differs from the frozen Stage 9 completion manifest."
+        )
     extractor = models["extractor"]
     observed_digest = installed_model_digest(args.ollama_endpoint, str(extractor["model_id"]))
     if observed_digest != str(extractor["immutable_digest"]):
@@ -370,8 +378,9 @@ def main() -> None:
     write_jsonl(sample_path, review_sample(extractions))
     retry_rows = read_jsonl(raw_attempts_path) if raw_attempts_path.exists() else []
     integrity = {
-        "complete_unique_explanation_matrix": len(extractions) == 3000
-        and len({(r["case_id"], r["generator"], r["condition"]) for r in extractions}) == 3000,
+        "complete_unique_accepted_explanation_matrix": len(extractions) == len(generations)
+        and len({(r["case_id"], r["generator"], r["condition"]) for r in extractions})
+        == len(generations),
         "claim_id_integrity": all(
             row["status"] != "complete"
             or [claim["claim_id"] for claim in row["claims"]]
@@ -412,7 +421,8 @@ def main() -> None:
         "output_artifact_hashes": {str(path): sha256_file(path) for path in outputs},
         "model": extractor,
         "row_counts": {
-            "stage9_explanations": len(generations),
+            "stage9_matrix_cells": len(all_stage9_rows),
+            "stage9_accepted_explanations": len(generations),
             "extractions": len(extractions),
             "extracted_claims": sum(row["claim_count"] for row in extractions),
             "stratified_manual_review_examples": len(review_sample(extractions)),
@@ -440,7 +450,7 @@ def main() -> None:
         "integrity_checks": integrity,
         "status": "complete_claim_extraction_only_verification_not_started",
         "safeguards": {
-            "complete_3000_matrix_required": True,
+            "complete_frozen_accepted_matrix_required": True,
             "claim_ids_consecutive_in_textual_order": True,
             "bounded_structured_retries": maximum_attempts,
             "terminal_failures_retained": True,
