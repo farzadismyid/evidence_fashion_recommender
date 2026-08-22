@@ -1,0 +1,23 @@
+{
+  "stage": 12,
+  "status": "complete_frozen_output_analysis",
+  "model_calls": 0,
+  "inputs": [
+    ".runtime\\current\\explanations\\stage9-v3-generation-b691865366b3\\explanations.jsonl",
+    ".runtime\\current\\extraction\\stage10-claim-extraction-80c0a1d2df6c\\extractions.jsonl",
+    ".runtime\\current\\verification\\stage11-claim-verification-d92e64c77a85\\verifications.jsonl"
+  ],
+  "outputs": [
+    "D:\\Projects\\evidence_fashion_recommender\\artifacts\\tables\\table_stage12_category_breakdown.csv",
+    "D:\\Projects\\evidence_fashion_recommender\\artifacts\\tables\\table_stage12_citation_diagnostics.csv",
+    "D:\\Projects\\evidence_fashion_recommender\\artifacts\\tables\\table_stage12_claim_type_breakdown.csv",
+    "D:\\Projects\\evidence_fashion_recommender\\artifacts\\tables\\table_stage12_generator_breakdown.csv",
+    "D:\\Projects\\evidence_fashion_recommender\\artifacts\\tables\\table_stage12_primary_secondary_metrics.csv",
+    "D:\\Projects\\evidence_fashion_recommender\\artifacts\\tables\\table_stage12_qualitative_examples.csv",
+    "D:\\Projects\\evidence_fashion_recommender\\artifacts\\tables\\table_stage12_trace_size_breakdown.csv",
+    "D:\\Projects\\evidence_fashion_recommender\\artifacts\\tables\\table_stage12_trace_utilization.csv",
+    "D:\\Projects\\evidence_fashion_recommender\\artifacts\\figures\\stage12_paired_effects.png",
+    "D:\\Projects\\evidence_fashion_recommender\\artifacts\\figures\\stage12_paired_effects.svg",
+    "D:\\Projects\\evidence_fashion_recommender\\reports\\stage12_qualitative_examples.md"
+  ]
+}

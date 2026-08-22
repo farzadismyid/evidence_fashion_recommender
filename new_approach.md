@@ -225,24 +225,68 @@ Freeze Stage 11 before calculating headline explanation metrics.
 
 Only after extraction and verification are complete should the optional DeepSeek blind judging stage be considered. If used, it must remain a separate evaluation source with randomized recorded A/B order, concealed condition identities, citation/condition markers removed, and neutral presentation-quality dimensions only.
 
-## Stage 12 — Select explanation metrics and rebuild visual outputs
+## Stage 12 — Explanation evaluation and visual outputs
 
-After extractor and verifier approval, decide which explanation metrics are primary, secondary, diagnostic or removed. Metrics that create structurally unfair No-RAG versus Rule-RAG comparisons must not be used as headline results.
+Use only the frozen Stage 9–11 canonical outputs. No new model runs or additional evaluation models are required.
 
-Generate all reports, tables, figures and qualitative examples only from approved canonical outputs. Use a shared publication-quality visual style with:
+### Primary metric
+1. **Exact-Trace Claim Support Rate**
+   - supported claims / all extracted claims
+   - Measures how strongly each explanation aligns with the exact V3 rules that influenced the recommendation.
+   - Compare No-RAG vs Rule-RAG on paired available cases.
 
-- readable fonts at final thesis insertion size;
-- vector SVG or PDF wherever possible;
-- 300-DPI PNG copies where raster output is required;
-- a colour-blind-safe palette;
-- consistent condition and category colours;
-- clearly visible uncertainty intervals;
-- larger legends, labels, ticks and annotations;
-- proper tables rather than table screenshots; and
-- readable image panels and captions.
+### Secondary metrics
+2. **Full-KB Claim Support Rate**
+   - supported claims / all extracted claims using any applicable V3 rule.
+   - Measures broader consistency with the expert KB.
 
-Automated visual checks must confirm dimensions, resolution and minimum configured font sizes.
+3. **Unsupported Item-Fact Rate (UIFR)**
+   - not-supported factual claims / all eligible factual claims.
+   - Lower is better.
+   - Use only common-reference-eligible concrete item/context facts.
 
+4. **Exact-Trace Supported Claims per 100 Words**
+   - Measures grounded explanatory information while controlling for response length.
+
+### Diagnostic / robustness analyses
+5. Report the main metrics by:
+   - generator;
+   - target category;
+   - claim type;
+   - trace size (1/2/3/4 rules).
+
+6. **Rule-RAG Trace Utilization**
+   - Measure how much of the supplied exact trace is actually reflected in the Rule-RAG explanation.
+   - Treat as a Rule-RAG-only diagnostic, not a headline No-RAG comparison.
+
+7. **Citation diagnostics**
+   - citation syntax/ID validity;
+   - citation entailment.
+   - Treat as Rule-RAG-only auditability diagnostics.
+
+### Statistical analysis
+For fair No-RAG vs Rule-RAG comparisons:
+- use paired available cases only;
+- report condition means/rates and absolute percentage-point differences;
+- report 95% paired bootstrap confidence intervals using 5,000 replicates;
+- test paired condition differences;
+- apply Holm correction across primary comparisons;
+- report results overall and by generator.
+
+Do not use structurally unfair metrics as headline evidence, and do not interpret `not_supported` as factually false.
+
+### Outputs
+Generate publication-quality:
+- main results tables;
+- generator/category breakdown tables;
+- confidence-interval figures;
+- trace-size robustness plots;
+- citation/trace-utilization diagnostic tables;
+- a small set of representative paired qualitative examples.
+
+Use readable final-size fonts, colour-blind-safe colours, consistent condition/category styling, visible confidence intervals, vector SVG/PDF where possible, and 300-DPI PNG copies where needed.
+
+Automated checks must confirm figure dimensions, resolution, font sizes and canonical-output provenance.
 ## Stage 13 — Revise the thesis and perform the release audit
 
 Update the thesis only from approved outputs:
