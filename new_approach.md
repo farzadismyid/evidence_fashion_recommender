@@ -164,26 +164,66 @@ Record model and prompt hashes, rendered prompts, outputs, evidence visibility, 
 
 ## Stage 10 — Extract all claims
 
-Qwen 3.5 9B extracts claims from all 3,000 explanations as one complete model batch.
+Qwen 3.5 9B extracts claims from all **2,985 accepted explanations** using one frozen extraction prompt and identical treatment across No-RAG / Rule-RAG and Gemma / Llama / Mistral outputs.
 
-After extraction, inspect:
+Extraction must be evidence-independent: Qwen identifies what the explanation asserts, not whether the claims are correct or supported.
 
-- structured-output and terminal failure rates;
-- claim counts and condition balance;
-- missed, duplicated and improperly compound claims;
-- claim-type consistency;
-- claim-ID integrity; and
-- a stratified manual review sample.
+Each extracted claim should:
+- represent one independently verifiable proposition where practical;
+- preserve the original meaning, entities, polarity and negation;
+- retain explicit item attributes, styling relations, suitability claims and other substantive assertions;
+- avoid adding inferred claims that are not stated in the explanation;
+- use stable case/model/condition/claim IDs.
 
-No-RAG and Rule-RAG must receive identical extraction treatment. The extractor decides what claims exist, not whether they are supported.
+After extraction, inspect only structural and reliability diagnostics:
+- structured-output and terminal-failure rates;
+- claim counts by model and condition;
+- duplicate rate;
+- obvious atomization/split-merge issues;
+- claim-ID preservation;
+- model/condition balance.
 
-## Stage 11 — Verify claims and decide on optional judging
+Do not judge support during extraction and do not perform another human annotation exercise.
 
-Phi-4 14B verifies every extracted claim against the frozen evidence protocol as one complete model batch.
+Freeze Stage 10 outputs once the extraction batch is structurally valid and sufficiently reliable under the Stage 5 calibration findings.
 
-After verification, inspect verdict/reason consistency, false-positive entailment, unsupported versus not-verifiable distinctions, citation handling, evidence-source attribution and agreement with the calibration annotations.
 
-Do not calculate headline explanation results at this point. First decide whether extraction and verification are sufficiently reliable. Only then decide whether DeepSeek judging adds useful independent information. If judging is approved, use randomized and recorded A/B position, conceal condition identities, validate score/preference consistency and treat judge results as a separate evidence source.
+## Stage 11 — Verify all extracted claims
+
+Phi-4 14B verifies every Stage 10 claim.
+
+Verify each claim separately against:
+
+1. **Exact trace**
+   - supported / not_supported
+   - Support requires an applicable V3 trace rule that directly entails the complete claim.
+
+2. **Full KB**
+   - supported / not_supported
+   - Check against any applicable V3 rule in the full KB.
+
+3. **Common-reference facts**
+   - Only literal item/context facts are eligible.
+   - eligible → supported / not_supported
+   - styling or subjective claims → N/A
+
+4. **Citations**
+   - Syntax and rule IDs checked deterministically.
+   - Phi checks valid citations as entails / does_not_entail.
+
+`not_supported` means only “not substantiated by this evidence,” not false.
+
+After verification, check:
+- structured-output failures;
+- claim-ID preservation;
+- false-positive support;
+- common-reference eligibility;
+- citation entailment;
+- consistency with Stage 5 calibration.
+
+Freeze Stage 11 before calculating headline explanation metrics.
+
+Only after extraction and verification are complete should the optional DeepSeek blind judging stage be considered. If used, it must remain a separate evaluation source with randomized recorded A/B order, concealed condition identities, citation/condition markers removed, and neutral presentation-quality dimensions only.
 
 ## Stage 12 — Select explanation metrics and rebuild visual outputs
 
