@@ -1,0 +1,82 @@
+{
+  "chapters": [
+    {
+      "chapter": 1,
+      "docx_bytes": 39660,
+      "docx_sha256": "48b0e587e573fadc9cc6f8ebac612b303aeed131204337c182296051b98c9c62",
+      "figures_embedded": 0,
+      "source_sha256": "6adc26deff4ef59716d3eb701f8670f6a6cad2982f8d7646f496de0ed67d33e2",
+      "source_words": 357,
+      "tables_embedded": 0,
+      "title": "Introduction"
+    },
+    {
+      "chapter": 2,
+      "docx_bytes": 39887,
+      "docx_sha256": "a1e9cb1397571a03545d5f8a0cc0fef5e091099005771afd3e680862f5562a6a",
+      "figures_embedded": 0,
+      "source_sha256": "d75a65663a849206510885aff38eeaf9a1e437d959954c1666a9efbf4adaa3d4",
+      "source_words": 409,
+      "tables_embedded": 0,
+      "title": "Literature Review"
+    },
+    {
+      "chapter": 3,
+      "docx_bytes": 70805,
+      "docx_sha256": "640c9699bdb7abea820f7040e23ba426c26d6288aa5dff58ab987af64d645bb5",
+      "figures_embedded": 2,
+      "source_sha256": "a81179146abcfa0ea2923425299ed4b19b2037a90ffd5141d41339e725c29c03",
+      "source_words": 853,
+      "tables_embedded": 0,
+      "title": "Methodology"
+    },
+    {
+      "chapter": 4,
+      "docx_bytes": 130650,
+      "docx_sha256": "d27f0aea1bba05d7d0b13255f536260a1ed8c953b24910b2da246a101c201d46",
+      "figures_embedded": 4,
+      "source_sha256": "8a052dc1a49d864a422b2b3be43192a3ff96565625fd02b29ca40cf0e3e0a827",
+      "source_words": 862,
+      "tables_embedded": 1,
+      "title": "Results"
+    },
+    {
+      "chapter": 5,
+      "docx_bytes": 40551,
+      "docx_sha256": "b442f94f30cb716606c0468b3de4c561edcbf744e870eafc42bd75247739565a",
+      "figures_embedded": 0,
+      "source_sha256": "428c5cacfd6dee511354952023ce69bc22892b55107c1ac0a9baa586b939f1d3",
+      "source_words": 651,
+      "tables_embedded": 0,
+      "title": "Discussion and Conclusion"
+    }
+  ],
+  "format": {
+    "body": "Times New Roman 12 pt, 1.5 spacing, justified",
+    "features": [
+      "title page",
+      "contents placeholder",
+      "page numbers",
+      "Cambria Math equation blocks",
+      "captioned figures",
+      "styled tables",
+      "chapter references"
+    ],
+    "headings": "Arial, three-level hierarchy",
+    "page": "A4"
+  },
+  "generated_at_utc": "2026-08-23T00:09:40Z",
+  "git_commit_at_generation": "327fab4e5d6ba865d825a61c56df8d7aa6f7f171",
+  "output_artifact_hashes": {
+    "thesis/CHPT1.docx": "48b0e587e573fadc9cc6f8ebac612b303aeed131204337c182296051b98c9c62",
+    "thesis/CHPT2.docx": "a1e9cb1397571a03545d5f8a0cc0fef5e091099005771afd3e680862f5562a6a",
+    "thesis/CHPT3.docx": "640c9699bdb7abea820f7040e23ba426c26d6288aa5dff58ab987af64d645bb5",
+    "thesis/CHPT4.docx": "d27f0aea1bba05d7d0b13255f536260a1ed8c953b24910b2da246a101c201d46",
+    "thesis/CHPT5.docx": "b442f94f30cb716606c0468b3de4c561edcbf744e870eafc42bd75247739565a"
+  },
+  "source_context": {
+    "note": "All five chapters are generated from versioned Markdown sources."
+  },
+  "stage": "thesis_chapter_build",
+  "status": "complete"
+}

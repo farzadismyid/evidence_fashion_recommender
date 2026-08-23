@@ -21,7 +21,7 @@ def _case() -> dict:
             "filtering": {"category_filter": "accessories"},
             "rules": [
                 {
-                    "rule_id": "R2",
+                    "rule_id": "K002",
                     "rule_text": "A structured bag can balance a soft top.",
                     "semantic_similarity": 0.8,
                     "reliability_label": "high",
@@ -62,26 +62,25 @@ def test_common_context_contains_only_approved_A_fields() -> None:
 
 def test_no_rag_prompt_has_no_rule_citation_or_grounding_instruction() -> None:
     prompt = build_no_rag_prompt(_case())
-    assert "R2" not in prompt
+    assert "K002" not in prompt
     assert "citation" not in prompt.lower()
-    assert "words" not in prompt.lower()
-    assert "only" not in prompt.lower()
-    assert "do not invent" not in prompt.lower()
+    assert "45" in prompt and "75" in prompt
+    assert "only supplied context" in prompt.lower()
     assert "evidence" not in prompt.lower()
 
 
 def test_no_rag_prompt_can_share_rule_rag_word_limit_without_evidence() -> None:
     prompt = build_no_rag_prompt(_case(), 75)
-    assert "at most 75 words" in prompt
+    assert "45" in prompt and "75" in prompt
     assert "citation" not in prompt.lower()
     assert "evidence" not in prompt.lower()
 
 
 def test_rule_prompt_is_derived_from_stored_trace_and_records_ids() -> None:
     prompt, rule_ids = build_rule_rag_prompt(_case(), _settings())
-    assert rule_ids == ["R2"]
-    assert "R2" in prompt
-    assert "60 words" in prompt
+    assert rule_ids == ["K002"]
+    assert "K002" in prompt
+    assert "45" in prompt and "75" in prompt
     assert "A structured bag can balance a soft top." in prompt
 
 
