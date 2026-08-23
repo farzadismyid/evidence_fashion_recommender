@@ -287,40 +287,67 @@ Generate publication-quality:
 Use readable final-size fonts, colour-blind-safe colours, consistent condition/category styling, visible confidence intervals, vector SVG/PDF where possible, and 300-DPI PNG copies where needed.
 
 Automated checks must confirm figure dimensions, resolution, font sizes and canonical-output provenance.
-## Stage 13 — Revise the thesis and perform the release audit
 
-Update the thesis only from approved outputs:
+## Stage 13 — Final thesis update and project release audit
 
-1. revise Chapter 3 for the taxonomy, models, prompt registry, evidence protocol and sequential MoA workflow;
-2. replace all Chapter 4 results, tables and figures;
-3. revise Chapter 5 interpretations, conclusions and limitations;
-4. align Chapters 1 and 2 with the final terminology and research scope;
-5. state explicitly that accessories outside bags were excluded because they lacked sufficiently explicit KB coverage;
-6. rebuild all DOCX chapters from the canonical Markdown sources; and
-7. trace every reported number to a current table and manifest.
+Use only the frozen canonical outputs from Stages 1–12. Do not rerun models, regenerate explanations, change metrics, tune prompts, rebuild the KB, or introduce new experiments.
 
-Before release, run unit and integration tests; verify the 1,000/500 case counts and category balance; verify model, data and prompt hashes; confirm that archive files are not tracked; confirm there are no duplicate live results; review the complete Git diff; and push only after the new approach is internally reproducible.
+### Thesis update
 
-## Remaining-issue coverage
+1. Revise Chapter 3 to reflect the final:
+   - five-category taxonomy;
+   - V3 expert-rule KB;
+   - recommendation and reranking pipeline;
+   - explanation conditions;
+   - model roster;
+   - prompt registry;
+   - claim extraction and verification protocol;
+   - calibration procedure;
+   - statistical analysis.
 
-All previously identified non-metric issues are included in this approach:
+2. Replace Chapter 4 results, tables and figures with the final frozen recommendation and explanation results.
 
-| Previously identified issue | Addressed in |
-|---|---|
-| Real-data calibration of extractor and verifier | Stage 5 |
-| Bag-rule coverage across query and gender contexts | Stage 2 |
-| Rule concentration with a small bag-rule pool | Stage 2 |
-| Fair and explicit verifier evidence boundaries | Stages 3, 5 and 11 |
-| Semantic validation beyond valid JSON | Stages 5, 10 and 11 |
-| Prompt visibility and freezing | Stage 3 |
-| Retry and terminal-failure transparency | Stages 3, 6 and 9–11 |
-| One canonical output lifecycle | Stage 6 |
-| Optional judge decision and calibration | Stage 11 |
-| Thesis-scale visual accessibility | Stage 12 |
-| Thesis consistency and result provenance | Stage 13 |
+3. Include the Stage 12 explanation evaluation:
+   - Exact-Trace Claim Support Rate;
+   - Full-KB Claim Support Rate;
+   - Unsupported Item-Fact Rate;
+   - Exact-Trace Supported Claims per 100 Words;
+   - robustness analyses;
+   - trace-utilization diagnostics;
+   - citation diagnostics;
+   - real qualitative examples.
 
-These issues do not require a second independent plan. They require implementation and explicit pass/fail checks within the named stages. The only deliberately deferred design decision is the final set of explanation metrics, which is handled after extraction and verification inspection in Stage 12. Recommendation metrics are retained.
+4. Revise Chapter 5 conclusions and limitations so all claims match the final results.
 
-## Start gate
+5. Align Chapters 1 and 2 with the final terminology, research questions and scope.
 
-No full experimental run begins until Stages 1–5 are implemented and their tests and calibration checks pass. This prevents an expensive run from being invalidated by taxonomy, KB, prompt or evaluator defects discovered afterward.
+6. State clearly that accessories outside bags were excluded because sufficiently explicit expert-rule coverage was not available for the final controlled experiment.
+
+7. Rebuild all DOCX chapters from the canonical Markdown sources.
+
+8. Ensure every reported numerical result can be traced to a current canonical table and manifest.
+
+### Final release audit
+
+Before closing the project:
+
+- run all unit and integration tests;
+- verify the frozen 1,000 recommendation cases and 500 explanation cases and category balance;
+- verify final Stage 9, 10, 11 and 12 counts and terminal failures;
+- verify model, dataset, KB, prompt and configuration hashes;
+- verify all tables and figures are generated from canonical frozen outputs;
+- verify qualitative examples come from real frozen records and are unedited;
+- confirm no archive/legacy outputs are treated as current results;
+- confirm no duplicate live result sets exist;
+- confirm no obsolete metrics or previous evaluation results remain in the thesis;
+- review the complete Git diff;
+- create the final release manifest;
+- commit and push only after all checks pass.
+
+### Final project status
+
+After Stage 13 passes, freeze the repository as the final experimental release.
+
+No additional model runs, evaluator changes, KB revisions, metric changes or experimental reruns are required.
+
+Any remaining work after Stage 13 is limited to thesis/paper writing, presentation, formatting, figure/table placement, references and language refinement.
