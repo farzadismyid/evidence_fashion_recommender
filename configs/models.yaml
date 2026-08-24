@@ -1,13 +1,27 @@
-schema_version: 1
+schema_version: 2
 
 embedders:
+  minilm:
+    provider: sentence_transformers
+    model_id: sentence-transformers/all-MiniLM-L6-v2
+    revision: 1110a243fdf4706b3f48f1d95db1a4f5529b4d41
+    immutable_digest: 1110a243fdf4706b3f48f1d95db1a4f5529b4d41
+    architecture: MiniLM
+    parameters: 22.7M
+    quantization: float32
+    dimension: 384
+    max_sequence_length: 256
+    batch_size: 64
+    normalize: true
+    device: auto
+    precision: float32
   qwen3_embedding:
     provider: ollama
     model_id: qwen3-embedding:0.6b
     revision: 0.6b-q8_0
-    immutable_digest: 06507c7b42688469c4e7298b0a1e16deff06caf291cf0a5b278c308249c3e439
+    immutable_digest: ac6da0dfba84a81fdbfbaf330198c33cd77c4cdfc53e8bc50eb581914a15621d
     architecture: qwen3
-    parameters: 0.6B
+    parameters: 595.78M
     quantization: Q8_0
     dimension: 1024
     max_sequence_length: 32768
@@ -26,6 +40,7 @@ embedders:
     normalize: true
     device: auto
     precision: float32
+    local_files_only: true
 
 generators:
   roster:
@@ -47,7 +62,6 @@ generators:
       parameters: 13.9B
       quantization: Q4_K_M
       context_length: 262144
-  approval_status: calibrated_fresh_start_20260816
 
 extractor:
   model_id: qwen3.5:9b
@@ -55,7 +69,7 @@ extractor:
   architecture: qwen35
   parameters: 9.7B
   quantization: Q4_K_M
-  approval_status: calibrated_fresh_start_20260816
+  context_length: 262144
 
 verifier:
   model_id: phi4:14b
@@ -63,26 +77,17 @@ verifier:
   architecture: phi3
   parameters: 14.7B
   quantization: Q4_K_M
-  approval_status: calibrated_fresh_start_20260816
+  context_length: 16384
 
-judges:
-  roster:
-    - model_id: deepseek-r1:14b
-      immutable_digest: c333b7232bdb521236694ffbb5f5a6b11cc45d98e9142c73123b670fca400b09
-      architecture: qwen2
-      parameters: 14.8B
-      quantization: Q4_K_M
-  approval_status: calibrated_optional_fresh_start_20260816
-
-generation_defaults:
+inference_defaults:
+  endpoint: http://127.0.0.1:11434
   context_length: 8192
   temperature: 0.0
   top_p: 1.0
   top_k: 1
   seed: 42
-  token_limit: 512
+  generation_token_limit: 512
   structured_token_limit: 2048
   timeout_seconds: 120
+  keep_alive: 10m
   inference_server_version: 0.32.13
-  device: cuda
-  precision: Q4_K_M

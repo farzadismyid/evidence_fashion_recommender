@@ -119,17 +119,26 @@ class RuleRetriever:
         representation_embedding: np.ndarray,
         top_k: int | None = None,
     ) -> CandidateEvidenceTrace:
-        selected_top_k = top_k or self.settings["candidate_top_k"]
+        configured_top_k = self.settings.get("rule_top_k", self.settings.get("candidate_top_k"))
+        selected_top_k = top_k or configured_top_k
+        if not selected_top_k:
+            raise ValueError("A positive rule_top_k must be configured.")
         target = str(case["target_category"])
-        eligible_mask = self.rules[self.settings["category_filter_field"]].astype(str).eq(target)
+        category_field = self.settings.get("category_filter_field", "recommended_category")
+        eligible_mask = self.rules[category_field].astype(str).eq(target)
         category_eligible_count = int(eligible_mask.sum())
         audit_excluded = 0
         applicability_excluded = 0
         context_excluded = 0
         query_terms_excluded = 0
         candidate_terms_excluded = 0
-        audit_field = self.settings["audit_status_field"]
-        approved = self.rules[audit_field].astype(str).eq(self.settings["approved_audit_status"])
+        audit_field = self.settings.get("audit_status_field")
+        approved_status = self.settings.get("approved_audit_status")
+        approved = (
+            self.rules[audit_field].astype(str).eq(approved_status)
+            if audit_field and approved_status
+            else pd.Series(True, index=self.rules.index)
+        )
         audit_excluded = category_eligible_count - int((eligible_mask & approved).sum())
         decisions = [
             rule_applicability_gate(rule, case=case, candidate=candidate)
@@ -205,12 +214,11 @@ class RuleRetriever:
         for local_index, rule_row in enumerate(eligible_rows):
             rule = self.rules.iloc[rule_row]
             reliability_label = str(rule["source_reliability"]).lower()
-            reliability_weight = float(self.settings["reliability_weights"][reliability_label])
-            bonus = (
-                float(self.settings["query_group_bonus"])
-                if str(rule["input_category"]) == query_group
-                else 0.0
+            legacy_weights = self.settings.get("reliability_weights", {})
+            reliability_weight = float(
+                self.settings.get("equal_rule_weight", legacy_weights.get(reliability_label, 1.0))
             )
+            bonus = 0.0
             contribution = float(similarities[local_index]) * reliability_weight + bonus
             scored.append(
                 (

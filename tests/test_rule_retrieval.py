@@ -11,16 +11,13 @@ from evidence_fashion.rule_retrieval import (
 
 def _settings() -> dict:
     return {
-        "candidate_top_k": 2,
+        "rule_top_k": 2,
         "category_filter_field": "recommended_category",
         "applicability_filter_field": "applicable_query_categories",
         "required_context_field": "required_context",
         "query_terms_field": "query_terms",
         "candidate_terms_field": "candidate_terms",
-        "audit_status_field": "audit_status",
-        "approved_audit_status": "retain",
-        "reliability_weights": {"high": 1.0, "medium": 0.85, "low": 0.65},
-        "query_group_bonus": 0.1,
+        "equal_rule_weight": 1.0,
         "score_max_weight": 0.7,
         "score_mean_weight": 0.3,
     }
@@ -96,15 +93,15 @@ def test_filter_happens_before_top_k_and_trace_reproduces_score() -> None:
     assert all(rule.filtering_decision.startswith("retained") for rule in trace.rules)
 
 
-def test_reliability_weight_and_query_bonus_are_recorded() -> None:
+def test_final_rule_weight_is_equal_and_has_no_category_bonus() -> None:
     embeddings = np.array([[0.8, 0.6], [1.0, 0.0], [1.0, 0.0]], dtype=np.float32)
     retriever = RuleRetriever(_rules(), embeddings, _settings())
     trace = retriever.retrieve_and_score(
         case=_case(), candidate=_candidate(), representation_embedding=np.array([1.0, 0.0])
     )
     medium = next(rule for rule in trace.rules if rule.rule_id == "R2")
-    assert medium.reliability_weight == 0.85
-    assert medium.query_group_bonus == 0.1
+    assert medium.reliability_weight == 1.0
+    assert medium.query_group_bonus == 0.0
 
 
 def test_truncated_trace_recomputes_exact_score_and_filtering() -> None:

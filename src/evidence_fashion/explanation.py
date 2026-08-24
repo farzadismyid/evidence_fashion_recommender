@@ -144,7 +144,7 @@ class OllamaClient:
             "prompt": prompt,
             "stream": False,
             "think": False,
-            "keep_alive": "10m",
+            "keep_alive": self.defaults["keep_alive"],
             "options": {
                 "num_ctx": self.defaults["context_length"],
                 "temperature": self.defaults["temperature"],

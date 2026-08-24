@@ -1,31 +1,35 @@
-schema_version: 1
+schema_version: 2
 
 project:
   name: evidence-fashion-recommender
+  final_run_name: final_clean_run_20260825
   random_seed: 42
   deterministic: true
 
 paths:
-  knowledge_base: data/kb/fashion_rules_v3.csv
-  kb_expansion_source: data/kb/fashion_rules_expansion.csv
-  legacy_kb_audit: data/kb/legacy_kb_audit.yaml
-  legacy_rule_audit: data/kb/legacy_rule_audit.csv
-  kb_coverage_matrix: data/kb/coverage_matrix.csv
-  kb_source_registry: data/kb/kb_source_registry.csv
-  kb_rule_similarity_audit: data/kb/kb_rule_similarity_audit.csv
-  kb_audit_report: reports/five_category_kb_audit.md
-  runtime_root: .runtime
-  data_runs: .runtime/data
-  embedding_runs: .runtime/embeddings
+  knowledge_base: data/kb/fashion_rules.csv
+  runtime_root: .runtime/current
+  data_runs: .runtime/current/data
+  embedding_runs: .runtime/current/embeddings
+  recommendation_runs: .runtime/current/recommendations
+  explanation_runs: .runtime/current/explanations
+  extraction_runs: .runtime/current/extraction
+  verification_runs: .runtime/current/verification
+  final_analysis_runs: .runtime/current/final_analysis
   manifests: artifacts/manifests
-  active_data_manifest: artifacts/manifests/data_preparation_leakage_resolved_manifest.json
-  active_embedding_manifest: artifacts/manifests/embedding_leakage_resolved_manifest.json
-  stage4_runs: .runtime/stage4
-  stage5_runs: .runtime/stage5
-  stage6_runs: .runtime/stage6
-  stage7_runs: .runtime/stage7
-  stage8_runs: .runtime/stage8
-  category_audit_table: artifacts/tables/table_category_audit.csv
+  tables: artifacts/tables
+  figures: artifacts/figures
+  reports: reports
+  release: artifacts/release
+  category_audit_table: artifacts/tables/final_stage1_category_audit.csv
+  active_data_manifest: artifacts/manifests/final_data_preparation_manifest.json
+  active_embedding_manifest: artifacts/manifests/final_embedding_manifest.json
+  stage1_manifest: artifacts/manifests/final_stage1_preflight_manifest.json
+
+kb_validation:
+  expected_rule_count: 200
+  expected_rules_per_category: 40
+  near_duplicate_sequence_similarity_threshold: 0.90
 
 dataset:
   provider: huggingface
@@ -36,12 +40,7 @@ dataset:
   acquisition_date: '2026-08-06'
   licence: apache-2.0
   fingerprint: 9c97dc763773e2a2
-  cache_fingerprint: cc1ddeafe547ef65395df0959c7cd0bd3a717c9288ee9f759b0ccfa9ad777b08
-  columns:
-    image: image
-    category: category
-    text: text
-    item_id: item_ID
+  columns: {image: image, category: category, text: text, item_id: item_ID}
   outfit_id_separator: _
   approved_minimal_identity_fields: [category, text]
   expected_counts:
@@ -51,159 +50,40 @@ dataset:
     development_outfits: 13365
     validation_outfits: 2864
     test_outfits: 2865
-  proposal_reported_target_category_items: 66749
 
 preprocessing:
   target_categories: [tops, bottoms, shoes, outerwear, bags]
   query_categories: [tops, bottoms, shoes, outerwear, bags]
   category_mapping_version: five_category_bags_v1
-  review_category_policy: frozen_exclude_after_pre_stage6_audit
   exclude_same_effective_type_query_target: true
+  drop_missing_item_id: true
+  require_outfit_position: true
+  duplicate_item_policy: reject
   category_taxonomy:
     matching: exact_case_sensitive_raw_value
     unlisted_category_decision: exclude
     broad_category_mapping:
-      tops:
-        - Activewear Tank Tops
-        - Activewear Tops
-        - Blouses
-        - Camisoles
-        - Cardigans
-        - Hoodies
-        - Men's Activewear Tops
-        - Men's Casual Shirts
-        - Men's Dress Shirts
-        - Men's Hoodies
-        - Men's Polos
-        - Men's Shirts
-        - Men's Sweaters
-        - Men's Sweatshirts
-        - Men's T-Shirts
-        - Men's Tank Tops
-        - Sweaters
-        - Sweatshirts
-        - T-Shirts
-        - Tank Tops
-        - Tops
-        - Tunics
-      bottoms:
-        - Activewear Pants
-        - Activewear Shorts
-        - Activewear Skirts
-        - Bootcut Jeans
-        - Boyfriend Jeans
-        - Capri & Cropped Pants
-        - Flared Jeans
-        - Jeans
-        - Knee Length Skirts
-        - Leggings
-        - Long Skirts
-        - Men's Activewear Pants
-        - Men's Activewear Shorts
-        - Men's Casual Pants
-        - Men's Dress Pants
-        - Men's Jeans
-        - Men's Pants
-        - Men's Shorts
-        - Mini Skirts
-        - Pants
-        - Shorts
-        - Skinny Jeans
-        - Skirts
-        - Straight Leg Jeans
-        - Wide Leg Jeans
-      shoes:
-        - Ankle Booties
-        - Athletic Shoes
-        - Boots
-        - Clogs
-        - Flats
-        - Flip Flops
-        - Knee High Boots
-        - Loafers & Moccasins
-        - Men's Athletic Shoes
-        - Men's Boots
-        - Men's Dress Shoes
-        - Men's Flip Flops
-        - Men's Loafers & Moccasins
-        - Men's Oxfords
-        - Men's Sandals
-        - Men's Shoes
-        - Men's Slippers
-        - Men's Sneakers
-        - Men's Work Boots
-        - Mid Calf Boots
-        - Over-The-Knee Boots
-        - Oxfords
-        - Pumps
-        - Sandals
-        - Shoes
-        - Slippers
-        - Sneakers
-      outerwear:
-        - Activewear Jackets
-        - Blazers
-        - Coats
-        - Jackets
-        - Men's Activewear Jackets
-        - Men's Coats
-        - Men's Jackets
-        - Men's Outerwear
-        - Men's Sportcoats & Blazers
-        - Men's Vests
-        - Outerwear
-        - Vests
-      bags:
-        - Bags
-        - Clutches
-        - Handbags
-        - Men's Bags
-        - Men's Messenger Bags
-        - Messenger Bags
-        - Shoulder Bags
-        - Tote Bags
+      tops: [Activewear Tank Tops, Activewear Tops, Blouses, Camisoles, Cardigans, Hoodies, Men's Activewear Tops, Men's Casual Shirts, Men's Dress Shirts, Men's Hoodies, Men's Polos, Men's Shirts, Men's Sweaters, Men's Sweatshirts, Men's T-Shirts, Men's Tank Tops, Sweaters, Sweatshirts, T-Shirts, Tank Tops, Tops, Tunics]
+      bottoms: [Activewear Pants, Activewear Shorts, Activewear Skirts, Bootcut Jeans, Boyfriend Jeans, Capri & Cropped Pants, Flared Jeans, Jeans, Knee Length Skirts, Leggings, Long Skirts, Men's Activewear Pants, Men's Activewear Shorts, Men's Casual Pants, Men's Dress Pants, Men's Jeans, Men's Pants, Men's Shorts, Mini Skirts, Pants, Shorts, Skinny Jeans, Skirts, Straight Leg Jeans, Wide Leg Jeans]
+      shoes: [Ankle Booties, Athletic Shoes, Boots, Clogs, Flats, Flip Flops, Knee High Boots, Loafers & Moccasins, Men's Athletic Shoes, Men's Boots, Men's Dress Shoes, Men's Flip Flops, Men's Loafers & Moccasins, Men's Oxfords, Men's Sandals, Men's Shoes, Men's Slippers, Men's Sneakers, Men's Work Boots, Mid Calf Boots, Over-The-Knee Boots, Oxfords, Pumps, Sandals, Shoes, Slippers, Sneakers]
+      outerwear: [Activewear Jackets, Blazers, Coats, Jackets, Men's Activewear Jackets, Men's Coats, Men's Jackets, Men's Outerwear, Men's Sportcoats & Blazers, Men's Vests, Outerwear, Vests]
+      bags: [Bags, Handbags, Shoulder Bags, Tote Bags, Clutches, Messenger Bags, Men's Bags, Men's Messenger Bags]
     bag_allowlist: [Bags, Handbags, Shoulder Bags, Tote Bags, Clutches, Messenger Bags, Men's Bags, Men's Messenger Bags]
     bag_excluded_categories: [Backpacks, Men's Backpacks, Briefcases, Men's Briefcases, Luggage]
-    review_categories:
-      - Accessories
-      - Activewear
-      - Baby
-      - Bags & Cases
-      - Boys
-      - Clothing
-      - Girls
-      - Juniors
-      - Kids
-      - Maternity
-      - Men's Accessories
-      - Men's Activewear
-      - Men's Bags & Wallets
-      - Men's Clothing
-      - Men's Fashion
-      - Men's Watches & Jewelry
-      - Sports & Outdoors
+    review_categories: [Accessories, Activewear, Baby, Bags & Cases, Boys, Clothing, Girls, Juniors, Kids, Maternity, Men's Accessories, Men's Activewear, Men's Bags & Wallets, Men's Clothing, Men's Fashion, Men's Watches & Jewelry, Sports & Outdoors]
     broad_request_templates:
-      bags: Recommend a bag that completes this outfit.
-      bottoms: Recommend bottoms that work with this outfit.
-      outerwear: Recommend outerwear that works with this outfit.
-      shoes: Recommend shoes that complete this outfit.
       tops: Recommend a top that works with this outfit.
-  drop_missing_item_id: true
-  require_outfit_position: true
-  duplicate_item_policy: reject
+      bottoms: Recommend bottoms that work with this outfit.
+      shoes: Recommend shoes that complete this outfit.
+      outerwear: Recommend outerwear that works with this outfit.
+      bags: Recommend a bag that completes this outfit.
 
 splits:
   unit: outfit
   method: sha256_order_exact_counts
   seed: 42
-  requested_fractions:
-    development: 0.70
-    validation: 0.15
-    test: 0.15
-  exact_outfit_counts:
-    development: 13365
-    validation: 2864
-    test: 2865
+  requested_fractions: {development: 0.70, validation: 0.15, test: 0.15}
+  exact_outfit_counts: {development: 13365, validation: 2864, test: 2865}
   exact_image_duplicate_policy:
     enabled: true
     hash_algorithm: sha256
@@ -216,7 +96,7 @@ splits:
     require_zero_cross_split_exact_hash_groups: true
 
 recommendation_evaluation:
-  case_context_schema_version: 2
+  case_context_schema_version: 3
   case_count: 1000
   case_split: test
   case_seed: 42
@@ -232,42 +112,24 @@ candidate_pool:
   negative_sampling: sha256_order
   negative_source_split: case_split
   deterministic_order: item_id
-  validation_sensitivity_pool_sizes: [100, 500, 1000]
 
 retrieval:
   metric: cosine
-  user_facing_top_k: 5
   deterministic_tie_breaker: item_id_ascending
   fusion:
     image_weight: 0.40
     text_weight: 0.60
     normalize_inputs: true
     normalize_output: true
-    selection_split: validation
-    validation_grid_image_weights: [0.0, 0.2, 0.4, 0.6, 0.8, 1.0]
-    selection_metric: ndcg_at_10
-    tie_breaking: [higher_mrr, higher_hr_at_10, lower_distance_from_reference, lower_image_weight]
-    frozen: true
-    operating_point_policy: researcher_selected_multimodal_design_constraint
-    validation_optimum_is_diagnostic_only: true
-
-embedding_validation:
-  split: validation
-  sample_size: 8
-  seed: 42
-  batch_size: 8
-  require_all_target_categories: true
-  norm_absolute_tolerance: 0.00001
-  minimum_pairwise_distance: 0.000001
-  cache_namespace: stage3_validation
+    validation_split: validation
+    validation_grid_image_weights: [0.00, 0.20, 0.40, 0.60, 0.80, 1.00]
+    validation_metrics: [hr_at_10, ndcg_at_10, mrr]
+    grid_role: diagnostic_only
+    confirmatory_policy: fixed_040_image_060_text
 
 rule_retrieval:
-  candidate_top_k: 5
-  reliability_weights:
-    high: 1.00
-    medium: 0.85
-    low: 0.65
-  query_group_bonus: 0.0
+  rule_top_k: 5
+  equal_rule_weight: 1.0
   score_max_weight: 0.7
   score_mean_weight: 0.3
   filter_before_top_k: true
@@ -276,179 +138,87 @@ rule_retrieval:
   required_context_field: required_context
   query_terms_field: query_terms
   candidate_terms_field: candidate_terms
-  audit_status_field: audit_status
-  approved_audit_status: rebuilt_v3_substantive_expert_rule
   candidate_representation_fields: [query_category, query_text, user_request, candidate_category, candidate_text, target_category]
   candidate_representation_template: labelled_pipe_v1
   deterministic_tie_breaker: rule_id_ascending
 
 reranking:
-  reference_clip_weight: 0.75
-  reference_evidence_weight: 0.25
-  normalize_within_candidate_pool: min_max
+  clip_weight: 0.75
+  evidence_weight: 0.25
+  normalization: min_max_within_candidate_pool
+  confirmatory_policy: fixed_075_clip_025_evidence_top_k_5
 
-reranking_search:
-  evidence_weights: [0.05, 0.10, 0.15, 0.20, 0.25, 0.30, 0.40, 0.50]
-  rule_top_k: [3, 5]
-  selection_split: validation
-  selection_method: pareto_knee_report_only
-  maximum_ndcg10_relative_loss: 0.10
-  study_default_evidence_weight: 0.25
-  study_default_clip_weight: 0.75
-  study_default_policy: researcher_selected_main_default
-  evidence_weight_grid_role: report_tradeoff_and_validation_recommendation_only
-  evidence_weight_lower_bound_rationale: meaningful_expert_rule_participation_not_nominal_inclusion
-  objectives: [hr_at_10, ndcg_at_10, mrr, mean_top1_evidence, mean_evidence_gain, changed_top1_rate, rule_trace_participation]
-  tie_breaking: lower_evidence_weight_then_lower_rule_count
-  knee_normalization: min_max
-  knee_distance: euclidean_to_ideal
-  stage5_operating_point_policy: researcher_selected_main_default_approved
-
-stage4_validation:
-  case_count: 300
-  cases_per_category: 60
+validation_sensitivity:
   split: validation
+  case_count: 1000
+  cases_per_category: 200
   case_seed: 4242
-  candidate_max_negatives: 99
-  completed_diagnostic_candidate_max_negatives: 999
-  embedding_batch_size: 32
-  selected_rule_top_k: 5
-  selected_evidence_weight: 0.25
-  selected_clip_weight: 0.75
-  rule_generic_packet_prevalence_threshold: 0.50
-  diversity_jaccard_sample_seed: 4242
-  save_all_candidate_traces: true
+  evidence_weights: [0.00, 0.05, 0.10, 0.15, 0.20, 0.25, 0.30, 0.40, 0.50]
+  rule_top_k_values: [1, 3, 5]
+  metrics: [hr_at_10, ndcg_at_10, mrr, mean_top1_evidence_score, mean_evidence_score_gain, changed_top1_rate, rule_trace_participation]
+  pareto_objectives: [hr_at_10, ndcg_at_10, mrr, mean_top1_evidence_score, mean_evidence_score_gain, rule_trace_participation]
+  pareto_role: descriptive_only
+
+embeddings:
+  batch_size: 64
+  validation_split: validation
+  validation_sample_size: 10
+  validation_seed: 42
+  require_all_target_categories: true
+  norm_absolute_tolerance: 0.00001
+  minimum_pairwise_distance: 0.000001
+  regenerate_policy: model_dataset_configuration_hash_bound
 
 explanations:
   case_count: 500
+  cases_per_category: 100
+  selection_seed: 42
+  selection_policy: sha256_order_stratified_evidence_eligible_without_trace_preference
   conditions: [no_rag, rule_rag]
   locked_recommendation: post_rerank_top_1
-  generation_token_safety_ceiling: 512
-  immutable_outputs: true
-  optimisation_cases: 10
-  pilot_cases: 50
-  optimisation_cases_per_category: 2
-  pilot_cases_per_category: 10
+  word_minimum: 45
+  word_target: 65
+  word_maximum: 75
+  normally_sentence_count: [2, 3]
+  generation_order: [gemma4:12b, llama3.1:8b-instruct-q8_0, ministral-3:14b-instruct-2512-q4_K_M]
+  bounded_retry_attempts: 2
+  terminal_failure_policy: retain_transparently
 
 explanation_evidence:
   common_A_fields: [user_request, query_item_minimal_name, locked_item_minimal_name]
   B_source: exact_stored_rule_scoring_trace
   forbid_image_derived_text: true
   forbid_second_rule_retrieval: true
-  A_format_template: labelled_plain_text_v1
+  trace_hash_link_required: true
 
-explanation_search:
-  selection_split: validation
-  rag_word_limits: [45, 60, 75]
-  rule_counts: [1, 3, 5]
-  evidence_formats: [compact_json, labelled_text]
-  evidence_orderings: [retrieval_rank, weighted_score_descending]
-  citation_modes: [required, optional]
-  include_rule_scores: [false, true]
-  include_reliability_labels: [false, true]
-  grounding_prompt_variants: [concise, detailed]
-  candidate_configurations:
-    - {id: rag_c1, word_limit: 45, rule_count: 1, evidence_format: compact_json, evidence_ordering: retrieval_rank, citation_mode: required, include_rule_scores: false, include_reliability_labels: false, grounding_prompt_variant: concise}
-    - {id: rag_c2, word_limit: 60, rule_count: 3, evidence_format: labelled_text, evidence_ordering: weighted_score_descending, citation_mode: required, include_rule_scores: false, include_reliability_labels: true, grounding_prompt_variant: concise}
-    - {id: rag_c3, word_limit: 75, rule_count: 5, evidence_format: labelled_text, evidence_ordering: weighted_score_descending, citation_mode: required, include_rule_scores: true, include_reliability_labels: true, grounding_prompt_variant: detailed}
-    - {id: rag_c4, word_limit: 60, rule_count: 5, evidence_format: compact_json, evidence_ordering: weighted_score_descending, citation_mode: required, include_rule_scores: true, include_reliability_labels: false, grounding_prompt_variant: concise}
-    - {id: rag_c5, word_limit: 75, rule_count: 3, evidence_format: labelled_text, evidence_ordering: retrieval_rank, citation_mode: optional, include_rule_scores: false, include_reliability_labels: true, grounding_prompt_variant: detailed}
-    - {id: rag_c6, word_limit: 45, rule_count: 3, evidence_format: compact_json, evidence_ordering: retrieval_rank, citation_mode: required, include_rule_scores: false, include_reliability_labels: false, grounding_prompt_variant: detailed}
-  active_configuration_ids: [rag_c3]
-  primary_selection_policy: researcher_selected
-  selection_utility:
-    support_rate: 1.0
-    citation_entailment_rate: 1.0
-    general_quality_normalized: 1.0
-    clarity_normalized: 1.0
-    specificity_normalized: 1.0
-    unsupported_rate: -1.0
-    contradiction_rate: -2.0
-    length_violation_rate: -1.0
-    malformed_rate: -1.0
-  tie_breaking: [higher_support_rate, lower_contradiction_rate, lower_latency, configuration_id]
-  maximum_mean_word_count_gap_from_no_rag: 5
-  require_rule_count_matches_scoring_trace: true
-  frozen_configuration_id: rag_c3
-  length_matched_sensitivity_pairs_per_generator: 10
-  length_matched_sensitivity_method: smallest_case_paired_absolute_word_gaps_stratified_by_generator
+extraction:
+  schema: atomic_claims_v2
+  model_role: qwen_claim_extractor
+  claim_types: [body_fit, colour, comfort, formality, item_type, material, occasion, season, styling_relation, trend, visual_match, other]
+  no_claim_cap: true
+  bounded_retry_attempts: 2
 
-structured_outputs:
-  retry_attempts: 2
-  repair_attempts: 1
-  extraction_failure_label: not_applicable
-  verification_failure_label: not_applicable
-  support_statuses: [supported, unsupported, contradicted, not_verifiable]
-  support_sources: [query_or_locked_item, rule_evidence]
+verification:
+  schema: final_trace_kb_reference_citation_v1
+  model_role: phi_claim_verifier
+  trace_labels: [supported, not_supported]
+  full_kb_labels: [supported, not_supported]
+  common_reference_labels: [supported, not_supported, N/A]
+  citation_labels: [entails, does_not_entail, N/A]
+  bounded_retry_attempts: 2
+  common_reference_literal_fields: [item_identity, item_type, colour, material, pattern, fit, silhouette, construction_detail]
 
 statistics:
-  bootstrap_unit: query_outfit
+  bootstrap_unit: underlying_case_query_outfit
   bootstrap_replicates: 5000
+  bootstrap_seed: 42
   confidence_level: 0.95
   interval_method: percentile
-  paired: true
+  paired_available_case_policy: complete_case
   multiplicity_method: holm
-  multiplicity_family: all_primary_condition_contrasts
 
-stage6:
-  reference_method: fused_clip_main_040_060
-  contrast_methods: [qwen3_embedding_text, clip_image, clip_text, evidence_rerank_main_075_025]
-  publication_example_cases_per_category: 1
-  publication_top_k: 5
-  save_candidate_rankings: true
-  publication_artifact_status: final_stage6
-
-stage7:
-  source_manifest: artifacts/manifests/stage6_recommendation_manifest.json
-  frozen_prompt_settings: artifacts/manifests/stage5_frozen_settings.json
-  case_selection_method: sha256_order_stratified_by_target_category
-  case_selection_seed: 42
-  cases_per_category: 100
-  generation_retry_attempts: 2
-  retry_timeout_multiplier: 2
-  progress_report_interval: 10
-  no_rag_prompt_template: length_controlled_baseline_v2
-  no_rag_word_limit: 75
-  reuse_rule_rag_source_manifest: artifacts/manifests/stage7_explanation_generation_manifest.json
-  rule_rag_prompt_configuration: rag_c3
-  refusal_detection:
-    method: case_insensitive_substring_audit
-    markers:
-      - "i cannot assist"
-      - "i can't assist"
-      - "i cannot help"
-      - "i can't help"
-      - "i'm unable to"
-      - "i am unable to"
-      - "as an ai"
-      - "cannot provide"
-
-stage8:
-  source_manifest: artifacts/manifests/stage7_explanation_generation_manifest.json
-  reuse_rule_rag_extractions_source_manifest: artifacts/manifests/stage8_assessment_manifest.json
-  extraction_schema: atomic_claims_v1
-  verification_schema: multi_source_entailment_v1
-  judging_schema: paired_anchored_scores_v1
-  extraction_claim_types: [body_fit, colour, comfort, formality, item_type, material, occasion, season, styling_relation, trend, visual_match, other]
-  judge_dimensions: [input_consistency, general_quality, clarity, specificity, hallucination_control, evidence_use_correctness]
-  judge_score_minimum: 1
-  judge_score_maximum: 5
-  paired_position_seed: 42
-  progress_report_interval: 10
-  skip_refusal_claim_assessment_as_not_applicable: true
-  refusal_detection_markers:
-    - "i cannot assist"
-    - "i can't assist"
-    - "i cannot help"
-    - "i can't help"
-    - "i'm unable to"
-    - "i am unable to"
-    - "as an ai"
-    - "cannot provide"
-    - "can't provide"
-    - "unable to provide"
-    - "i can't fulfill"
-    - "i cannot fulfill"
-  citation_pattern: '\[(K[0-9]{3})\]'
-  verification_evidence_packet: common_union_A_plus_B
-  preserve_generation_evidence_visibility: true
+release:
+  canonical_jsonl_required: [recommendation_inputs_rankings, explanation_inputs, exact_traces, explanations, extractions, verifications, analysis_source_tables]
+  include_model_weights: false
+  include_raw_dataset_cache: false
+  include_embedding_caches: false

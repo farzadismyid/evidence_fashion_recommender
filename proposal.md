@@ -58,10 +58,10 @@ The system does **not** claim access to an LLM's hidden internal reasoning. The 
 The research questions are framed around **magnitude, specificity, trade-offs, and robustness**, rather than the trivial question of whether giving an LLM extra text can change its output.
 
 **RQ1 — Multimodal recommendation**  
-How do image-only, text-only, and validation-selected multimodal fusion compare on controlled fashion recommendation ranking, and what genuinely multimodal fusion setting provides the strongest validation performance?
+How do image-only, text-only, and the fixed confirmatory multimodal fusion setting compare on controlled fashion recommendation ranking, and how does validation-only sensitivity analysis characterize the fusion trade-off?
 
 **RQ2 — Recommendation/evidence trade-off**  
-How does expert-rule-aware reranking change recommendation utility and expert-evidence participation, and what validation-selected operating point best balances these objectives?
+How does expert-rule-aware reranking change recommendation utility and expert-evidence participation, and how do validation-only sensitivity analyses characterize the trade-off at and around the fixed confirmatory operating point?
 
 **RQ3 — Reranking-trace grounding**  
 To what extent does conditioning explanation generation on the **exact expert-rule trace that contributed to reranking** increase claim-level support relative to the same recommendation explained without that trace?

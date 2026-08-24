@@ -1,0 +1,689 @@
+{
+  "command": "python scripts/prepare_data.py --config configs/experiment.yaml",
+  "configuration_hash": "dc08d3dabf2d81373332c73e80d88222ab389174e7113fc5b8ab390f531409e0",
+  "environment": {
+    "machine": "AMD64",
+    "os": "Windows-11-10.0.26200-SP0",
+    "python": "3.12.13"
+  },
+  "failure_counts": {
+    "invalid_item_ids": 0,
+    "invalid_pools": 0
+  },
+  "git_commit": "42101fbf709b623b47beef97b6cc516d8824cdcb",
+  "input_artifact_hashes": {
+    "dataset_fingerprint": "9c97dc763773e2a2",
+    "dataset_revision": "8c782ee447faf2d2a0402ac883cf07d3b3f43e1c"
+  },
+  "models": {},
+  "output_artifact_hashes": {
+    ".runtime\\current\\data\\data-dc08d3dabf2d\\bag_audit_cases.jsonl": "5e03e6e373d486100e295e56c5a7446b417f322faf663685c60806afa7936453",
+    ".runtime\\current\\data\\data-dc08d3dabf2d\\evaluation_cases.jsonl": "cdc5bb288d57ae4b47f13e2aa506e94e75b13e6fc4ae68c104f6d7e5c5c7edb7",
+    ".runtime\\current\\data\\data-dc08d3dabf2d\\prepared_items.parquet": "c7adf4a9e9ff01f1dc8e37f2bed8de107ca2649c6cc3e199661d9b658f30f2a0",
+    "artifacts\\tables\\final_stage1_category_audit.csv": "83cbd9a47e937d396f13cd3c5c552aaf71fef09e625be938a3ad4530a9e254fe"
+  },
+  "resolved_configuration": {
+    "experiment": {
+      "candidate_pool": {
+        "deterministic_order": "item_id",
+        "exclude_query_item": true,
+        "exclude_query_outfit_from_negatives": true,
+        "include_all_same_outfit_positives": true,
+        "max_negatives": 99,
+        "negative_sampling": "sha256_order",
+        "negative_source_split": "case_split"
+      },
+      "dataset": {
+        "acquisition_date": "2026-08-06",
+        "approved_minimal_identity_fields": [
+          "category",
+          "text"
+        ],
+        "columns": {
+          "category": "category",
+          "image": "image",
+          "item_id": "item_ID",
+          "text": "text"
+        },
+        "configuration": "default",
+        "expected_counts": {
+          "development_outfits": 13365,
+          "items": 47872,
+          "outfits": 19094,
+          "target_category_items": 47872,
+          "test_outfits": 2865,
+          "validation_outfits": 2864
+        },
+        "fingerprint": "9c97dc763773e2a2",
+        "licence": "apache-2.0",
+        "name": "Marqo/polyvore",
+        "outfit_id_separator": "_",
+        "provider": "huggingface",
+        "revision": "8c782ee447faf2d2a0402ac883cf07d3b3f43e1c",
+        "split": "data"
+      },
+      "embeddings": {
+        "batch_size": 64,
+        "minimum_pairwise_distance": 1e-06,
+        "norm_absolute_tolerance": 1e-05,
+        "regenerate_policy": "model_dataset_configuration_hash_bound",
+        "require_all_target_categories": true,
+        "validation_sample_size": 10,
+        "validation_seed": 42,
+        "validation_split": "validation"
+      },
+      "explanation_evidence": {
+        "B_source": "exact_stored_rule_scoring_trace",
+        "common_A_fields": [
+          "user_request",
+          "query_item_minimal_name",
+          "locked_item_minimal_name"
+        ],
+        "forbid_image_derived_text": true,
+        "forbid_second_rule_retrieval": true,
+        "trace_hash_link_required": true
+      },
+      "explanations": {
+        "bounded_retry_attempts": 2,
+        "case_count": 500,
+        "cases_per_category": 100,
+        "conditions": [
+          "no_rag",
+          "rule_rag"
+        ],
+        "generation_order": [
+          "gemma4:12b",
+          "llama3.1:8b-instruct-q8_0",
+          "ministral-3:14b-instruct-2512-q4_K_M"
+        ],
+        "locked_recommendation": "post_rerank_top_1",
+        "normally_sentence_count": [
+          2,
+          3
+        ],
+        "selection_policy": "sha256_order_stratified_evidence_eligible_without_trace_preference",
+        "selection_seed": 42,
+        "terminal_failure_policy": "retain_transparently",
+        "word_maximum": 75,
+        "word_minimum": 45,
+        "word_target": 65
+      },
+      "extraction": {
+        "bounded_retry_attempts": 2,
+        "claim_types": [
+          "body_fit",
+          "colour",
+          "comfort",
+          "formality",
+          "item_type",
+          "material",
+          "occasion",
+          "season",
+          "styling_relation",
+          "trend",
+          "visual_match",
+          "other"
+        ],
+        "model_role": "qwen_claim_extractor",
+        "no_claim_cap": true,
+        "schema": "atomic_claims_v2"
+      },
+      "paths": {
+        "active_data_manifest": "artifacts/manifests/final_data_preparation_manifest.json",
+        "active_embedding_manifest": "artifacts/manifests/final_embedding_manifest.json",
+        "category_audit_table": "artifacts/tables/final_stage1_category_audit.csv",
+        "data_runs": ".runtime/current/data",
+        "embedding_runs": ".runtime/current/embeddings",
+        "explanation_runs": ".runtime/current/explanations",
+        "extraction_runs": ".runtime/current/extraction",
+        "figures": "artifacts/figures",
+        "final_analysis_runs": ".runtime/current/final_analysis",
+        "knowledge_base": "data/kb/fashion_rules.csv",
+        "manifests": "artifacts/manifests",
+        "recommendation_runs": ".runtime/current/recommendations",
+        "release": "artifacts/release",
+        "reports": "reports",
+        "runtime_root": ".runtime/current",
+        "stage1_manifest": "artifacts/manifests/final_stage1_preflight_manifest.json",
+        "tables": "artifacts/tables",
+        "verification_runs": ".runtime/current/verification"
+      },
+      "preprocessing": {
+        "category_mapping_version": "five_category_bags_v1",
+        "category_taxonomy": {
+          "bag_allowlist": [
+            "Bags",
+            "Handbags",
+            "Shoulder Bags",
+            "Tote Bags",
+            "Clutches",
+            "Messenger Bags",
+            "Men's Bags",
+            "Men's Messenger Bags"
+          ],
+          "bag_excluded_categories": [
+            "Backpacks",
+            "Men's Backpacks",
+            "Briefcases",
+            "Men's Briefcases",
+            "Luggage"
+          ],
+          "broad_category_mapping": {
+            "bags": [
+              "Bags",
+              "Handbags",
+              "Shoulder Bags",
+              "Tote Bags",
+              "Clutches",
+              "Messenger Bags",
+              "Men's Bags",
+              "Men's Messenger Bags"
+            ],
+            "bottoms": [
+              "Activewear Pants",
+              "Activewear Shorts",
+              "Activewear Skirts",
+              "Bootcut Jeans",
+              "Boyfriend Jeans",
+              "Capri & Cropped Pants",
+              "Flared Jeans",
+              "Jeans",
+              "Knee Length Skirts",
+              "Leggings",
+              "Long Skirts",
+              "Men's Activewear Pants",
+              "Men's Activewear Shorts",
+              "Men's Casual Pants",
+              "Men's Dress Pants",
+              "Men's Jeans",
+              "Men's Pants",
+              "Men's Shorts",
+              "Mini Skirts",
+              "Pants",
+              "Shorts",
+              "Skinny Jeans",
+              "Skirts",
+              "Straight Leg Jeans",
+              "Wide Leg Jeans"
+            ],
+            "outerwear": [
+              "Activewear Jackets",
+              "Blazers",
+              "Coats",
+              "Jackets",
+              "Men's Activewear Jackets",
+              "Men's Coats",
+              "Men's Jackets",
+              "Men's Outerwear",
+              "Men's Sportcoats & Blazers",
+              "Men's Vests",
+              "Outerwear",
+              "Vests"
+            ],
+            "shoes": [
+              "Ankle Booties",
+              "Athletic Shoes",
+              "Boots",
+              "Clogs",
+              "Flats",
+              "Flip Flops",
+              "Knee High Boots",
+              "Loafers & Moccasins",
+              "Men's Athletic Shoes",
+              "Men's Boots",
+              "Men's Dress Shoes",
+              "Men's Flip Flops",
+              "Men's Loafers & Moccasins",
+              "Men's Oxfords",
+              "Men's Sandals",
+              "Men's Shoes",
+              "Men's Slippers",
+              "Men's Sneakers",
+              "Men's Work Boots",
+              "Mid Calf Boots",
+              "Over-The-Knee Boots",
+              "Oxfords",
+              "Pumps",
+              "Sandals",
+              "Shoes",
+              "Slippers",
+              "Sneakers"
+            ],
+            "tops": [
+              "Activewear Tank Tops",
+              "Activewear Tops",
+              "Blouses",
+              "Camisoles",
+              "Cardigans",
+              "Hoodies",
+              "Men's Activewear Tops",
+              "Men's Casual Shirts",
+              "Men's Dress Shirts",
+              "Men's Hoodies",
+              "Men's Polos",
+              "Men's Shirts",
+              "Men's Sweaters",
+              "Men's Sweatshirts",
+              "Men's T-Shirts",
+              "Men's Tank Tops",
+              "Sweaters",
+              "Sweatshirts",
+              "T-Shirts",
+              "Tank Tops",
+              "Tops",
+              "Tunics"
+            ]
+          },
+          "broad_request_templates": {
+            "bags": "Recommend a bag that completes this outfit.",
+            "bottoms": "Recommend bottoms that work with this outfit.",
+            "outerwear": "Recommend outerwear that works with this outfit.",
+            "shoes": "Recommend shoes that complete this outfit.",
+            "tops": "Recommend a top that works with this outfit."
+          },
+          "matching": "exact_case_sensitive_raw_value",
+          "review_categories": [
+            "Accessories",
+            "Activewear",
+            "Baby",
+            "Bags & Cases",
+            "Boys",
+            "Clothing",
+            "Girls",
+            "Juniors",
+            "Kids",
+            "Maternity",
+            "Men's Accessories",
+            "Men's Activewear",
+            "Men's Bags & Wallets",
+            "Men's Clothing",
+            "Men's Fashion",
+            "Men's Watches & Jewelry",
+            "Sports & Outdoors"
+          ],
+          "unlisted_category_decision": "exclude"
+        },
+        "drop_missing_item_id": true,
+        "duplicate_item_policy": "reject",
+        "exclude_same_effective_type_query_target": true,
+        "query_categories": [
+          "tops",
+          "bottoms",
+          "shoes",
+          "outerwear",
+          "bags"
+        ],
+        "require_outfit_position": true,
+        "target_categories": [
+          "tops",
+          "bottoms",
+          "shoes",
+          "outerwear",
+          "bags"
+        ]
+      },
+      "project": {
+        "deterministic": true,
+        "final_run_name": "final_clean_run_20260825",
+        "name": "evidence-fashion-recommender",
+        "random_seed": 42
+      },
+      "recommendation_evaluation": {
+        "case_context_schema_version": 3,
+        "case_count": 1000,
+        "case_seed": 42,
+        "case_split": "test",
+        "cases_per_category": 200,
+        "metrics": [
+          "hr_at_1",
+          "hr_at_5",
+          "hr_at_10",
+          "ndcg_at_1",
+          "ndcg_at_5",
+          "ndcg_at_10",
+          "mrr"
+        ],
+        "target_category_order": [
+          "tops",
+          "bottoms",
+          "shoes",
+          "outerwear",
+          "bags"
+        ]
+      },
+      "release": {
+        "canonical_jsonl_required": [
+          "recommendation_inputs_rankings",
+          "explanation_inputs",
+          "exact_traces",
+          "explanations",
+          "extractions",
+          "verifications",
+          "analysis_source_tables"
+        ],
+        "include_embedding_caches": false,
+        "include_model_weights": false,
+        "include_raw_dataset_cache": false
+      },
+      "reranking": {
+        "clip_weight": 0.75,
+        "confirmatory_policy": "fixed_075_clip_025_evidence_top_k_5",
+        "evidence_weight": 0.25,
+        "normalization": "min_max_within_candidate_pool"
+      },
+      "retrieval": {
+        "deterministic_tie_breaker": "item_id_ascending",
+        "fusion": {
+          "confirmatory_policy": "fixed_040_image_060_text",
+          "grid_role": "diagnostic_only",
+          "image_weight": 0.4,
+          "normalize_inputs": true,
+          "normalize_output": true,
+          "text_weight": 0.6,
+          "validation_grid_image_weights": [
+            0.0,
+            0.2,
+            0.4,
+            0.6,
+            0.8,
+            1.0
+          ],
+          "validation_metrics": [
+            "hr_at_10",
+            "ndcg_at_10",
+            "mrr"
+          ],
+          "validation_split": "validation"
+        },
+        "metric": "cosine"
+      },
+      "rule_retrieval": {
+        "applicability_filter_field": "applicable_query_categories",
+        "candidate_representation_fields": [
+          "query_category",
+          "query_text",
+          "user_request",
+          "candidate_category",
+          "candidate_text",
+          "target_category"
+        ],
+        "candidate_representation_template": "labelled_pipe_v1",
+        "candidate_terms_field": "candidate_terms",
+        "category_filter_field": "recommended_category",
+        "deterministic_tie_breaker": "rule_id_ascending",
+        "equal_rule_weight": 1.0,
+        "filter_before_top_k": true,
+        "query_terms_field": "query_terms",
+        "required_context_field": "required_context",
+        "rule_top_k": 5,
+        "score_max_weight": 0.7,
+        "score_mean_weight": 0.3
+      },
+      "schema_version": 2,
+      "splits": {
+        "exact_image_duplicate_policy": {
+          "destination": "baseline_split_of_lowest_seeded_anchor_outfit",
+          "enabled": true,
+          "grouping": "connected_outfit_components",
+          "hash_algorithm": "sha256",
+          "preserve_exact_outfit_counts": true,
+          "rebalance": "seeded_singleton_moves_from_surplus_to_deficit",
+          "rebalance_seed": 42,
+          "require_zero_cross_split_exact_hash_groups": true,
+          "split_tie_order": [
+            "development",
+            "validation",
+            "test"
+          ]
+        },
+        "exact_outfit_counts": {
+          "development": 13365,
+          "test": 2865,
+          "validation": 2864
+        },
+        "method": "sha256_order_exact_counts",
+        "requested_fractions": {
+          "development": 0.7,
+          "test": 0.15,
+          "validation": 0.15
+        },
+        "seed": 42,
+        "unit": "outfit"
+      },
+      "statistics": {
+        "bootstrap_replicates": 5000,
+        "bootstrap_seed": 42,
+        "bootstrap_unit": "underlying_case_query_outfit",
+        "confidence_level": 0.95,
+        "interval_method": "percentile",
+        "multiplicity_method": "holm",
+        "paired_available_case_policy": "complete_case"
+      },
+      "validation_sensitivity": {
+        "case_count": 1000,
+        "case_seed": 4242,
+        "cases_per_category": 200,
+        "evidence_weights": [
+          0.0,
+          0.05,
+          0.1,
+          0.15,
+          0.2,
+          0.25,
+          0.3,
+          0.4,
+          0.5
+        ],
+        "metrics": [
+          "hr_at_10",
+          "ndcg_at_10",
+          "mrr",
+          "mean_top1_evidence_score",
+          "mean_evidence_score_gain",
+          "changed_top1_rate",
+          "rule_trace_participation"
+        ],
+        "pareto_objectives": [
+          "hr_at_10",
+          "ndcg_at_10",
+          "mrr",
+          "mean_top1_evidence_score",
+          "mean_evidence_score_gain",
+          "rule_trace_participation"
+        ],
+        "pareto_role": "descriptive_only",
+        "rule_top_k_values": [
+          1,
+          3,
+          5
+        ],
+        "split": "validation"
+      },
+      "verification": {
+        "bounded_retry_attempts": 2,
+        "citation_labels": [
+          "entails",
+          "does_not_entail",
+          "N/A"
+        ],
+        "common_reference_labels": [
+          "supported",
+          "not_supported",
+          "N/A"
+        ],
+        "common_reference_literal_fields": [
+          "item_identity",
+          "item_type",
+          "colour",
+          "material",
+          "pattern",
+          "fit",
+          "silhouette",
+          "construction_detail"
+        ],
+        "full_kb_labels": [
+          "supported",
+          "not_supported"
+        ],
+        "model_role": "phi_claim_verifier",
+        "schema": "final_trace_kb_reference_citation_v1",
+        "trace_labels": [
+          "supported",
+          "not_supported"
+        ]
+      }
+    },
+    "models": {
+      "embedders": {
+        "clip": {
+          "batch_size": 64,
+          "device": "auto",
+          "dimension": 512,
+          "immutable_digest": "3d74acf9a28c67741b2f4f2ea7635f0aaf6f0268",
+          "local_files_only": true,
+          "max_sequence_length": 77,
+          "model_id": "openai/clip-vit-base-patch32",
+          "normalize": true,
+          "precision": "float32",
+          "provider": "transformers",
+          "revision": "3d74acf9a28c67741b2f4f2ea7635f0aaf6f0268"
+        },
+        "minilm": {
+          "architecture": "MiniLM",
+          "batch_size": 64,
+          "device": "auto",
+          "dimension": 384,
+          "immutable_digest": "1110a243fdf4706b3f48f1d95db1a4f5529b4d41",
+          "max_sequence_length": 256,
+          "model_id": "sentence-transformers/all-MiniLM-L6-v2",
+          "normalize": true,
+          "parameters": "22.7M",
+          "precision": "float32",
+          "provider": "sentence_transformers",
+          "quantization": "float32",
+          "revision": "1110a243fdf4706b3f48f1d95db1a4f5529b4d41"
+        },
+        "qwen3_embedding": {
+          "architecture": "qwen3",
+          "batch_size": 64,
+          "device": "local_ollama",
+          "dimension": 1024,
+          "immutable_digest": "ac6da0dfba84a81fdbfbaf330198c33cd77c4cdfc53e8bc50eb581914a15621d",
+          "max_sequence_length": 32768,
+          "model_id": "qwen3-embedding:0.6b",
+          "normalize": true,
+          "parameters": "595.78M",
+          "precision": "Q8_0",
+          "provider": "ollama",
+          "quantization": "Q8_0",
+          "revision": "0.6b-q8_0"
+        }
+      },
+      "extractor": {
+        "architecture": "qwen35",
+        "context_length": 262144,
+        "immutable_digest": "6488c96fa5faab64bb65cbd30d4289e20e6130ef535a93ef9a49f42eda893ea7",
+        "model_id": "qwen3.5:9b",
+        "parameters": "9.7B",
+        "quantization": "Q4_K_M"
+      },
+      "generators": {
+        "roster": [
+          {
+            "architecture": "gemma4",
+            "context_length": 262144,
+            "immutable_digest": "4eb23ef187e2c5462566d6a1d3bbbc2f1346d0b4327cbb66d58fffbcc9b2b05c",
+            "model_id": "gemma4:12b",
+            "parameters": "11.9B",
+            "quantization": "Q4_K_M"
+          },
+          {
+            "architecture": "llama",
+            "context_length": 131072,
+            "immutable_digest": "b158ded76fa05be6bce8a682099ce5df8c5571340a04cf63a2923464679db576",
+            "model_id": "llama3.1:8b-instruct-q8_0",
+            "parameters": "8.0B",
+            "quantization": "Q8_0"
+          },
+          {
+            "architecture": "mistral3",
+            "context_length": 262144,
+            "immutable_digest": "4760c35aeb9d9e9c6174c2492562c0b999e80a222804fd96b1915ab72bbcdcf7",
+            "model_id": "ministral-3:14b-instruct-2512-q4_K_M",
+            "parameters": "13.9B",
+            "quantization": "Q4_K_M"
+          }
+        ]
+      },
+      "inference_defaults": {
+        "context_length": 8192,
+        "endpoint": "http://127.0.0.1:11434",
+        "generation_token_limit": 512,
+        "inference_server_version": "0.32.13",
+        "keep_alive": "10m",
+        "seed": 42,
+        "structured_token_limit": 2048,
+        "temperature": 0.0,
+        "timeout_seconds": 120,
+        "top_k": 1,
+        "top_p": 1.0
+      },
+      "schema_version": 2,
+      "verifier": {
+        "architecture": "phi3",
+        "context_length": 16384,
+        "immutable_digest": "ac896e5b8b34a1f4efa7b14d7520725140d5512484457fab45d2a4ea14c69dba",
+        "model_id": "phi4:14b",
+        "parameters": "14.7B",
+        "quantization": "Q4_K_M"
+      }
+    }
+  },
+  "row_counts": {
+    "bag_audit_cases": 200,
+    "candidate_rows": 100026,
+    "development_outfits": 13365,
+    "evaluation_cases": 1000,
+    "items": 47872,
+    "outfits": 19094,
+    "target_category_items": 47872,
+    "test_outfits": 2865,
+    "validation_outfits": 2864
+  },
+  "run_id": "data-dc08d3dabf2d",
+  "schema_version": 1,
+  "seed": 42,
+  "stage": 2,
+  "timestamp_utc": "2026-08-24T23:17:51Z",
+  "validation": {
+    "candidate_pool_max_size": 102,
+    "candidate_pool_min_size": 100,
+    "case_counts": {
+      "bags": 200,
+      "bottoms": 200,
+      "outerwear": 200,
+      "shoes": 200,
+      "tops": 200
+    },
+    "category_audit": {
+      "excluded_categories": 266,
+      "kept_categories": 94,
+      "kept_items": 47872,
+      "raw_categories": 377,
+      "raw_items": 94096,
+      "review_categories": 17
+    },
+    "cross_split_exact_image_groups": 0,
+    "duplicate_item_ids": 0,
+    "duplicate_resolution": {
+      "changed_outfits": 12,
+      "component_reassignments": 9,
+      "duplicate_groups": 18,
+      "final_cross_split_groups": 0,
+      "initial_cross_split_groups": 9,
+      "rebalance_reassignments": 3
+    },
+    "exact_image_duplicate_groups": 18,
+    "split_outfit_overlap": 0
+  }
+}

@@ -25,6 +25,7 @@ from evidence_fashion.manifest import (
 )
 from evidence_fashion.retrieval import (
     CLIPEmbedder,
+    MiniLMEmbedder,
     OllamaEmbedder,
     fuse_clip_embeddings,
     rank_candidates,
@@ -47,13 +48,14 @@ def _hash_order(value: str, seed: int) -> str:
 
 
 def select_validation_rows(frame: pd.DataFrame, config: dict[str, Any]) -> pd.DataFrame:
-    validation = config["embedding_validation"]
+    validation = config["embeddings"]
     categories = config["preprocessing"]["target_categories"]
     eligible = frame[
-        (frame["research_split"] == validation["split"]) & frame["broad_category"].isin(categories)
+        (frame["research_split"] == validation["validation_split"])
+        & frame["broad_category"].isin(categories)
     ].copy()
     eligible["_order"] = eligible["item_id"].map(
-        lambda value: _hash_order(str(value), validation["seed"])
+        lambda value: _hash_order(str(value), validation["validation_seed"])
     )
     eligible = eligible.sort_values(["_order", "item_id"], kind="stable")
     selected = []
@@ -62,8 +64,10 @@ def select_validation_rows(frame: pd.DataFrame, config: dict[str, Any]) -> pd.Da
             selected.append(eligible[eligible["broad_category"] == category].iloc[[0]])
     initial = pd.concat(selected) if selected else eligible.iloc[0:0]
     remaining = eligible[~eligible["item_id"].isin(initial["item_id"])]
-    result = pd.concat([initial, remaining.head(validation["sample_size"] - len(initial))])
-    if len(result) != validation["sample_size"]:
+    result = pd.concat(
+        [initial, remaining.head(validation["validation_sample_size"] - len(initial))]
+    )
+    if len(result) != validation["validation_sample_size"]:
         raise ValueError("Insufficient validation rows for the configured embedding sample.")
     return result.drop(columns="_order").reset_index(drop=True)
 
@@ -71,8 +75,8 @@ def select_validation_rows(frame: pd.DataFrame, config: dict[str, Any]) -> pd.Da
 def validate_embeddings(
     arrays: dict[str, np.ndarray], sample: pd.DataFrame, config: dict[str, Any]
 ) -> dict[str, Any]:
-    tolerance = config["embedding_validation"]["norm_absolute_tolerance"]
-    minimum_distance = config["embedding_validation"]["minimum_pairwise_distance"]
+    tolerance = config["embeddings"]["norm_absolute_tolerance"]
+    minimum_distance = config["embeddings"]["minimum_pairwise_distance"]
     dimensions = {}
     maximum_norm_errors = {}
     minimum_distances = {}
@@ -172,8 +176,10 @@ def main() -> None:
     image_column = config["dataset"]["columns"]["image"]
     texts = (sample["category"].astype(str) + " | " + sample["text"].astype(str)).tolist()
     text_embedder = OllamaEmbedder(models["embedders"]["qwen3_embedding"])
+    minilm = MiniLMEmbedder(models["embedders"]["minilm"])
     clip = CLIPEmbedder(models["embedders"]["clip"])
-    batch_size = config["embedding_validation"]["batch_size"] if args.validate_only else None
+    batch_size = config["embeddings"]["batch_size"] if args.validate_only else None
+    minilm_text = minilm.encode(texts, batch_size=batch_size)
     qwen3_embedding_text = text_embedder.encode(texts, batch_size=batch_size)
     clip_text = clip.encode_text(texts, batch_size=batch_size)
     image_batch_size = batch_size or int(models["embedders"]["clip"]["batch_size"])
@@ -192,6 +198,7 @@ def main() -> None:
         text_weight=fusion["text_weight"],
     )
     arrays = {
+        "minilm_text": minilm_text,
         "qwen3_embedding_text": qwen3_embedding_text,
         "clip_text": clip_text,
         "clip_image": clip_image,
@@ -235,14 +242,18 @@ def main() -> None:
                 "model_id": settings["model_id"],
                 "revision": settings["revision"],
                 "immutable_digest": settings["immutable_digest"],
-                "device": text_embedder.device if name == "qwen3_embedding" else clip.device,
+                "device": {
+                    "minilm": minilm.device,
+                    "qwen3_embedding": text_embedder.device,
+                    "clip": clip.device,
+                }[name],
                 "precision": settings["precision"],
             }
             for name, settings in models["embedders"].items()
         },
         "row_counts": {"embedded_items": len(sample)},
         "failure_counts": {"embedding_failures": 0, "validation_failures": 0},
-        "seed": config["embedding_validation"]["seed"],
+        "seed": config["embeddings"]["validation_seed"],
         "environment": environment_summary(),
         "command": (
             "python scripts/build_embeddings.py --config configs/experiment.yaml --validate-only"

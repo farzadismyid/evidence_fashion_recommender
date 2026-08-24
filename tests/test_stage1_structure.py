@@ -7,63 +7,31 @@ import yaml
 ROOT = Path(__file__).parents[1]
 
 
-def test_canonical_five_category_kb_has_auditable_baseline_and_expansion() -> None:
+def test_final_kb_is_exactly_200_rules_with_40_per_target() -> None:
     path = ROOT / "data" / "kb" / "fashion_rules.csv"
     assert len(hashlib.sha256(path.read_bytes()).hexdigest()) == 64
     with path.open(encoding="utf-8", newline="") as handle:
         rows = list(csv.DictReader(handle))
-    assert len(rows) >= 100
-    assert len({row["rule_id"] for row in rows if row["rule_id"]}) == len(rows)
-    assert {f"K{index:03d}" for index in range(1, 101)}.issubset(
-        {row["rule_id"] for row in rows}
-    )
-    assert {row["recommended_category"] for row in rows} == {
-        "tops", "bottoms", "shoes", "outerwear", "bags"
-    }
+    assert len(rows) == 200
+    assert len({row["rule_id"] for row in rows if row["rule_id"]}) == 200
+    counts = {}
+    for row in rows:
+        counts[row["recommended_category"]] = counts.get(row["recommended_category"], 0) + 1
+    assert counts == {"tops": 40, "bottoms": 40, "shoes": 40, "outerwear": 40, "bags": 40}
 
 
-def test_configuration_pins_authoritative_dataset_and_evidence_boundary() -> None:
+def test_final_configuration_freezes_not_selects_the_confirmatory_defaults() -> None:
     config = yaml.safe_load((ROOT / "configs" / "experiment.yaml").read_text(encoding="utf-8"))
-    assert config["dataset"]["revision"] == "8c782ee447faf2d2a0402ac883cf07d3b3f43e1c"
-    assert config["candidate_pool"]["max_negatives"] == 99
-    assert config["stage4_validation"]["completed_diagnostic_candidate_max_negatives"] == 999
+    assert config["paths"]["knowledge_base"] == "data/kb/fashion_rules.csv"
     assert config["retrieval"]["fusion"]["image_weight"] == 0.40
     assert config["retrieval"]["fusion"]["text_weight"] == 0.60
-    assert config["retrieval"]["fusion"] == {
-        "image_weight": 0.40,
-        "text_weight": 0.60,
-        "normalize_inputs": True,
-        "normalize_output": True,
-        "selection_split": "validation",
-        "validation_grid_image_weights": [0.0, 0.2, 0.4, 0.6, 0.8, 1.0],
-        "selection_metric": "ndcg_at_10",
-        "tie_breaking": [
-            "higher_mrr",
-            "higher_hr_at_10",
-            "lower_distance_from_reference",
-            "lower_image_weight",
-        ],
-        "frozen": True,
-        "operating_point_policy": "researcher_selected_multimodal_design_constraint",
-        "validation_optimum_is_diagnostic_only": True,
+    assert config["reranking"] == {
+        "clip_weight": 0.75,
+        "evidence_weight": 0.25,
+        "normalization": "min_max_within_candidate_pool",
+        "confirmatory_policy": "fixed_075_clip_025_evidence_top_k_5",
     }
-    assert config["explanation_evidence"]["forbid_image_derived_text"] is True
-    assert config["explanation_evidence"]["B_source"] == "exact_stored_rule_scoring_trace"
-
-
-def test_clean_top_level_directories_match_proposal() -> None:
-    actual = {
-        path.name for path in ROOT.iterdir() if path.is_dir() and not path.name.startswith(".")
-    }
-    assert actual == {
-        "artifacts",
-        "archive",
-        "configs",
-        "data",
-        "notebooks",
-        "reports",
-        "scripts",
-        "src",
-        "tests",
-        "thesis",
-    }
+    assert config["rule_retrieval"]["rule_top_k"] == 5
+    assert config["validation_sensitivity"]["evidence_weights"][0] == 0.0
+    assert config["validation_sensitivity"]["rule_top_k_values"] == [1, 3, 5]
+    assert config["explanation_evidence"]["forbid_second_rule_retrieval"] is True
