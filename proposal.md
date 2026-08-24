@@ -55,23 +55,25 @@ The system does **not** claim access to an LLM's hidden internal reasoning. The 
 
 # 3. Research questions
 
-**RQ1 — Recommendation quality**  
-How do text-only, image-only, multimodal fused, and expert-rule-reranked methods compare on controlled fashion recommendation ranking?
+The research questions are framed around **magnitude, specificity, trade-offs, and robustness**, rather than the trivial question of whether giving an LLM extra text can change its output.
 
-**RQ2 — Evidence participation**  
-How materially do the final expert rules affect candidate scores and recommendation ordering?
+**RQ1 — Multimodal recommendation**  
+How do image-only, text-only, and validation-selected multimodal fusion compare on controlled fashion recommendation ranking, and what genuinely multimodal fusion setting provides the strongest validation performance?
 
-**RQ3 — Explanation grounding**  
-Does providing the exact stored reranking-rule trace increase claim support compared with No-RAG generation for the same case and locked recommendation?
+**RQ2 — Recommendation/evidence trade-off**  
+How does expert-rule-aware reranking change recommendation utility and expert-evidence participation, and what validation-selected operating point best balances these objectives?
 
-**RQ4 — Broader expert-KB consistency**  
-Are Rule-RAG explanations more consistent with applicable knowledge in the full expert KB?
+**RQ3 — Reranking-trace grounding**  
+To what extent does conditioning explanation generation on the **exact expert-rule trace that contributed to reranking** increase claim-level support relative to the same recommendation explained without that trace?
+
+**RQ4 — Trace specificity versus general KB agreement**  
+Is any grounding improvement specific to the actual reranking trace, or does it mainly reflect broader agreement with applicable rules elsewhere in the expert KB?
 
 **RQ5 — Factual restraint**  
-Does Rule-RAG reduce unsupported concrete item-specific factual assertions under a common factual reference?
+Does reranking-trace conditioning reduce unsupported concrete item-specific factual assertions under the same common factual reference?
 
 **RQ6 — Robustness**  
-Are explanation-grounding effects stable across generator models, target categories, claim types, and trace sizes?
+How stable are the explanation-grounding effects across generator models, target categories, claim types, and trace sizes?
 
 ---
 
@@ -177,7 +179,7 @@ Verify:
 
 ## 6.1 Canonical KB
 
-The **only active final KB** is:
+The **only active final KB** is already complete and ready to use:
 
 ```text
 data/kb/fashion_rules.csv
@@ -194,62 +196,40 @@ It contains exactly:
 40 bags
 ```
 
+This file is authoritative for the final clean run.
+
+Do not rebuild, reduce, expand, rewrite, rename, or replace the KB during the final experiment unless a genuine file-corruption or schema-integrity bug is discovered.
+
 Do not use `v1`, `v2`, `v3`, `expanded`, `fallback`, or similar version labels in the final active filename or final thesis/paper terminology.
 
-The current 209-rule V3 asset is only the source from which the 200-rule final KB is frozen during preflight.
+Original rule IDs must be preserved for provenance.
 
-## 6.2 Deterministic reduction from 209 to 200 rules
+## 6.2 Final KB validation only
 
-Current source counts:
+Stage 1 must **validate, not redesign**, the completed KB.
 
-- 40 bags;
-- 45 bottoms;
-- 40 outerwear;
-- 40 shoes;
-- 44 tops.
+Required checks:
 
-Therefore:
+- exactly 200 rows;
+- exactly 40 rules per target category;
+- unique non-empty rule IDs;
+- no exact duplicate rules;
+- near-duplicate audit;
+- required source/provenance fields present;
+- valid target-category values;
+- input→target coverage summary;
+- source/provenance distribution;
+- final file SHA-256.
 
-- preserve all 40 bag rules;
-- preserve all 40 outerwear rules;
-- preserve all 40 shoe rules;
-- retain 40 of 45 bottom rules;
-- retain 40 of 44 top rules.
+The final KB audit is a release-integrity check only. It must not alter rule content based on recommendation or explanation results.
 
-The nine removals must be decided **before final test results are inspected** and must not be chosen to improve Rule-RAG outcomes.
-
-Use the following ordered criteria:
-
-1. invalid, incomplete, or weaker provenance;
-2. exact or near-duplicate semantic content;
-3. overly broad/generic consequent;
-4. weaker antecedent specificity;
-5. redundancy with stronger rules covering the same input→target relation;
-6. preservation of input-category/scenario coverage;
-7. deterministic rule-ID tie-break where all else is equal.
-
-Do not author new rules merely to reach 200. Do not select rules using final recommendation frequency, final explanation support, or test performance.
-
-Produce a final KB audit containing:
-
-- exact 200-row count;
-- 40 rules per recommended category;
-- unique rule IDs;
-- duplicate and near-duplicate checks;
-- source/provenance completeness;
-- source distribution;
-- input→target coverage;
-- complete file SHA-256.
-
-Preserve original rule IDs for provenance; gaps are acceptable.
-
-## 6.3 Equal rule weighting
+## 6.3 Rule weighting
 
 All final rules participate in retrieval with **equal scoring weight**.
 
-Source reliability/provenance may remain as metadata, but it must not cause one rule to receive a larger retrieval weight than another in the final experiment.
+Source reliability/provenance may remain as metadata for auditability, but it must not cause one rule to receive a larger retrieval weight than another in the final experiment.
 
-Candidate-specific rule representation uses:
+The candidate-specific rule representation uses:
 
 - query broad category;
 - query raw dataset text;
@@ -258,11 +238,13 @@ Candidate-specific rule representation uses:
 - candidate raw dataset text;
 - target category.
 
-Use the current pinned local semantic retrieval model:
+Use the current local semantic rule-retrieval model:
 
 ```text
 qwen3-embedding:0.6b
 ```
+
+with its pinned digest/configuration.
 
 ## 6.4 Applicability before scoring
 
@@ -277,9 +259,9 @@ The shared retrieval/scoring function must:
 5. compute the candidate evidence score from those exact rules;
 6. store those exact rules in the candidate trace.
 
-Do not pad a trace with irrelevant rules to reach five.
+Do not pad a trace with irrelevant rules merely to reach the configured maximum.
 
-If fewer than five applicable rules exist, use the genuine smaller trace.
+If fewer than the configured maximum number of applicable rules exist, use the genuine smaller trace.
 
 If no rule is applicable:
 
@@ -290,7 +272,13 @@ trace = []
 
 ## 6.5 Candidate evidence score
 
-Use up to five applicable rules:
+For the final confirmatory run, the default maximum rule count is:
+
+```text
+rule_top_k = 5
+```
+
+For selected-rule semantic scores:
 
 ```text
 evidence_score =
@@ -299,7 +287,11 @@ evidence_score =
     0.3 × mean(selected_rule_scores)
 ```
 
+If only one rule is present, both max and mean refer to that rule.
+
 The exact implementation must reproduce the score from the stored trace.
+
+All scoring constants and rule-count settings must be read from configuration rather than hard-coded.
 
 ---
 
@@ -309,9 +301,12 @@ The exact implementation must reproduce the score from the stored trace.
 
 Use the frozen CLIP implementation already used by the project for image and CLIP-text encoding.
 
-Final fused query:
+The **default and confirmatory operating point** is fixed as:
 
 ```text
+image_weight = 0.40
+text_weight  = 0.60
+
 fused_query = normalize(
     0.40 × image_embedding
     +
@@ -319,7 +314,26 @@ fused_query = normalize(
 )
 ```
 
-The 0.40/0.60 point is frozen for this run as the approved multimodal design point. Do not retune it on final test results.
+The final 1,000-case confirmatory recommendation run uses this `0.40 / 0.60` setting.
+
+For methodological enrichment and sensitivity analysis, also run one **validation-only image/text fusion grid**:
+
+```text
+image_weight = [0.00, 0.20, 0.40, 0.60, 0.80, 1.00]
+text_weight  = 1 - image_weight
+```
+
+The grid is **diagnostic only**. It does not select or replace the default operating point.
+
+Report validation HR@10, NDCG@10, and MRR for every grid point and clearly highlight the fixed `0.40 / 0.60` default.
+
+Even if another validation grid point performs better, the final confirmatory test run still uses:
+
+```text
+0.40 image / 0.60 text
+```
+
+All default weights, grid values, metrics to record, and seeds must be stored in `configs/experiment.yaml` and must be changeable there for future experiments. They must not be duplicated as hidden source-code constants.
 
 Images are used for recommendation retrieval/ranking only. No image-derived text enters explanation generation or verification.
 
@@ -328,7 +342,7 @@ Images are used for recommendation retrieval/ranking only. No image-derived text
 For each recommendation case construct a deterministic controlled pool containing:
 
 - all valid same-outfit positives in the target category;
-- up to 999 deterministic negatives from other outfits;
+- up to 99 deterministic negatives from other outfits;
 - no query item;
 - no negative from the query outfit;
 - deterministic ordering and tie-breaking.
@@ -351,16 +365,52 @@ Use the exact currently pinned model implementations and record immutable model 
 
 Normalize CLIP compatibility and expert-rule evidence scores within each candidate pool.
 
-Use:
+The **default and confirmatory operating point** is fixed as:
 
 ```text
+clip_weight     = 0.75
+evidence_weight = 0.25
+rule_top_k      = 5
+
 final_score =
     0.75 × normalized_CLIP_score
     +
     0.25 × normalized_evidence_score
 ```
 
-The 0.75/0.25 point is frozen before the final test run.
+The final 1,000-case confirmatory reranking run uses exactly these defaults.
+
+For methodological enrichment and sensitivity analysis, also run one **validation-only reranking grid**:
+
+```text
+evidence_weight = [0.00, 0.05, 0.10, 0.15, 0.20, 0.25, 0.30, 0.40, 0.50]
+clip_weight     = 1 - evidence_weight
+rule_top_k      = [1, 3, 5]
+```
+
+For every validation configuration record:
+
+- HR@10;
+- NDCG@10;
+- MRR;
+- mean top-1 evidence score;
+- mean evidence-score gain;
+- changed-top-1 rate;
+- rule-trace participation.
+
+Construct and save the validation Pareto frontier as a **sensitivity/ablation artifact only**.
+
+Do not use the grid or Pareto frontier to choose the final test configuration.
+
+Clearly highlight the fixed confirmatory setting:
+
+```text
+0.75 CLIP / 0.25 evidence / top-k 5
+```
+
+Even if another validation configuration performs better on one or more objectives, the final confirmatory test run still uses the fixed defaults above.
+
+All default weights, grid values, rule counts, metrics, thresholds, and plotting/analysis settings must be stored in `configs/experiment.yaml` and remain changeable there for future experiments. They must not be duplicated as hidden source-code constants.
 
 Store for every candidate:
 
@@ -1017,7 +1067,26 @@ configs/models.yaml
 configs/prompts.yaml
 ```
 
-Record dataset revision, category mapping, seeds, case counts, candidate-pool size, fusion/reranking weights, rule top-k, KB path/hash, prompt hashes, model IDs/digests, generation parameters, retry policy, verification labels, bootstrap settings, and output paths.
+**Every variable that can change an experimental result must be configuration-driven.** The code must read these values from configuration even when this proposal fixes a confirmatory default. Changing the config after Stage 1 freeze defines a different future experiment and must produce a new configuration hash. This includes fixed operating points, candidate grids, thresholds, tolerances, selection objectives, tie-breaking rules, seeds, model settings, prompts, retry policies, validators, and output controls. No experiment-critical magic number may exist only inside source code.
+
+Record at minimum:
+
+- dataset revision and category mapping;
+- split/case-selection seeds;
+- recommendation and explanation case counts;
+- candidate-pool size and negative-sampling rules;
+- fixed default image/text fusion weights and the validation sensitivity grid;
+- fixed default CLIP/evidence reranking weights and the validation sensitivity grid;
+- fixed default `rule_top_k=5` and the validation rule-top-k sensitivity values;
+- validation sensitivity metrics and Pareto-frontier analysis settings;
+- KB path/hash;
+- prompt templates/hashes;
+- model IDs/digests;
+- generation parameters;
+- retry/terminal-failure policy;
+- verification labels and evidence boundaries;
+- bootstrap settings and multiplicity correction;
+- canonical output paths.
 
 Every stage manifest contains:
 
@@ -1145,53 +1214,113 @@ The priority is one rigorous, reproducible final experiment.
 
 # 22. Final five-stage run
 
+# 22. Final five-stage run
+
 ## Stage 1 — Preflight, clean reset, and final freeze
 
 **No generator, extractor, or verifier calls are allowed in this stage.**
 
 1. Reset previous live experimental outputs so the second clean run is the only active result set.
-2. Build `data/kb/fashion_rules.csv` from the current 209-rule source:
+
+2. Validate the already completed `data/kb/fashion_rules.csv`:
    - exactly 200 rules;
-   - exactly 40/category;
-   - deterministic nine-rule removal using Section 6;
-   - freeze KB hash.
-3. Regenerate/validate the five-category processed dataset and leakage-resolved splits.
-4. Validate expected current counts.
-5. Regenerate or validate required embeddings against pinned model/data hashes.
-6. Rebuild the 200-rule semantic embeddings.
-7. Freeze:
+   - exactly 40 rules per category;
+   - unique rule IDs;
+   - valid schema and provenance fields;
+   - no exact duplicates;
+   - freeze and record the existing file hash;
+   - do not modify rule content.
+
+3. Regenerate or validate the five-category processed dataset and leakage-resolved splits.
+
+4. Validate the expected current dataset and split counts.
+
+5. Regenerate or validate all required recommendation embeddings against the pinned model, dataset, and configuration hashes.
+
+6. Rebuild the semantic embeddings for the final 200-rule KB.
+
+7. Run the two final **validation-only sensitivity grids**:
+   - image/text fusion grid from Section 7.1;
+   - evidence-weight/rule-top-k grid from Section 7.4.
+
+   Save every tested configuration, validation metric, and the descriptive Pareto frontier.
+
+   These grids are sensitivity/ablation analyses only and **do not select or replace the final confirmatory operating point**.
+
+8. Freeze the confirmatory defaults:
    - CLIP model;
-   - Qwen rule embedding model;
-   - 0.40/0.60 image/text fusion;
-   - 0.75/0.25 reranking;
-   - up to 5 applicable rules;
-   - seeds;
-   - controlled pool = positive(s) + up to 999 negatives.
-8. Freeze explanation prompts and identical 45–75-word contract.
-9. Freeze Qwen extraction and Phi verification prompts/schemas.
-10. Remove obsolete active requirements:
+   - Qwen rule-embedding model;
+   - image/text fusion = `0.40 / 0.60`;
+   - CLIP/evidence reranking = `0.75 / 0.25`;
+   - `rule_top_k = 5`;
+   - random seeds;
+   - controlled candidate pool = positive(s) + up to 99 deterministic negatives.
+
+   All values must be read from configuration files rather than hard-coded. They may be changed only for a future experiment, not after the final run begins.
+
+9. Freeze the explanation prompts and the identical 45–75-word generation contract for both conditions.
+
+10. Freeze the Qwen claim-extraction prompt/schema and Phi claim-verification prompt/schema.
+
+11. Perform a **small automated extractor/verifier integrity check** before the final LLM run:
+    - retain the previous calibration only as developmental validation evidence;
+    - do not create a new human-labelled calibration set;
+    - do not reopen prompt tuning or threshold tuning;
+    - confirm the pinned Qwen and Phi model tags/digests;
+    - confirm the frozen extraction and verification prompt hashes;
+    - confirm structured-output schemas still validate;
+    - confirm claim IDs survive extraction → verification unchanged;
+    - confirm the final 200-rule IDs are accepted by the verifier pipeline;
+    - confirm the exact reranking-trace evidence packet can be passed to Phi without schema or rule-ID errors;
+    - confirm canonical `[K###]` citation parsing and invalid-ID rejection still work;
+    - confirm common-reference factual eligibility logic still handles simple literal cases correctly;
+    - use only synthetic/unit-test records or previously retained development examples for this check;
+    - do not use final test outputs and do not perform any new model calibration.
+
+12. Remove obsolete active requirements and references:
     - old 120/126/209 final-KB counts;
     - old post-hoc V3-trace wording;
     - old four-way verifier requirement;
     - old DeepSeek requirement;
     - old trace-size-biased sampling;
     - old case-generator bootstrap unit.
-11. Add/update final exact-trace invariant tests.
-12. Run full preflight tests and lint.
-13. Produce a preflight manifest proving the final KB, data, configuration, prompts, models, and clean active state are frozen.
+
+13. Add or update final exact-trace invariant tests proving:
+    - the stored reranking trace is exactly the trace used to calculate the candidate evidence score;
+    - the same stored trace is passed to Rule-RAG;
+    - no second rule retrieval occurs after recommendation locking.
+
+14. Run the complete preflight test suite and lint checks.
+
+15. Produce a preflight manifest proving that the following are frozen and internally consistent:
+    - final 200-rule KB and hash;
+    - processed dataset and split hashes;
+    - recommendation embeddings;
+    - validation sensitivity-grid outputs;
+    - fixed confirmatory defaults;
+    - model identities/digests;
+    - prompt hashes;
+    - configuration hashes;
+    - extractor/verifier integrity-check result;
+    - exact-trace invariant tests;
+    - clean canonical runtime state.
 
 ### Stage 1 pass gate
 
 Do not start Stage 2 unless:
 
-- KB count/category balance passes;
+- the final KB has exactly 200 rules and 40 per category;
+- dataset and leakage checks pass;
 - at least 100 evidence-eligible explanation cases per category are feasible;
-- exact trace storage is unit-tested;
+- both sensitivity grids are complete;
+- the fixed defaults remain `0.40/0.60`, `0.75/0.25`, and `rule_top_k=5`;
+- the automated Qwen/Phi integrity check passes;
+- exact trace storage and trace reuse are unit-tested;
 - no second retrieval path exists;
-- current tests protect the final run;
-- all experiment-facing settings are frozen.
+- current tests protect the final pipeline;
+- all experiment-facing settings are frozen and configuration-driven.
 
-Stop and report any genuine blocker before spending LLM calls.
+Stop and report any genuine blocker before spending final generator, extractor, or verifier calls.
 
 ---
 
@@ -1298,6 +1427,18 @@ Freeze Stage 4.
 ## Stage 5 — Final results, metrics, visual outputs, and release closure
 
 Use only frozen Stage 1–4 outputs.
+
+### Validation sensitivity and ablation results
+
+Preserve and report the Stage-1 validation-only sensitivity analyses:
+
+- complete image/text fusion grid;
+- fixed confirmatory fusion point `0.40/0.60` clearly highlighted;
+- complete evidence-weight/rule-top-k grid;
+- reranking Pareto frontier as a descriptive trade-off analysis;
+- fixed confirmatory reranking point `0.75/0.25, top-k=5` clearly highlighted.
+
+These are methodological/sensitivity results only. They do not select or replace the fixed confirmatory defaults and must never be recomputed using the final test set.
 
 ### Recommendation results
 
@@ -1498,8 +1639,12 @@ Use only final clean-run results and do not trigger a new model experiment. Prep
 
 ## Recommendation
 
+- Validation-only image/text fusion sensitivity grid completed before test evaluation.
+- Validation-only evidence-weight/rule-top-k sensitivity grid completed before test evaluation.
+- Complete grid results and descriptive Pareto frontier preserved.
+- Final test uses fixed `0.40/0.60` fusion and fixed `0.75/0.25, top-k=5` reranking regardless of grid winners.
 - 1,000 final cases, 200/category.
-- Main pool uses up to 999 negatives.
+- Main pool uses up to 99 negatives.
 - All final baselines run.
 - Expert reranking uses the final 200-rule KB.
 - Exact contributing trace stored.
