@@ -48,9 +48,23 @@ def _prompt_for_case(case: dict[str, Any], role: dict[str, Any]) -> str:
 
 
 def _locked_item_text(common_context: dict[str, Any]) -> str:
-    """Validate the exact item text, not its display-only category prefix."""
+    """Return the human-readable item text while the candidate ID remains the binding."""
     display_name = str(common_context["locked_item_minimal_name"])
     return display_name.split(" | ", maxsplit=1)[-1]
+
+
+def _repair_instruction(error: Exception, trace_ids: list[str]) -> str:
+    message = str(error)
+    shared = (
+        "\n\nReturn only a natural 2-3 sentence explanation of 55-65 words (hard limits: "
+        "45-75). Keep explaining the supplied recommendation; do not propose another item."
+    )
+    if "citation" in message.lower() or "exact trace" in message.lower():
+        allowed = " ".join(f"[{rule_id}]" for rule_id in trace_ids)
+        return shared + f" Include at least one directly supporting citation from: {allowed}."
+    if "words; found" in message:
+        return shared + f" The previous response failed the length check: {message}"
+    return shared
 
 
 def _generate_cell(
@@ -70,6 +84,8 @@ def _generate_cell(
     repair = ""
     for attempt_number in range(retry_limit + 1):
         active_prompt = prompt + repair
+        result = None
+        text = None
         try:
             result = client.generate(
                 model_id,
@@ -87,19 +103,27 @@ def _generate_cell(
                 citations_required=needs_citations,
                 minimum_words=int(config["explanations"]["word_minimum"]),
                 maximum_words=int(config["explanations"]["word_maximum"]),
+                require_literal_locked_item=False,
             )
         except Exception as error:  # Retain terminal failure details; do not abandon the batch.
-            attempts.append(
-                {
-                    "attempt_number": attempt_number + 1,
-                    "prompt_hash": text_sha256(active_prompt),
-                    "error": f"{type(error).__name__}: {error}",
-                }
-            )
-            repair = (
-                "\n\nRewrite only the explanation. Preserve the exact recommended item, stay "
-                "within 45-75 words, and obey the supplied citation format and evidence limits."
-            )
+            failed_attempt = {
+                "attempt_number": attempt_number + 1,
+                "prompt_hash": text_sha256(active_prompt),
+                "error": f"{type(error).__name__}: {error}",
+            }
+            if result is not None and text is not None:
+                failed_attempt.update(
+                    {
+                        "raw_response": text,
+                        "response_hash": text_sha256(text),
+                        "word_count": len(text.split()),
+                        "latency_seconds": result.latency_seconds,
+                        "prompt_eval_count": result.prompt_eval_count,
+                        "eval_count": result.eval_count,
+                    }
+                )
+            attempts.append(failed_attempt)
+            repair = _repair_instruction(error, trace_ids)
             continue
         attempts.append(
             {
@@ -211,7 +235,7 @@ def main() -> None:
                             "common_context_A": case["common_context_A"],
                             "common_context_A_hash": case["common_context_A_hash"],
                             "locked_candidate_id": case["locked_candidate_id"],
-                            "locked_item_validation_text": _locked_item_text(
+                            "locked_item_reference_text": _locked_item_text(
                                 case["common_context_A"]
                             ),
                             "exact_stored_rule_trace_B": (
@@ -303,6 +327,12 @@ def main() -> None:
             "word_minimum": experiment["explanations"]["word_minimum"],
             "word_maximum": experiment["explanations"]["word_maximum"],
             "retry_attempts": experiment["explanations"]["bounded_retry_attempts"],
+            "protocol_version": experiment["explanations"]["protocol_version"],
+            "literal_catalogue_title_repetition_required": False,
+            "locked_recommendation_binding": experiment["explanations"][
+                "locked_recommendation_binding"
+            ],
+            "rejected_raw_responses_retained": True,
             "sequential_model_order": [model["model_id"] for model in roster],
             "no_retrieval_after_recommendation_lock": True,
             "rule_rag_trace_hash_preserved": True,

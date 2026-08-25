@@ -74,6 +74,24 @@ def test_locked_item_and_citation_contracts_reject_drift_grouping_and_out_of_tra
         )
 
 
+def test_natural_prose_protocol_binds_candidate_outside_the_generated_text() -> None:
+    explanation = (
+        "This recommendation balances the wide-leg trousers with a clearer upper-body shape, "
+        "keeping the overall proportions intentional rather than equally loose throughout. The "
+        "styling relationship follows the supplied guidance while avoiding invented claims "
+        "about colour, fabric, fit, or occasion, so the reasoning stays focused and useful. "
+        "[K001]"
+    )
+    assert validate_generated_explanation(
+        explanation,
+        locked_item_name="an intentionally awkward catalogue title",
+        target_category="tops",
+        trace_rule_ids=["K001"],
+        citations_required=True,
+        require_literal_locked_item=False,
+    ) == ["K001"]
+
+
 def test_citation_occurrences_preserve_grouped_duplicate_and_unknown_diagnostics() -> None:
     diagnostics = citation_occurrences(
         "Evidence [K001, K001] [K999] [bad].", known_rule_ids=["K001"], trace_rule_ids=["K001"]

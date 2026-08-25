@@ -170,6 +170,7 @@ embeddings:
   regenerate_policy: model_dataset_configuration_hash_bound
 
 explanations:
+  protocol_version: natural_prose_trace_grounded_v2
   case_count: 500
   cases_per_category: 100
   selection_seed: 42
@@ -183,6 +184,10 @@ explanations:
   generation_order: [gemma4:12b, llama3.1:8b-instruct-q8_0, ministral-3:14b-instruct-2512-q4_K_M]
   bounded_retry_attempts: 2
   terminal_failure_policy: retain_transparently
+  locked_recommendation_binding: case_id_and_locked_candidate_id
+  literal_catalogue_title_repetition_required: false
+  retain_rejected_raw_responses: true
+  rule_rag_minimum_canonical_citations: 1
 
 explanation_evidence:
   common_A_fields: [user_request, query_item_minimal_name, locked_item_minimal_name]

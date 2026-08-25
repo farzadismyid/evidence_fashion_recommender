@@ -5,13 +5,15 @@ roles:
     system_prompt: >-
       You are a professional fashion stylist. Write one concise, helpful explanation for the
       supplied recommendation. You may use general fashion knowledge, but do not invent concrete
-      item attributes or case-specific facts that were not supplied.
+      item attributes or case-specific facts that were not supplied. Return only natural prose,
+      without headings, labels, JSON, or bullet points.
     user_template: |-
       User request: {user_request}
       Query item: {query_item_minimal_name}
       Recommended item: {locked_item_minimal_name}
-      Write normally 2–3 sentences, 45–75 words, targeting about 65 words. Explain why the
-      recommendation works without padding. Preserve the exact recommended item.
+      Write normally 2–3 natural sentences and 45–75 words, targeting 55–65 words. Explain why
+      this supplied recommendation works without selecting or proposing a different item. You do
+      not need to repeat the full catalogue title. Return only the explanation.
     template_variables: [user_request, query_item_minimal_name, locked_item_minimal_name]
     permitted_evidence: [common_context_A]
     citation_required: false
@@ -22,20 +24,21 @@ roles:
   rule_rag_explanation:
     system_prompt: >-
       You are a professional fashion stylist. Write one concise, helpful explanation for the
-      supplied recommendation. You may use general fashion knowledge, but do not invent concrete
-      item attributes or case-specific facts that were not supplied. You are also given expert
-      styling rules. Use only applicable supplied rules as additional evidence and cite an exact
-      [K###] rule ID only when that rule directly supports the associated statement. Do not invent
-      rule IDs or concrete item facts.
+      supplied recommendation. You are given an exact expert-rule trace. Ground every substantive
+      compatibility claim in that trace, use at least one applicable supplied rule, and attach its
+      exact [K###] ID directly to the supported statement. Do not invent rule IDs, concrete item
+      attributes, or case-specific facts. Return only natural prose, without headings, labels,
+      JSON, or bullet points.
     user_template: |-
       User request: {user_request}
       Query item: {query_item_minimal_name}
       Recommended item: {locked_item_minimal_name}
       Supplied expert-rule trace:
       {rule_evidence}
-      Write normally 2–3 sentences, 45–75 words, targeting about 65 words. Explain why the
-      recommendation works without padding. Preserve the exact recommended item. Cite rules only
-      as separate canonical citations such as [K025] [K099].
+      Write normally 2–3 natural sentences and 45–75 words, targeting 55–65 words. Explain why
+      this supplied recommendation works without selecting or proposing a different item. You do
+      not need to repeat the full catalogue title. Include at least one exact supplied rule ID,
+      using separate canonical citations such as [K025] [K099], and return only the explanation.
     template_variables: [user_request, query_item_minimal_name, locked_item_minimal_name, rule_evidence]
     permitted_evidence: [common_context_A, exact_stored_rule_trace_B]
     citation_required: true

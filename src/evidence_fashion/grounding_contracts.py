@@ -192,11 +192,13 @@ def validate_generated_explanation(
     citations_required: bool = False,
     minimum_words: int = 45,
     maximum_words: int = 75,
+    require_literal_locked_item: bool = True,
 ) -> list[str]:
     """Apply the shared post-generation contract before a response is persisted."""
-    require_locked_recommendation(
-        explanation, locked_item_name=locked_item_name, target_category=target_category
-    )
+    if require_literal_locked_item:
+        require_locked_recommendation(
+            explanation, locked_item_name=locked_item_name, target_category=target_category
+        )
     require_explanation_length(
         explanation, minimum_words=minimum_words, maximum_words=maximum_words
     )
