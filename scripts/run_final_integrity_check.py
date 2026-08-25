@@ -118,6 +118,7 @@ def main() -> None:
     extraction_ids = [str(claim["claim_id"]) for claim in claims]
     if not claims or len(extraction_ids) != len(set(extraction_ids)):
         raise ValueError("Synthetic Qwen extraction did not return stable unique claim IDs.")
+    client.unload(models["extractor"]["model_id"])
     trace = [
         {"rule_id": "K001", "rule_text": "Synthetic trace rule accepted by the packet schema."}
     ]
@@ -180,7 +181,6 @@ def main() -> None:
         "output_artifact_hashes": {str(raw_path): sha256_file(raw_path)},
     }
     write_new_json(manifest_path, manifest)
-    client.unload(models["extractor"]["model_id"])
     client.unload(models["verifier"]["model_id"])
     print(json.dumps(manifest["checks"], indent=2))
 

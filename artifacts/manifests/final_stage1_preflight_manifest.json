@@ -1,0 +1,219 @@
+{
+  "canonical_runtime_state": {
+    "root": ".runtime/current",
+    "stage_paths": [
+      ".runtime/current/data",
+      ".runtime/current/embeddings",
+      ".runtime/current/recommendations",
+      ".runtime/current/explanations",
+      ".runtime/current/extraction",
+      ".runtime/current/verification",
+      ".runtime/current/final_analysis"
+    ]
+  },
+  "commands": [
+    "python scripts/prepare_data.py",
+    "python scripts/build_embeddings.py",
+    "python scripts/build_final_kb_embeddings.py",
+    "python scripts/run_final_validation_sensitivity.py",
+    "python scripts/run_final_integrity_check.py",
+    "python scripts/finalize_stage1_preflight.py",
+    "ruff check .",
+    "pytest -q"
+  ],
+  "configuration_file_hashes": {
+    "configs\\experiment.yaml": "5395991017c64391c18c454af30e84c9e6804043a3d0364b75983bc81ea3e689",
+    "configs\\models.yaml": "a06a855cb07be2496ed11579aa701e7c214696d11eae8b5929eeea60b5f75715",
+    "configs\\prompts.yaml": "3bc600856ffdda1fb2fa4e2ee552489722b54e7aaa68d40d3dd1ea6ede5f2a76"
+  },
+  "environment": {
+    "machine": "AMD64",
+    "os": "Windows-11-10.0.26200-SP0",
+    "python": "3.12.13"
+  },
+  "exact_trace_invariant_tests": "tests/test_final_trace_invariants.py",
+  "failure_counts": {
+    "data": 0,
+    "embeddings": 0,
+    "sensitivity": 0,
+    "synthetic_integrity": 0
+  },
+  "frozen_defaults": {
+    "clip_weight": 0.75,
+    "evidence_weight": 0.25,
+    "image_weight": 0.4,
+    "rule_top_k": 5,
+    "text_weight": 0.6
+  },
+  "git_commit": "8499a143565284c1042bc719674ba43d18a50326",
+  "input_artifact_hashes": {
+    ".runtime\\current\\final_analysis\\stage1_integrity\\manifest.json": "c2e9e3da12ef162e46c930ef60acfd8aa50fd9b77bd287f269be685831c8528e",
+    ".runtime\\current\\final_analysis\\stage1_validation\\manifest.json": "5ce3b605acf6175c3084d7bc95ca8cb8c7875d3d3e473daebff8765f44d169e0",
+    "artifacts\\manifests\\final_data_preparation_manifest.json": "ae93ef9bc51a6ff83cdc9e188dd7bde6b551b158d42f38ba08c26394fa8b3812",
+    "artifacts\\manifests\\final_embedding_manifest.json": "f6606e5ae38ea3a3eba755f835aeae938d2fbd6ad101059badfbc2355ec725a3",
+    "data\\kb\\fashion_rules.csv": "59cec6821d32ca78d57e0a8dee592c55c9100b6ca9ebbf17a43301a46bd30e77"
+  },
+  "integrity_check": {
+    "canonical_citation_parsing": true,
+    "claim_ids_preserved": true,
+    "final_rule_id_accepted": true,
+    "invalid_rule_id_rejected": true,
+    "literal_common_reference_example": true,
+    "structured_output_valid": true,
+    "trace_packet_accepted": true
+  },
+  "kb_audit": {
+    "coverage": {
+      "bags": {
+        "bags": 0,
+        "bottoms": 10,
+        "outerwear": 10,
+        "shoes": 10,
+        "tops": 10
+      },
+      "bottoms": {
+        "bags": 8,
+        "bottoms": 0,
+        "outerwear": 9,
+        "shoes": 10,
+        "tops": 13
+      },
+      "outerwear": {
+        "bags": 10,
+        "bottoms": 10,
+        "outerwear": 0,
+        "shoes": 10,
+        "tops": 10
+      },
+      "shoes": {
+        "bags": 10,
+        "bottoms": 10,
+        "outerwear": 10,
+        "shoes": 0,
+        "tops": 10
+      },
+      "tops": {
+        "bags": 8,
+        "bottoms": 10,
+        "outerwear": 12,
+        "shoes": 10,
+        "tops": 0
+      }
+    },
+    "exact_duplicate_rules": 0,
+    "near_duplicate_pairs": [],
+    "near_duplicate_threshold": 0.9,
+    "pass": true,
+    "provenance_complete": true,
+    "rule_count": 200,
+    "source_type_distribution": {
+      "education_editorial": 2,
+      "fashion_editorial": 198
+    },
+    "target_counts": {
+      "bags": 40,
+      "bottoms": 40,
+      "outerwear": 40,
+      "shoes": 40,
+      "tops": 40
+    },
+    "unique_nonempty_rule_ids": true
+  },
+  "models": {
+    "embedders": {
+      "clip": {
+        "batch_size": 64,
+        "device": "auto",
+        "dimension": 512,
+        "immutable_digest": "3d74acf9a28c67741b2f4f2ea7635f0aaf6f0268",
+        "local_files_only": true,
+        "max_sequence_length": 77,
+        "model_id": "openai/clip-vit-base-patch32",
+        "normalize": true,
+        "precision": "float32",
+        "provider": "transformers",
+        "revision": "3d74acf9a28c67741b2f4f2ea7635f0aaf6f0268"
+      },
+      "minilm": {
+        "architecture": "MiniLM",
+        "batch_size": 64,
+        "device": "auto",
+        "dimension": 384,
+        "immutable_digest": "1110a243fdf4706b3f48f1d95db1a4f5529b4d41",
+        "max_sequence_length": 256,
+        "model_id": "sentence-transformers/all-MiniLM-L6-v2",
+        "normalize": true,
+        "parameters": "22.7M",
+        "precision": "float32",
+        "provider": "sentence_transformers",
+        "quantization": "float32",
+        "revision": "1110a243fdf4706b3f48f1d95db1a4f5529b4d41"
+      },
+      "qwen3_embedding": {
+        "architecture": "qwen3",
+        "batch_size": 64,
+        "device": "local_ollama",
+        "dimension": 1024,
+        "immutable_digest": "ac6da0dfba84a81fdbfbaf330198c33cd77c4cdfc53e8bc50eb581914a15621d",
+        "max_sequence_length": 32768,
+        "model_id": "qwen3-embedding:0.6b",
+        "normalize": true,
+        "parameters": "595.78M",
+        "precision": "Q8_0",
+        "provider": "ollama",
+        "quantization": "Q8_0",
+        "revision": "0.6b-q8_0"
+      }
+    },
+    "extractor": {
+      "architecture": "qwen35",
+      "context_length": 262144,
+      "immutable_digest": "6488c96fa5faab64bb65cbd30d4289e20e6130ef535a93ef9a49f42eda893ea7",
+      "model_id": "qwen3.5:9b",
+      "parameters": "9.7B",
+      "quantization": "Q4_K_M"
+    },
+    "verifier": {
+      "architecture": "phi3",
+      "context_length": 16384,
+      "immutable_digest": "ac896e5b8b34a1f4efa7b14d7520725140d5512484457fab45d2a4ea14c69dba",
+      "model_id": "phi4:14b",
+      "parameters": "14.7B",
+      "quantization": "Q4_K_M"
+    }
+  },
+  "output_artifact_hashes": {
+    ".runtime\\current\\final_analysis\\stage1_integrity\\synthetic_model_responses.json": "aabb2b25bc2afba7f514c1622e5128dc7846e93199268d6d2fc9452cdf18ae19",
+    ".runtime\\current\\final_analysis\\stage1_validation\\fusion_grid.csv": "6628a645cd75d529afa3c0810d927c14eb9e8c9423b8b2ee53f9a1013ea5437e",
+    ".runtime\\current\\final_analysis\\stage1_validation\\reranking_grid.csv": "f158fe41742869361c84c4c76e2ba844d59377402ba086abcf3b12ee888c90fa",
+    ".runtime\\current\\final_analysis\\stage1_validation\\reranking_pareto_frontier.csv": "cc678f574b104cd476d1216f342f9de20c61b6021aa8d5b33fa61e73c710f929"
+  },
+  "resolved_configuration_hash": "aef9135324865b75fa7fa6568daf68b30f50fff686889cbde174cbc3af898d98",
+  "row_counts": {
+    "final_kb_rules": 200,
+    "fusion_grid_configurations": 6,
+    "prepared_items": 47872,
+    "reranking_grid_configurations": 27,
+    "synthetic_integrity_claims": 1,
+    "test_cases": 1000,
+    "validation_cases": 1000
+  },
+  "schema_version": 2,
+  "seeds": {
+    "project": 42,
+    "split": 42,
+    "test_cases": 42,
+    "validation_cases": 4242
+  },
+  "stage": 1,
+  "stage_name": "preflight_clean_reset_and_final_freeze",
+  "status": "passed",
+  "structural_explanation_feasibility_by_category": {
+    "bags": 168,
+    "bottoms": 180,
+    "outerwear": 176,
+    "shoes": 170,
+    "tops": 171
+  },
+  "timestamp_utc": "2026-08-25T00:06:30Z"
+}
