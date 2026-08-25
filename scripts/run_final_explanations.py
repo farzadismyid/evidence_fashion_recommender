@@ -47,6 +47,12 @@ def _prompt_for_case(case: dict[str, Any], role: dict[str, Any]) -> str:
     return str(role["user_template"]).format(**values)
 
 
+def _locked_item_text(common_context: dict[str, Any]) -> str:
+    """Validate the exact item text, not its display-only category prefix."""
+    display_name = str(common_context["locked_item_minimal_name"])
+    return display_name.split(" | ", maxsplit=1)[-1]
+
+
 def _generate_cell(
     *,
     client: OllamaClient,
@@ -75,7 +81,7 @@ def _generate_cell(
             text = result.text
             citations = validate_generated_explanation(
                 text,
-                locked_item_name=case["common_context_A"]["locked_item_minimal_name"],
+                locked_item_name=_locked_item_text(case["common_context_A"]),
                 target_category=case["target_category"],
                 trace_rule_ids=trace_ids if needs_citations else (),
                 citations_required=needs_citations,
@@ -205,6 +211,9 @@ def main() -> None:
                             "common_context_A": case["common_context_A"],
                             "common_context_A_hash": case["common_context_A_hash"],
                             "locked_candidate_id": case["locked_candidate_id"],
+                            "locked_item_validation_text": _locked_item_text(
+                                case["common_context_A"]
+                            ),
                             "exact_stored_rule_trace_B": (
                                 case["exact_stored_rule_trace_B"]
                                 if condition == "rule_rag"
