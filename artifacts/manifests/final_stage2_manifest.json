@@ -1,0 +1,56 @@
+{
+  "schema_version": 2,
+  "stage": 2,
+  "stage_name": "final_recommendations_and_natural_prose_explanations",
+  "status": "passed_with_transparent_terminal_failures",
+  "timestamp_utc": "2026-08-25T11:25:20Z",
+  "git_commit_at_execution": "77c884b8d1ce64db6217c225e196355b356b3612",
+  "recommendation_configuration_hash": "07db799088b87d469584ed34a2cdb1163afc1837a4bd1d11d2ba17eb7d45e2a1",
+  "explanation_configuration_hash": "3cb152f448fbd61724d63aa35fc7eb06cc9483c0a18737a292bf380e3c1101e2",
+  "protocol_amendment": {
+    "id": "natural_prose_trace_grounded_v2",
+    "reason": "Remove artificial literal catalogue-title repetition while preserving immutable candidate binding and strengthen the required Rule-RAG citation instruction.",
+    "part_a_recomputed": false,
+    "selective_retry_used": false,
+    "fresh_full_matrix": true,
+    "rejected_raw_responses_retained": true
+  },
+  "input_manifest_hashes": {
+    ".runtime/current/recommendations/final-recommendations-07db799088b8/manifest.json": "a95f63687a8c98843e60e1fe4705cb8cc3870d2d828ba54f58caacd0169bcaec",
+    ".runtime/current/explanations/final-explanations-3cb152f448fb/manifest.json": "05b3a98464727107cbc6e4e4d3c15a05f2ac4171f87dc065a2e8009365c6206c"
+  },
+  "row_counts": {
+    "recommendation_cases": 1000,
+    "recommendation_candidate_rows": 100026,
+    "locked_recommendations": 1000,
+    "explanation_cases": 500,
+    "explanation_cells_attempted": 3000,
+    "explanation_cells_accepted": 2969,
+    "explanation_terminal_failures": 31,
+    "raw_generation_attempts": 3254
+  },
+  "failure_counts_by_model_condition": {
+    "gemma4:12b:no_rag": 0,
+    "gemma4:12b:rule_rag": 0,
+    "llama3.1:8b-instruct-q8_0:no_rag": 0,
+    "llama3.1:8b-instruct-q8_0:rule_rag": 31,
+    "ministral-3:14b-instruct-2512-q4_K_M:no_rag": 0,
+    "ministral-3:14b-instruct-2512-q4_K_M:rule_rag": 0
+  },
+  "invariants": {
+    "part_a_unchanged": true,
+    "same_500_cases_across_conditions": true,
+    "same_locked_candidate_across_conditions": true,
+    "rule_rag_B_is_exact_locked_reranking_trace": true,
+    "second_rule_retrieval_after_locking": false,
+    "all_accepted_word_counts_within_45_75": true,
+    "all_accepted_rule_rag_outputs_have_in_trace_citation": true,
+    "all_terminal_failures_retained": true
+  },
+  "validation": {
+    "synthetic_generator_condition_smoke_cells": 6,
+    "synthetic_smoke_failures": 0,
+    "ruff_check": "passed",
+    "pytest": "43 passed"
+  }
+}
