@@ -1,0 +1,57 @@
+{
+  "schema_version": 1,
+  "stage": 4,
+  "stage_name": "fresh_claim_verification",
+  "status": "passed_with_transparent_terminal_failures",
+  "frozen_at_utc": "2026-08-26T12:25:00Z",
+  "upstream_stage3_manifest": {
+    "path": ".runtime/current/extraction/final-extraction-3cb152f448fb/manifest.json",
+    "sha256": "3fdc68240d59a726092c6bb446f709f6c0d57d3fb0b350b5eb1b9cf7e5455a53"
+  },
+  "stage4_manifest": {
+    "path": ".runtime/current/verification/final-verification-955ab963af41/manifest.json",
+    "sha256": "bdc0ff4695ce28d25a9b5e8672198478604c23007a0dc3568717281df72918a9"
+  },
+  "frozen_outputs": {
+    "verifications": {
+      "path": ".runtime/current/verification/final-verification-955ab963af41/verifications.jsonl",
+      "sha256": "072fbde6e1959ddd579a17cc4d63fa1e1b708979ac205130f15e63592803eab4"
+    },
+    "raw_attempts": {
+      "path": ".runtime/current/verification/final-verification-955ab963af41/raw_verification_attempts.jsonl",
+      "sha256": "12922b99cb3ff6f37e90fa75b06453030b9960196664e0c426e6b83a71b58de5"
+    }
+  },
+  "model": {
+    "id": "phi4:14b",
+    "immutable_digest": "ac896e5b8b34a1f4efa7b14d7520725140d5512484457fab45d2a4ea14c69dba"
+  },
+  "outcome": {
+    "input_accepted_stage3_extractions": 2965,
+    "verification_records": 2965,
+    "accepted_verifications": 2861,
+    "terminal_failures": 104,
+    "claims_submitted": 17710,
+    "claims_verified": 16804,
+    "raw_attempts": 3326
+  },
+  "integrity_checks": {
+    "one_record_per_accepted_stage3_extraction": true,
+    "unique_case_generator_condition_keys": true,
+    "claim_ids_preserved_exactly": true,
+    "exact_trace_packet_hash_present": true,
+    "full_kb_candidate_packet_hash_present": true,
+    "final_200_rule_kb_only": true,
+    "deterministic_citation_syntax": true,
+    "common_reference_eligibility_enforced": true,
+    "terminal_failures_retained_without_reuse": true
+  },
+  "terminal_failure_breakdown": {
+    "gemma4:12b:no_rag": 22,
+    "gemma4:12b:rule_rag": 3,
+    "llama3.1:8b-instruct-q8_0:no_rag": 18,
+    "llama3.1:8b-instruct-q8_0:rule_rag": 16,
+    "ministral-3:14b-instruct-2512-q4_K_M:no_rag": 22,
+    "ministral-3:14b-instruct-2512-q4_K_M:rule_rag": 23
+  }
+}
