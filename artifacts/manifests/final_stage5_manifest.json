@@ -5,6 +5,10 @@
     "os": "Windows-11-10.0.26200-SP0",
     "python": "3.12.13"
   },
+  "figure_registry": {
+    "artifacts\\figures\\final_explanation_paired_contrasts.png": "a7b99ae140d1c6fbe492eaff6c934efa17d44659a38dace505627501d375f996",
+    "artifacts\\figures\\final_explanation_paired_contrasts.svg": "22cf0977e902e64cd8aa41ee84a77d8424617a5a7829febfef626b76e76b70c0"
+  },
   "git_commit": "34980c541ad248226fa3259ba7b9d90c819e899e",
   "input_manifests": {
     "artifacts\\manifests\\final_stage1_preflight_manifest.json": "4e86f353e3dbc8132e0e2271db5807b284f9d752677409f627df473eb0e388d1",
@@ -39,6 +43,10 @@
       "template": "3bd0e9bd304422869b545b705dd8bfee8b3d40bbc75f30fbe14d9e29cec507ba"
     }
   },
+  "release_manifest": {
+    "path": "artifacts\\release\\release_manifest.json",
+    "sha256": "abe18dabfa2df4416569bc63f6f6d22757645f33535943f1d5867399171c5231"
+  },
   "schema_version": 1,
   "stage": 5,
   "stage5_manifest_path": ".runtime\\current\\final_analysis\\final-stage5\\manifest.json",
@@ -54,5 +62,11 @@
     "paired_available_case_policy": "complete_case"
   },
   "status": "complete",
+  "table_registry": {
+    "artifacts\\tables\\final_explanation_paired_contrasts.csv": "5222e94c02646c85ebca8570ab060d5db26b1af80228bf92b011fc0a4ad5c65c",
+    "artifacts\\tables\\final_explanation_record_metrics.csv": "894bf3efc2a848dba98d00be28f0d525aa08fc46124402e37a462e66a73af802",
+    "artifacts\\tables\\final_recommendation_metrics_with_ci.csv": "f56928565684f431f9f4670f91f24b61f5224c688918074dfcd44b6766534dcd",
+    "artifacts\\tables\\final_terminal_failures.csv": "1a473f519087f089da59aa7957512931c8d4a2a4015e046e6d732e560bb956a6"
+  },
   "timestamp_utc": "2026-08-26T12:17:22Z"
 }

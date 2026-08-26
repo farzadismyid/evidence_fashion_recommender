@@ -1,0 +1,10 @@
+stage,generator_model_id,condition,terminal_failures
+stage2,llama3.1:8b-instruct-q8_0,rule_rag,31
+stage3,gemma4:12b,no_rag,1
+stage3,ministral-3:14b-instruct-2512-q4_K_M,no_rag,3
+stage4,gemma4:12b,no_rag,22
+stage4,gemma4:12b,rule_rag,3
+stage4,llama3.1:8b-instruct-q8_0,no_rag,18
+stage4,llama3.1:8b-instruct-q8_0,rule_rag,16
+stage4,ministral-3:14b-instruct-2512-q4_K_M,no_rag,22
+stage4,ministral-3:14b-instruct-2512-q4_K_M,rule_rag,23
