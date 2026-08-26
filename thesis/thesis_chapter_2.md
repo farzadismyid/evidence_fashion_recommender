@@ -46,9 +46,9 @@ Data leakage is another concern. Item identifiers alone may not detect separatel
 
 Catalogue text can expose explicit product terms, while images capture appearance information missing from descriptions. CLIP learns aligned image and text representations from large-scale image-text training and supports zero-shot cross-modal transfer [8]. Its shared embedding space makes it a practical frozen baseline for multimodal catalogue retrieval. In the present system, normalised CLIP image and text vectors are fused before cosine ranking, while MiniLM provides a separate lightweight sentence-embedding pathway [9,10].
 
-The use of frozen general-purpose encoders has advantages and limitations. It permits a reproducible study without end-to-end fashion-model training and allows the research contribution to focus on evidence traces and explanation. However, CLIP ViT-B/32 is not specialised for outfit compatibility, fit, or subtle garment attributes. FashionCLIP adapts contrastive image–text learning to a large fashion-product corpus and demonstrates transferable domain representations [23]. The thesis therefore adds pinned FashionCLIP 2.0 as a post-confirmatory baseline rather than assuming that general CLIP is the strongest available representation.
+The use of frozen general-purpose encoders has advantages and limitations. It permits a reproducible study without end-to-end fashion-model training and allows the research contribution to focus on evidence traces and explanation. However, CLIP is not specialised for outfit compatibility, fit, or subtle garment attributes. The thesis therefore treats its multimodal retrieval pathway as a reproducible baseline rather than assuming that it is the strongest possible fashion representation.
 
-The completed results are consistent with a bounded multimodal claim. Fused general CLIP performs significantly better than the evaluated MiniLM and CLIP-text baselines on selected top-ten measures, but it is not significantly superior to general CLIP image after multiplicity correction. FashionCLIP image significantly improves several rank-sensitive measures over general CLIP image, whereas fixed-weight FashionCLIP fusion is not significantly better than fused general CLIP. The literature therefore motivates domain adaptation and multimodality, while the experiment shows that their benefits depend on the modality and fixed fusion design.
+The completed results support a bounded multimodal claim. Fused CLIP is the strongest tested pathway on the principal top-five and top-ten retrieval measures, while the evidence reranker produces a modest relevance trade-off in exchange for an inspectable symbolic trace. The literature therefore motivates multimodal representation, whereas the experiment reserves its main causal claim for the subsequent evidence-grounded explanation contrast.
 
 ### 2.3.2 Representation is not textual evidence
 
@@ -82,7 +82,7 @@ An interpretable component is not automatically correct. A generic rule may be s
 
 This distinction separates three evaluation targets. Recommendation metrics examine whether the hybrid system ranks held-out outfit items. Evidence-participation diagnostics examine whether the rule component materially changes selection and whether diverse rules are used. Explanation metrics examine whether generated language matches the stored trace and avoids unsupported instance-level claims. No single target validates the other two.
 
-The thesis consequently avoids describing its architecture as perfectly faithful “by construction.” B is exactly faithful as a data record of the symbolic scoring calculation, but generated prose can omit, distort, or overgeneralise it. DTA, citation precision, and citation coverage exist precisely because exposure to the trace does not guarantee correct use.
+The thesis consequently avoids describing its architecture as perfectly faithful “by construction.” B is exact as a data record of the symbolic scoring calculation, but generated prose can omit, distort, or overgeneralise it. Trace support, full-KB support, and citation-entailment evaluation exist precisely because exposure to the trace does not guarantee correct use.
 
 ## 2.5 Retrieval-augmented generation and cited explanations
 
@@ -100,7 +100,7 @@ Hallucination terminology varies across language-generation research. Ji et al. 
 
 This vocabulary matters in fashion. If a model calls a bag leather when neither item text nor trace establishes material, the claim may happen to be true. The experiment can show that it is unverified by supplied evidence, not that it is factually false. Conversely, contradiction is rare because sparse catalogue context seldom states the opposite of a generated style assertion. Collapsing unsupported and contradicted categories would inflate the apparent detection of falsehood.
 
-The study’s UIAR metric therefore focuses conservatively on concrete attributes of actual query or recommended items: colour, material, item type, fit, comfort, formality, occasion, season, trend, and comparable candidate-specific properties. Subjective relational claims and ambiguous statements are excluded from the main UIAR denominator. This sacrifices coverage to make the estimand clearer.
+The final study's common-reference item-fact metric focuses conservatively on concrete claims about actual query or recommended items. Subjective relational claims and ambiguous statements are excluded from its denominator. This sacrifices coverage to make the estimand clearer and explains why the final complete-pair UIFR analysis has a much smaller eligible sample than the primary support outcomes.
 
 ### 2.5.3 Citations as claim-source relations
 
@@ -124,7 +124,7 @@ The No-RAG condition creates a useful comparison. A pretrained generator may men
 
 Explanation evaluation can be functionally grounded, application grounded, or human grounded. Functional measures test formal or computational properties without users. Human-grounded experiments use simplified tasks with people, while application-grounded work evaluates explanations with intended users or domain experts. Each supports different claims.
 
-The completed experiment is functionally grounded and automated. A frozen model extracts atomic claims, verifies each claim against A and B, and supplies anchored general-quality scores. Deterministic post-processing derives DTA, UIAR, density, and citation measures from saved records. This permits evaluation of thousands of claims under reproducible schemas but introduces evaluator dependence.
+The completed experiment is functionally grounded and automated. Qwen 3.5 extracts atomic claims and Phi-4 verifies each claim against the trace, full-KB packet, common reference, and observed citations. Deterministic post-processing derives the final support rates and density from saved records. This permits evaluation of thousands of claims under reproducible schemas but introduces evaluator dependence.
 
 Automated RAG-evaluation frameworks such as ARES show how model judges can assess context relevance, answer faithfulness, and answer relevance at scale [22]. Such frameworks often use human-labelled examples for calibration or prediction-powered inference. The present thesis does not include independent human calibration, so its confidence intervals capture case-sampling variability rather than semantic evaluator uncertainty. The limitation constrains interpretation but does not erase the value of a controlled system comparison.
 
@@ -134,7 +134,7 @@ Whole-response labels can hide mixed support. An explanation may contain one tra
 
 Both micro and macro aggregation are therefore useful. Claim-micro rates weight explanations with more extracted claims more heavily. Explanation-macro rates first calculate within-explanation proportions and then average units. Paired macro differences compare the same case-generator combination across conditions, while clustered bootstrap intervals recognise that several generator outputs derive from the same recommendation case.
 
-Eligibility creates additional denominator differences. UIAR cannot be calculated for an explanation with no confidently classified concrete attributes. Marginal condition rates therefore use different eligible explanation populations, while paired estimates use only the intersection in which both explanations contain an eligible attribute. Reporting these denominators prevents a visually simple percentage from concealing a change in what the generator chose to claim.
+Eligibility creates additional denominator differences. UIFR cannot be calculated for an explanation with no eligible concrete item-fact claims. Marginal condition rates therefore use different eligible explanation populations, while paired estimates use only the intersection in which both explanations contain an eligible claim. Reporting these denominators prevents a visually simple percentage from concealing a change in what the generator chose to claim.
 
 ### 2.6.4 Length and evaluator dependence
 
@@ -142,7 +142,7 @@ Explanation length is a major design issue. Longer outputs create more opportuni
 
 In the corrective experiment, both conditions received the same at-most-75-word instruction. No-RAG averaged 52.84 words and Rule-RAG 60.55; the remaining gap arose mainly from generator compliance, including 243 legacy Rule-RAG cap violations and two No-RAG violations. The predeclared 30-pair sensitivity averaged 54.17 versus 54.37 words with a 0.33-word mean absolute paired gap. Length is therefore controlled more directly than in the first draft, although evidence/citation instructions still change rhetorical content and actual length.
 
-Evaluator independence is related but distinct. Using the same model family for extraction and verification can create correlated errors. The final extension therefore uses Qwen3 for atomic-claim extraction and Mistral for verification, while Qwen3 remains the holistic paired judge. This is stronger role separation, though Mistral is also one generator and neither model is human-calibrated. Cross-model assessment reduces one source of correlated error but does not substitute for annotation or establish semantic correctness.
+Evaluator independence is related but distinct. Using the same model family for extraction and verification can create correlated errors. The final run therefore uses Qwen 3.5 for atomic-claim extraction and Phi-4 for verification. This is stronger role separation, though neither model is human-calibrated. Cross-model assessment reduces one source of correlated error but does not substitute for annotation or establish semantic correctness.
 
 ## 2.7 Comparative synthesis and research gap
 
@@ -181,7 +181,7 @@ The fourth is an **objective-separation gap**. Explainability mechanisms are som
 
 Chapter 3 responds with a staged architecture and evaluation design. First, it constructs deterministic outfit-disjoint and exact-image-leakage-resolved splits from a pinned Polyvore release. Second, it establishes MiniLM, CLIP image, CLIP text, and fused CLIP ranking pathways under controlled same-category candidate pools. Third, it retrieves five rules for every query-candidate pair, calculates an evidence score, combines that score with fused CLIP, and preserves the exact scoring trace.
 
-Fourth, the selected recommendation is locked before language generation. The No-RAG and Rule-RAG conditions explain the same item for the same request and generator. Common context A is identical; Rule-RAG additionally receives trace B. Fifth, saved explanations are decomposed into claims and evaluated with source-aware automated schemas. DTA distinguishes hidden-trace post-hoc alignment from visible-trace faithfulness. UIAR isolates unsupported actual-item attributes. Citation precision and coverage measure correctness and completeness rather than identifier presence. Holistic judgments, subgroup analyses, and length sensitivity provide complementary but non-substitutable views.
+Fourth, the selected recommendation is locked before language generation. The No-RAG and Rule-RAG conditions explain the same item for the same request and generator. Common context A is identical; Rule-RAG additionally receives trace B. Fifth, saved explanations are decomposed into claims and evaluated with source-aware automated schemas. Trace support distinguishes post-hoc agreement from grounding in visible B; full-KB support captures the broader rule packet; common-reference item-fact support remains a restricted secondary outcome; and citation entailment measures a claim--source relation rather than identifier presence. Generator and category analyses provide complementary robustness views.
 
 This design does not make unsupported generation impossible. Instead, it makes the relationship between a symbolic decision component and generated language observable and measurable. It also retains negative evidence: if reranking does not improve recommendation accuracy, or if citations remain invalid, those outcomes constrain rather than invalidate the contribution.
 

@@ -4,8 +4,8 @@ The project uses the pinned `Marqo/polyvore` revision recorded in
 `configs/experiment.yaml`. Raw rows, decoded images, Hugging Face caches, prepared Parquet
 files, and embeddings are runtime data and must not be committed.
 
-`kb/fashion_rules.csv` is the canonical 100-rule KB with 20 rules each for tops, bottoms, shoes,
-outerwear and bags.
+`kb/fashion_rules.csv` is the canonical 200-rule KB with 40 rules each for bags, bottoms,
+outerwear, shoes, and tops.
 Every row carries applicability fields, a citation locator, access date, evidence summary, scope,
 limitations, reliability, audit status and predecessor IDs. Retrieval applies the audit,
 category, context and explicit term gates before top-k scoring for every target.
