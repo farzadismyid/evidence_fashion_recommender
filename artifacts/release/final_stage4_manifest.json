@@ -1,0 +1,63 @@
+{
+  "deterministic_logical_consistency_correction": {
+    "canonical_file_updated_in_place": true,
+    "corrected_claims": 163,
+    "model_calls": 0,
+    "rule": "trace_support_supported_implies_full_kb_support_supported"
+  },
+  "frozen_at_utc": "2026-08-26T12:25:00Z",
+  "frozen_outputs": {
+    "raw_attempts": {
+      "path": ".runtime/current/verification/final-verification-955ab963af41/raw_verification_attempts.jsonl",
+      "sha256": "12922b99cb3ff6f37e90fa75b06453030b9960196664e0c426e6b83a71b58de5"
+    },
+    "verifications": {
+      "path": ".runtime/current/verification/final-verification-955ab963af41/verifications.jsonl",
+      "sha256": "0f554e58be51c0529c59814f3c5de379ec66c02afbb8fa2c5e48249a32ae9b3e"
+    }
+  },
+  "integrity_checks": {
+    "claim_ids_preserved_exactly": true,
+    "common_reference_eligibility_enforced": true,
+    "deterministic_citation_syntax": true,
+    "exact_trace_packet_hash_present": true,
+    "final_200_rule_kb_only": true,
+    "full_kb_candidate_packet_hash_present": true,
+    "one_record_per_accepted_stage3_extraction": true,
+    "terminal_failures_retained_without_reuse": true,
+    "unique_case_generator_condition_keys": true
+  },
+  "model": {
+    "id": "phi4:14b",
+    "immutable_digest": "ac896e5b8b34a1f4efa7b14d7520725140d5512484457fab45d2a4ea14c69dba"
+  },
+  "outcome": {
+    "accepted_verifications": 2861,
+    "claims_submitted": 17710,
+    "claims_verified": 16804,
+    "input_accepted_stage3_extractions": 2965,
+    "raw_attempts": 3326,
+    "terminal_failures": 104,
+    "verification_records": 2965
+  },
+  "schema_version": 1,
+  "stage": 4,
+  "stage4_manifest": {
+    "path": ".runtime/current/verification/final-verification-955ab963af41/manifest.json",
+    "sha256": "7a227c13b7a9d9ced54d5ae1ba3049c12f359f183e335ecf5e5e5f3eae8d9646"
+  },
+  "stage_name": "fresh_claim_verification",
+  "status": "passed_with_transparent_terminal_failures",
+  "terminal_failure_breakdown": {
+    "gemma4:12b:no_rag": 22,
+    "gemma4:12b:rule_rag": 3,
+    "llama3.1:8b-instruct-q8_0:no_rag": 18,
+    "llama3.1:8b-instruct-q8_0:rule_rag": 16,
+    "ministral-3:14b-instruct-2512-q4_K_M:no_rag": 22,
+    "ministral-3:14b-instruct-2512-q4_K_M:rule_rag": 23
+  },
+  "upstream_stage3_manifest": {
+    "path": ".runtime/current/extraction/final-extraction-3cb152f448fb/manifest.json",
+    "sha256": "3fdc68240d59a726092c6bb446f709f6c0d57d3fb0b350b5eb1b9cf7e5455a53"
+  }
+}

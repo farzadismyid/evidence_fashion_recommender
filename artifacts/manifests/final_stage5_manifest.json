@@ -1,0 +1,58 @@
+{
+  "configuration_hash": "955ab963af4156ddac8a8240b7e7a87fb5e74161250bfcd9e3e02deb6deea556",
+  "environment": {
+    "machine": "AMD64",
+    "os": "Windows-11-10.0.26200-SP0",
+    "python": "3.12.13"
+  },
+  "git_commit": "34980c541ad248226fa3259ba7b9d90c819e899e",
+  "input_manifests": {
+    "artifacts\\manifests\\final_stage1_preflight_manifest.json": "4e86f353e3dbc8132e0e2271db5807b284f9d752677409f627df473eb0e388d1",
+    "artifacts\\manifests\\final_stage2_manifest.json": "564fd68e237e6fe047f52523157de4a5f9a7836477af04c388c06b8f74dba273",
+    "artifacts\\manifests\\final_stage3_manifest.json": "784fe3b28cac216e8d18e0d9a85e58c23156c2996fe30b43b76d4f89e59ab878",
+    "artifacts\\manifests\\final_stage4_manifest.json": "fb57d9d4ba1909bd61477a2754b055e1eba48a7638dca85419e9adb03f94f304"
+  },
+  "output_artifact_hashes": {
+    ".runtime\\current\\final_analysis\\final-stage5\\explanation_paired_contrasts.csv": "5222e94c02646c85ebca8570ab060d5db26b1af80228bf92b011fc0a4ad5c65c",
+    ".runtime\\current\\final_analysis\\final-stage5\\explanation_record_metrics.csv": "894bf3efc2a848dba98d00be28f0d525aa08fc46124402e37a462e66a73af802",
+    ".runtime\\current\\final_analysis\\final-stage5\\qualitative_examples.json": "a6ee5e3492e25bcbe4042bfb93a372b07d3484534e6c2a6f5f2dc6dd3da6b4ac",
+    ".runtime\\current\\final_analysis\\final-stage5\\recommendation_metrics_with_ci.csv": "f56928565684f431f9f4670f91f24b61f5224c688918074dfcd44b6766534dcd",
+    ".runtime\\current\\final_analysis\\final-stage5\\terminal_failures.csv": "1a473f519087f089da59aa7957512931c8d4a2a4015e046e6d732e560bb956a6"
+  },
+  "pairing": {
+    "counts": {
+      "gemma4:12b": 474,
+      "llama3.1:8b-instruct-q8_0": 438,
+      "ministral-3:14b-instruct-2512-q4_K_M": 456
+    },
+    "policy": "generator_specific_complete_case_only"
+  },
+  "provenance_amendment": {
+    "actual_final_prompts_config_sha256": "570b3d5dab8fab37ce934a36cb5381cdb449b3c8cc0c46e1b80b84e9cf75dcdb",
+    "amended_at_utc": "2026-08-26T12:17:13Z",
+    "original_stage1_prompts_config_sha256": "3bc600856ffdda1fb2fa4e2ee552489722b54e7aaa68d40d3dd1ea6ede5f2a76",
+    "reason": "authorized_stage4_verifier_contract_correction",
+    "stage4_configuration_hash": "955ab963af4156ddac8a8240b7e7a87fb5e74161250bfcd9e3e02deb6deea556",
+    "stage4_manifest_sha256": "7a227c13b7a9d9ced54d5ae1ba3049c12f359f183e335ecf5e5e5f3eae8d9646",
+    "stage4_prompt_hashes": {
+      "system": "5d53e664d7777f6652a18395274c9cb8947c36ceff2f56c6879ce4c4c5859042",
+      "template": "3bd0e9bd304422869b545b705dd8bfee8b3d40bbc75f30fbe14d9e29cec507ba"
+    }
+  },
+  "schema_version": 1,
+  "stage": 5,
+  "stage5_manifest_path": ".runtime\\current\\final_analysis\\final-stage5\\manifest.json",
+  "stage5_manifest_sha256": "7bc9da204d2b4ec0c72c9999eeb67888b4254cebf4b06d4e696fe23a8c8a4941",
+  "stage_name": "final_results_and_release",
+  "statistics": {
+    "bootstrap_replicates": 5000,
+    "bootstrap_seed": 42,
+    "bootstrap_unit": "underlying_case_query_outfit",
+    "confidence_level": 0.95,
+    "interval_method": "percentile",
+    "multiplicity_method": "holm",
+    "paired_available_case_policy": "complete_case"
+  },
+  "status": "complete",
+  "timestamp_utc": "2026-08-26T12:17:22Z"
+}

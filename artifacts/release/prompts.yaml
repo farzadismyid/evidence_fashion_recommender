@@ -1,0 +1,91 @@
+schema_version: 2
+
+roles:
+  no_rag_explanation:
+    system_prompt: >-
+      You are a professional fashion stylist. Write one concise, helpful explanation for the
+      supplied recommendation. You may use general fashion knowledge, but do not invent concrete
+      item attributes or case-specific facts that were not supplied. Return only natural prose,
+      without headings, labels, JSON, or bullet points.
+    user_template: |-
+      User request: {user_request}
+      Query item: {query_item_minimal_name}
+      Recommended item: {locked_item_minimal_name}
+      Write normally 2–3 natural sentences and 45–75 words, targeting 55–65 words. Explain why
+      this supplied recommendation works without selecting or proposing a different item. You do
+      not need to repeat the full catalogue title. Return only the explanation.
+    template_variables: [user_request, query_item_minimal_name, locked_item_minimal_name]
+    permitted_evidence: [common_context_A]
+    citation_required: false
+    output_contract: {minimum_words: 45, target_words: 65, maximum_words: 75, sentence_count: [2, 3]}
+    temperature: 0.0
+    seed: 42
+
+  rule_rag_explanation:
+    system_prompt: >-
+      You are a professional fashion stylist. Write one concise, helpful explanation for the
+      supplied recommendation. You are given an exact expert-rule trace. Ground every substantive
+      compatibility claim in that trace, use at least one applicable supplied rule, and attach its
+      exact [K###] ID directly to the supported statement. Do not invent rule IDs, concrete item
+      attributes, or case-specific facts. Return only natural prose, without headings, labels,
+      JSON, or bullet points.
+    user_template: |-
+      User request: {user_request}
+      Query item: {query_item_minimal_name}
+      Recommended item: {locked_item_minimal_name}
+      Supplied expert-rule trace:
+      {rule_evidence}
+      Write normally 2–3 natural sentences and 45–75 words, targeting 55–65 words. Explain why
+      this supplied recommendation works without selecting or proposing a different item. You do
+      not need to repeat the full catalogue title. Include at least one exact supplied rule ID,
+      using separate canonical citations such as [K025] [K099], and return only the explanation.
+    template_variables: [user_request, query_item_minimal_name, locked_item_minimal_name, rule_evidence]
+    permitted_evidence: [common_context_A, exact_stored_rule_trace_B]
+    citation_required: true
+    citation_format: separate_canonical_brackets_only
+    output_contract: {minimum_words: 45, target_words: 65, maximum_words: 75, sentence_count: [2, 3]}
+    temperature: 0.0
+    seed: 42
+
+  claim_extraction:
+    system_prompt: >-
+      Extract every explicit independently verifiable fashion or styling proposition from the
+      supplied explanation. Determine what claims exist only: do not judge support, truth, or
+      plausibility, and do not use any evidence beyond the explanation. Preserve entities,
+      polarity, negation, meaning, and textual order. Return only the requested JSON.
+    user_template: |-
+      Allowed claim types: {claim_types_json}
+      Complete explanation:
+      {explanation}
+    template_variables: [claim_types_json, explanation]
+    output_schema:
+      type: object
+      required: [claims]
+      claim_fields: [claim_id, claim_text, claim_type]
+      claim_id_policy: consecutive_C_identifiers_in_textual_order
+    temperature: 0.0
+    seed: 42
+
+  claim_verification:
+    system_prompt: >-
+      Act as a strict closed-world entailment verifier. Preserve every supplied claim ID exactly
+      once. For each claim return independent exact-trace support, full-KB support,
+      common-reference factual support, and citation entailment. Exact-trace and full-KB support
+      must be supported or not_supported. Common-reference support is supported, not_supported,
+      or N/A; styling judgements are N/A unless explicitly supplied as facts. Citation entailment
+      is entails, does_not_entail, or N/A. Do not use external knowledge, retrieval after locking,
+      missing evidence as contradiction, or unprovided item facts. Return only requested JSON.
+    user_template: |-
+      Full-KB candidate rules: {full_kb_rules_json}
+      Exact stored rule trace: {exact_trace_rules_json}
+      Common-reference item facts: {common_reference_facts_json}
+      Authoritative common-reference output constraints: {common_reference_constraints_json}
+      Citation occurrences: {citation_occurrences_json}
+      Atomic claims: {claims_json}
+    template_variables: [full_kb_rules_json, exact_trace_rules_json, common_reference_facts_json, common_reference_constraints_json, citation_occurrences_json, claims_json]
+    output_schema:
+      type: object
+      required: [claims]
+      claim_fields: [claim_id, trace_support, full_kb_support, common_reference_support, citation_entailment]
+    temperature: 0.0
+    seed: 42
