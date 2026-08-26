@@ -79,9 +79,10 @@ roles:
       Full-KB candidate rules: {full_kb_rules_json}
       Exact stored rule trace: {exact_trace_rules_json}
       Common-reference item facts: {common_reference_facts_json}
+      Authoritative common-reference output constraints: {common_reference_constraints_json}
       Citation occurrences: {citation_occurrences_json}
       Atomic claims: {claims_json}
-    template_variables: [full_kb_rules_json, exact_trace_rules_json, common_reference_facts_json, citation_occurrences_json, claims_json]
+    template_variables: [full_kb_rules_json, exact_trace_rules_json, common_reference_facts_json, common_reference_constraints_json, citation_occurrences_json, claims_json]
     output_schema:
       type: object
       required: [claims]

@@ -42,6 +42,7 @@ def _repair_instruction(error: Exception) -> str:
         "\n\nReturn only valid JSON with one verdict per supplied claim, in the same order. "
         "Each row must contain exactly claim_id, trace_support, full_kb_support, "
         "common_reference_support, and citation_entailment. Use the frozen labels exactly. "
+        "Obey the supplied authoritative common-reference output constraints exactly. "
         f"Validation error: {error}"
     )
 
@@ -257,10 +258,23 @@ def main() -> None:
                 eligibility = {
                     claim_id: details["eligible"] for claim_id, details in eligible_details.items()
                 }
+                common_reference_constraints = [
+                    {
+                        "claim_id": claim_id,
+                        "required_common_reference_support": (
+                            "supported_or_not_supported" if details["eligible"] else "N/A"
+                        ),
+                        "reason": details["reason"],
+                    }
+                    for claim_id, details in eligible_details.items()
+                ]
                 prompt = str(role["user_template"]).format(
                     full_kb_rules_json=json.dumps(full_kb_rules, ensure_ascii=False),
                     exact_trace_rules_json=json.dumps(trace_rules, ensure_ascii=False),
                     common_reference_facts_json=json.dumps(context, ensure_ascii=False),
+                    common_reference_constraints_json=json.dumps(
+                        common_reference_constraints, ensure_ascii=False
+                    ),
                     citation_occurrences_json=json.dumps(occurrences, ensure_ascii=False),
                     claims_json=json.dumps(extraction["claims"], ensure_ascii=False),
                 )
