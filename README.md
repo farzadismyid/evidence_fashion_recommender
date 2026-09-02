@@ -21,3 +21,10 @@ The run is governed by five approval-gated stages:
 Canonical runtime outputs are under `.runtime/current/`; compact reproducibility materials are
 published only after release in `artifacts/release/`. Earlier development outputs are not active
 results.
+
+## Repository guide
+
+- `src/` contains the package implementation.
+- `scripts/` contains the staged analysis and release utilities.
+- `data/` contains tracked metadata and the frozen knowledge base; generated datasets are ignored.
+- `paper/` contains the manuscript sources and submission-ready document files.
