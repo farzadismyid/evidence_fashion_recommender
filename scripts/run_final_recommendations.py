@@ -159,7 +159,10 @@ def main() -> None:
     item_index = {str(item_id): index for index, item_id in enumerate(items["item_id"].astype(str))}
     item_lookup = items.set_index("item_id", drop=False)
     retriever = RuleRetriever(rules, rule_vectors, config["rule_retrieval"])
-    embedder = OllamaEmbedder(models["embedders"]["qwen3_embedding"])
+    embedder = OllamaEmbedder(
+        models["embedders"]["qwen3_embedding"],
+        endpoint=str(models["inference_defaults"]["endpoint"]),
+    )
     metric_records: list[dict[str, Any]] = []
     ranking_records: list[dict[str, Any]] = []
     locked_records: list[dict[str, Any]] = []

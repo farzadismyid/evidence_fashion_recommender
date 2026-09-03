@@ -6,6 +6,7 @@ readme = "README.md"
 requires-python = ">=3.11,<3.13"
 dependencies = [
     "datasets>=4.0",
+    "huggingface-hub>=0.30",
     "matplotlib>=3.11.1",
     "numpy>=2.0",
     "pandas>=2.2",

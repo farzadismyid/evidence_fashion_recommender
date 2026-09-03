@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import argparse
 import csv
 import json
 import shutil
@@ -113,12 +114,18 @@ def save_figure(path: Path, contrasts: list[dict[str, Any]]) -> None:
 
 
 def main() -> None:
-    experiment = yaml.safe_load(Path("configs/experiment.yaml").read_text(encoding="utf-8"))
-    prompts = yaml.safe_load(Path("configs/prompts.yaml").read_text(encoding="utf-8"))
-    stage1_path = Path("artifacts/manifests/final_stage1_preflight_manifest.json")
-    stage2_path = Path("artifacts/manifests/final_stage2_manifest.json")
-    stage3_path = Path("artifacts/manifests/final_stage3_manifest.json")
-    stage4_path = Path("artifacts/manifests/final_stage4_manifest.json")
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--config", type=Path, default=Path("configs/experiment.yaml"))
+    parser.add_argument("--models-config", type=Path, default=Path("configs/models.yaml"))
+    parser.add_argument("--prompts-config", type=Path, default=Path("configs/prompts.yaml"))
+    args = parser.parse_args()
+    experiment = yaml.safe_load(args.config.read_text(encoding="utf-8"))
+    prompts = yaml.safe_load(args.prompts_config.read_text(encoding="utf-8"))
+    stage1_path = Path(experiment["paths"]["stage1_manifest"])
+    stage_dir = stage1_path.parent
+    stage2_path = stage_dir / "final_stage2_manifest.json"
+    stage3_path = stage_dir / "final_stage3_manifest.json"
+    stage4_path = stage_dir / "final_stage4_manifest.json"
     stage1, stage2, stage3, stage4 = [
         json.loads(path.read_text(encoding="utf-8"))
         for path in (stage1_path, stage2_path, stage3_path, stage4_path)
@@ -146,9 +153,9 @@ def main() -> None:
         "amended_at_utc": utc_timestamp(),
         "reason": "authorized_stage4_verifier_contract_correction",
         "original_stage1_prompts_config_sha256": stage1["configuration_file_hashes"][
-            "configs\\prompts.yaml"
+            str(args.prompts_config)
         ],
-        "actual_final_prompts_config_sha256": sha256_file(Path("configs/prompts.yaml")),
+        "actual_final_prompts_config_sha256": sha256_file(args.prompts_config),
         "stage4_prompt_hashes": ver_manifest["prompt_hashes"],
         "stage4_configuration_hash": ver_manifest["configuration_hash"],
         "stage4_manifest_sha256": sha256_file(Path(stage4["stage4_manifest"]["path"])),
@@ -330,9 +337,9 @@ def main() -> None:
         stage2_path,
         stage3_path,
         stage4_path,
-        Path("configs/experiment.yaml"),
-        Path("configs/models.yaml"),
-        Path("configs/prompts.yaml"),
+        args.config,
+        args.models_config,
+        args.prompts_config,
     ):
         shutil.copy2(source, release / source.name)
     source_hashes = {
@@ -355,7 +362,7 @@ def main() -> None:
         "configuration_hash": configuration_hash(
             {
                 **load_resolved_configuration(
-                    Path("configs/experiment.yaml"), Path("configs/models.yaml")
+                    args.config, args.models_config
                 ),
                 "prompts": prompts,
             }
@@ -372,7 +379,7 @@ def main() -> None:
     }
     write_new_json(output / "manifest.json", manifest)
     write_json(
-        Path("artifacts/manifests/final_stage5_manifest.json"),
+        stage_dir / "final_stage5_manifest.json",
         {
             **manifest,
             "stage5_manifest_path": str(output / "manifest.json"),

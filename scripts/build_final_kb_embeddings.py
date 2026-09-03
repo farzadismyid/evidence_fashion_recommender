@@ -36,7 +36,10 @@ def main() -> None:
     run_dir = Path(config["paths"]["embedding_runs"]) / f"final-kb-{config_hash[:12]}"
     if run_dir.exists():
         raise FileExistsError(f"Refusing to overwrite immutable KB embedding run: {run_dir}")
-    embedder = OllamaEmbedder(models["embedders"]["qwen3_embedding"])
+    embedder = OllamaEmbedder(
+        models["embedders"]["qwen3_embedding"],
+        endpoint=str(models["inference_defaults"]["endpoint"]),
+    )
     vectors = embedder.encode(
         rules["rule_text"].astype(str).tolist(),
         batch_size=int(config["embeddings"]["batch_size"]),

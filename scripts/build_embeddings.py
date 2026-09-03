@@ -175,7 +175,10 @@ def main() -> None:
     raw_split, dataset_fingerprint = load_pinned_split(config)
     image_column = config["dataset"]["columns"]["image"]
     texts = (sample["category"].astype(str) + " | " + sample["text"].astype(str)).tolist()
-    text_embedder = OllamaEmbedder(models["embedders"]["qwen3_embedding"])
+    text_embedder = OllamaEmbedder(
+        models["embedders"]["qwen3_embedding"],
+        endpoint=str(models["inference_defaults"]["endpoint"]),
+    )
     minilm = MiniLMEmbedder(models["embedders"]["minilm"])
     clip = CLIPEmbedder(models["embedders"]["clip"])
     batch_size = config["embeddings"]["batch_size"] if args.validate_only else None

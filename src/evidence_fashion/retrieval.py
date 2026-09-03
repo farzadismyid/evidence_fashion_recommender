@@ -123,6 +123,7 @@ class OllamaEmbedder:
         if self.settings.get("provider") != "ollama":
             raise ValueError("OllamaEmbedder requires an Ollama embedding-model configuration.")
         self.device = str(self.settings.get("device", "local_ollama"))
+        self.endpoint = self.endpoint.rstrip("/")
 
     def encode(self, texts: Sequence[str], batch_size: int | None = None) -> np.ndarray:
         size = batch_size or int(self.settings["batch_size"])
@@ -138,7 +139,7 @@ class OllamaEmbedder:
                 }
             ).encode("utf-8")
             request = urllib.request.Request(
-                f"{self.endpoint.rstrip('/')}/api/embed",
+                f"{self.endpoint}/api/embed",
                 data=payload,
                 headers={"Content-Type": "application/json"},
                 method="POST",

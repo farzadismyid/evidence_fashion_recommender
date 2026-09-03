@@ -117,7 +117,10 @@ def main() -> None:
     fixed_image_weight = float(fusion["image_weight"])
     fixed_text_weight = float(fusion["text_weight"])
     retriever = RuleRetriever(rules, rule_vectors, config["rule_retrieval"])
-    embedder = OllamaEmbedder(models["embedders"]["qwen3_embedding"])
+    embedder = OllamaEmbedder(
+        models["embedders"]["qwen3_embedding"],
+        endpoint=str(models["inference_defaults"]["endpoint"]),
+    )
     metrics = ["hr_at_10", "ndcg_at_10", "mrr"]
     rerank_metric_fields = metrics + [
         "mean_top1_evidence_score",
