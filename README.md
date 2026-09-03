@@ -24,9 +24,9 @@ results.
 
 ## Active scope
 
-The root tree contains only the final experiment, its frozen release artefacts, and the paper and
-thesis materials. Superseded development work and deferred human-validation material live in
-[`OLD/`](OLD/README.md) and are not part of the active pipeline.
+The tracked root tree contains only the final experiment, its frozen release artefacts, and the
+paper and thesis materials. Superseded development work and deferred human-validation material
+are retained locally in the ignored `OLD/` directory and are not part of the published pipeline.
 
 ## Repository guide
 

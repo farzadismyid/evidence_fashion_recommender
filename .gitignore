@@ -23,3 +23,6 @@ data/processed/
 .idea/
 .vscode/
 thesis/.cache/
+
+# Local historical archive; retained locally but excluded from published clones.
+OLD/

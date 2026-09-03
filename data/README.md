@@ -13,8 +13,8 @@ date, evidence summary, scope, limitations, reliability, audit status, and prede
 Retrieval applies category, context, and explicit-term gates before top-k scoring for every target.
 
 The remaining KB files retain final-run provenance: the five-category coverage matrix, source
-registry, and duplicate-similarity audit. Superseded KB variants and historical audits are in
-`OLD/data/kb/`.
+registry, and duplicate-similarity audit. Superseded KB variants and historical audits are kept
+only in the local ignored archive.
 
 Only the dataset's `category` and `text` fields may provide minimal item identities for later
 explanation context. The image field is used only by the CLIP recommendation pathway and may
