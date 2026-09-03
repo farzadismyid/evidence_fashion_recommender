@@ -22,9 +22,17 @@ Canonical runtime outputs are under `.runtime/current/`; compact reproducibility
 published only after release in `artifacts/release/`. Earlier development outputs are not active
 results.
 
+## Active scope
+
+The root tree contains only the final experiment, its frozen release artefacts, and the paper and
+thesis materials. Superseded development work and deferred human-validation material live in
+[`OLD/`](OLD/README.md) and are not part of the active pipeline.
+
 ## Repository guide
 
 - `src/` contains the package implementation.
 - `scripts/` contains the staged analysis and release utilities.
 - `data/` contains tracked metadata and the frozen knowledge base; generated datasets are ignored.
+- `artifacts/` and `reports/` contain the released final results.
 - `paper/` contains the manuscript sources and submission-ready document files.
+- `thesis/` contains the thesis chapters and document files.

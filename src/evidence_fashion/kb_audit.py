@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import hashlib
 import re
 from collections import Counter
 from collections.abc import Mapping
@@ -11,7 +10,6 @@ from pathlib import Path
 from typing import Any
 
 import pandas as pd
-import yaml
 
 ALLOWED_CATEGORIES = frozenset({"tops", "bottoms", "shoes", "outerwear", "bags"})
 ALLOWED_RELIABILITY = frozenset({"high", "medium"})
@@ -46,9 +44,6 @@ REQUIRED_KB_COLUMNS = frozenset(
         "audit_status",
         "supersedes_rule_ids",
     }
-)
-LEGACY_DECISIONS = frozenset(
-    {"outside_taxonomy", "legacy_accessory_ontology", "citation_overreach", "retained_or_rewritten"}
 )
 CANONICAL_AUDIT_STATUSES = frozenset({"retain", "rebuilt_v3_substantive_expert_rule"})
 
@@ -174,33 +169,6 @@ def load_canonical_rules(path: str | Path) -> pd.DataFrame:
 
 def load_audited_rules(config: Mapping[str, Any]) -> pd.DataFrame:
     return load_canonical_rules(config["paths"]["knowledge_base"])
-
-
-def load_legacy_audit(path: str | Path) -> dict[str, Any]:
-    audit_path = Path(path)
-    audit = yaml.safe_load(audit_path.read_text(encoding="utf-8"))
-    decisions = audit.get("decisions", {})
-    if set(decisions) != LEGACY_DECISIONS:
-        raise ValueError("Legacy audit must use the four declared decision classes.")
-    ids = [rule_id for values in decisions.values() for rule_id in values]
-    expected_count = int(audit["audited_asset"]["row_count"])
-    if len(ids) != expected_count or len(set(ids)) != expected_count:
-        raise ValueError("Legacy audit does not uniquely account for every legacy rule.")
-    if not audit.get("result", {}).get("all_legacy_rows_accounted_for"):
-        raise ValueError("Legacy audit is not marked complete.")
-    if audit.get("result", {}).get("experimental_results_inspected") is not False:
-        raise ValueError("Legacy audit must record that experimental results were not inspected.")
-    workspace_root = audit_path.resolve().parents[2]
-    legacy_path = workspace_root / audit["audited_asset"]["path"]
-    digest = hashlib.sha256(legacy_path.read_bytes()).hexdigest()
-    if digest != audit["audited_asset"]["sha256"]:
-        raise ValueError("Archived legacy KB does not match the audit's SHA-256 binding.")
-    legacy_ids = set(
-        pd.read_csv(legacy_path, dtype=str, keep_default_na=False)["rule_id"].astype(str)
-    )
-    if legacy_ids != set(ids):
-        raise ValueError("Legacy decision IDs do not match the archived KB.")
-    return audit
 
 
 def coverage_matrix(rules: pd.DataFrame) -> pd.DataFrame:
