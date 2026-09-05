@@ -70,6 +70,8 @@ First validate the local setup without downloading data or generating outputs:
 uv run python scripts/run_final_pipeline.py --check
 ```
 
+For a quick repository-only check, run `uv run pytest -q`.
+
 Then run all stages in order. This writes a new isolated reproduction package and never overwrites
 the committed final results:
 
